@@ -199,10 +199,13 @@
   .heart{transition:.15s;display:inline-block}
 
   .comments{margin-top:12px;display:flex;flex-direction:column;gap:12px}
-  .cmt{display:flex;gap:10px}
+  .cmt{display:flex;gap:10px;align-items:center}
   .cmt .cav{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff}
   .cmt .cbody{background:var(--panel-2);border-radius:12px;padding:8px 12px;font-size:13px}
   .cmt .cbody .cn{font-weight:700;font-size:12px;margin-bottom:2px}
+  .cmt .cmt-del{flex:none;background:none;border:none;color:var(--dim);font-size:13px;cursor:pointer;padding:2px 6px;border-radius:6px;transition:.12s;opacity:0}
+  .cmt:hover .cmt-del{opacity:1}
+  .cmt .cmt-del:hover{color:var(--pulse);background:rgba(255,92,138,.1)}
   .cmt-input{display:flex;gap:10px;margin-top:12px}
   .cmt-input input{flex:1;background:var(--panel-2);border:1px solid var(--line);border-radius:20px;padding:9px 15px;color:var(--ink);font-size:13px;font-family:inherit}
   .cmt-input input::placeholder{color:var(--dim)}
@@ -1419,7 +1422,7 @@ function feedCardHTML(p,idx){return `
           <button class="rbtn" onclick="shareTrack('${p.track.t.replace(/'/g,"\\'")}','${p.track.a.replace(/'/g,"\\'")}','${p.track.e}')"><span>↗</span> 공유</button>
         </div>
         <div class="comments">
-          ${(p.comments||[]).map((c,ci)=>`<div class="cmt"><div class="cav" style="background:${g(ci+3)}">${c.n[0]}</div><div class="cbody"><div class="cn">${c.n}</div>${c.t}</div></div>`).join('')}
+          ${(p.comments||[]).map((c,ci)=>{const mine=currentUser&&((c.uid&&c.uid===currentUser.id)||(!c.uid&&c.n===currentUser.name));return `<div class="cmt"><div class="cav" style="background:${g(ci+3)}">${c.n[0]}</div><div class="cbody"><div class="cn">${c.n}</div>${c.t}</div>${mine?`<button class="cmt-del" onclick="deleteComment(${idx},${ci})" title="삭제">✕</button>`:''}</div>`;}).join('')}
         </div>
         <div class="cmt-input"><input placeholder="댓글 달기…" onkeydown="if(event.key==='Enter')addComment(${idx},this)"><button onclick="addComment(${idx},this.previousElementSibling)">등록</button></div>
       ` : `
@@ -1506,22 +1509,31 @@ async function addComment(i,input){
   if(!currentUser)return requireLogin(); // 게스트·비로그인은 차단
   const v=input.value.trim();if(!v)return;
   const p=feedData[i];
-  const uname=currentUser?currentUser.name:'YU';
-  if(sb && currentUser && currentUser.id && p.id){
-    const {data,error}=await sb.from('comments').insert({
-      post_id:p.id, user_id:currentUser.id, author_name:uname, body:v
-    }).select().single();
-    if(error){showToast('댓글 실패: '+(error.message||''));return;}
-    p.comments=p.comments||[];
-    p.comments.push({n:uname,t:v});
-    try{createNotif(p.user_id,'comment',p.track.t);}catch(e){} // 알림은 실패해도 무시
-  }else if(!p.id && !currentUser){
-    return requireLogin();
-  }else{
-    p.comments=p.comments||[];
-    p.comments.push({n:uname,t:v});
-  }
+  const uname=currentUser.name;
+  // 즉시 입력창 비우고 화면에 먼저 반영 (체감 속도 개선)
+  input.value='';
+  p.comments=p.comments||[];
+  p.comments.push({n:uname,t:v,uid:currentUser.id});
   renderFeed();
+  // 서버 저장 (있으면)
+  if(sb && currentUser.id && p.id){
+    const {error}=await sb.from('comments').insert({
+      post_id:p.id, user_id:currentUser.id, author_name:uname, body:v
+    });
+    if(error){showToast('댓글 저장 실패: '+(error.message||''));return;}
+    try{createNotif(p.user_id,'comment',p.track.t);}catch(e){}
+  }
+}
+async function deleteComment(pi,ci){
+  const p=feedData[pi];if(!p||!p.comments)return;
+  const c=p.comments[ci];if(!c)return;
+  // 내 댓글만
+  const mine=currentUser&&((c.uid&&c.uid===currentUser.id)||(!c.uid&&c.n===currentUser.name));
+  if(!mine)return;
+  if(!confirm('이 댓글을 삭제할까요?'))return;
+  p.comments.splice(ci,1);
+  renderFeed();
+  if(sb&&c.id)await sb.from('comments').delete().eq('id',c.id);
 }
 
 function go(v){if(v==='me'&&!currentUser){requireLogin();return;}document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.view!==v);document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.view===v));window.scrollTo({top:0,behavior:'smooth'});if(v==='me')renderMe();if(v==='challenge')renderChallengeView();if(v==='playlists')renderPlaylistsView();}
@@ -2062,7 +2074,7 @@ async function loadPosts(){
     const likeCount={}, myLike={};
     (likes||[]).forEach(l=>{likeCount[l.post_id]=(likeCount[l.post_id]||0)+1; if(currentUser&&l.user_id===currentUser.id)myLike[l.post_id]=true;});
     const cmap={};
-    (cmts||[]).forEach(c=>{(cmap[c.post_id]=cmap[c.post_id]||[]).push({n:c.author_name,t:c.body});});
+    (cmts||[]).forEach(c=>{(cmap[c.post_id]=cmap[c.post_id]||[]).push({id:c.id,uid:c.user_id,n:c.author_name,t:c.body});});
     serverFeed.forEach(f=>{
       f.likes=likeCount[f.id]||0;
       f.liked=!!myLike[f.id];
