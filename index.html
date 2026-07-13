@@ -917,6 +917,7 @@ function socialAuth(){
 
 async function logout(){
   closeUserMenu();
+  isGuest=false; // 로그아웃하면 게스트 모드도 해제
   if(sb)await sb.auth.signOut();
   else{currentUser=null;applyAuthUI();}
   const cur=document.querySelector('.view:not([hidden])');
@@ -980,6 +981,8 @@ async function initAuth(){
     if(event==='SIGNED_OUT'){
       myFollows=new Set();
       myFollowerCount=null;
+      isGuest=false;
+      applyAuthUI();
     }
   });
 }
