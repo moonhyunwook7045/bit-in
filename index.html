@@ -171,6 +171,14 @@
   .post-head .who{font-weight:700;font-size:14px}
   .post-head .when{font-size:12px;color:var(--dim)}
   .post-head .more{margin-left:auto;color:var(--dim);font-size:20px}
+  .more-wrap{margin-left:auto;position:relative}
+  .more-wrap .more{color:var(--dim);font-size:20px;background:none;border:none;cursor:pointer;padding:0 4px}
+  .more-wrap .more:hover{color:var(--ink)}
+  .more-menu{position:absolute;top:26px;right:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px;z-index:50;box-shadow:0 12px 30px rgba(0,0,0,.5);min-width:120px}
+  .more-menu[hidden]{display:none}
+  .more-menu button{display:block;width:100%;text-align:left;padding:8px 12px;border-radius:7px;font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer;transition:.12s}
+  .more-menu button:hover{background:var(--panel-2);color:var(--ink)}
+  .more-menu button.danger:hover{color:var(--pulse)}
   .post-body{font-size:14px;color:#d3dcec;margin-bottom:12px;line-height:1.6}
   .track-embed{display:flex;align-items:center;gap:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
   .track-embed .ce{width:52px;height:52px;border-radius:9px;display:grid;place-items:center;font-size:22px;flex:none}
@@ -1017,12 +1025,17 @@ const feedData=[
   {who:'VOLT',when:'어제',body:'이번 비트 어떤가요? 드랍 부분 특히 신경 썼습니다 ⚡',track:{t:'전류',a:'VOLT',e:'⚡'},likes:589,liked:true,reactions:true,
     comments:[{n:'novaa',t:'드랍에서 소름 돋음 진짜'}]},
 ];
+function isMyPost(p){return currentUser && p.id && p.user_id && p.user_id===currentUser.id;}
 function feedCardHTML(p,idx){return `
     <div class="post">
       <div class="post-head">
         <div class="av" style="background:${g(idx)}">${p.who[0]}</div>
         <div><div class="who">${p.who}</div><div class="when">${p.when}</div></div>
-        <div class="more">⋯</div>
+        ${isMyPost(p)?`<div class="more-wrap"><button class="more" onclick="toggleMore(${idx},event)">⋯</button>
+          <div class="more-menu" id="more-${idx}" hidden>
+            <button onclick="editPost(${idx})">✎ 수정</button>
+            <button class="danger" onclick="deletePost(${idx})">🗑 삭제</button>
+          </div></div>`:'<div class="more">⋯</div>'}
       </div>
       <div class="post-body">${p.body}</div>
       <div class="track-embed">
@@ -1054,6 +1067,46 @@ function renderFeed(){
   document.getElementById('feed').innerHTML=feedData.map((p,idx)=>feedCardHTML(p,idx)).join('');
 }
 renderFeed();
+
+// 게시물 더보기 메뉴
+function toggleMore(idx,ev){
+  ev.stopPropagation();
+  const m=document.getElementById('more-'+idx);
+  document.querySelectorAll('.more-menu').forEach(x=>{if(x!==m)x.hidden=true;});
+  if(m)m.hidden=!m.hidden;
+}
+document.addEventListener('click',()=>document.querySelectorAll('.more-menu').forEach(x=>x.hidden=true));
+
+async function deletePost(idx){
+  const p=feedData[idx];
+  if(!p||!isMyPost(p))return;
+  if(!confirm(`"${p.track.t}" 곡을 삭제할까요? 되돌릴 수 없어요.`))return;
+  if(sb){
+    const {error}=await sb.from('posts').delete().eq('id',p.id);
+    if(error){showToast('삭제 실패: '+(error.message||''));return;}
+  }
+  feedData.splice(idx,1);
+  renderFeed();
+  showToast('곡을 삭제했어요');
+}
+
+async function editPost(idx){
+  const p=feedData[idx];
+  if(!p||!isMyPost(p))return;
+  const newTitle=prompt('곡 제목 수정', p.track.t);
+  if(newTitle===null)return; // 취소
+  const newBody=prompt('소개 수정', p.body);
+  if(newBody===null)return;
+  const title=newTitle.trim()||p.track.t;
+  const body=newBody.trim()||p.body;
+  if(sb){
+    const {error}=await sb.from('posts').update({title,body}).eq('id',p.id);
+    if(error){showToast('수정 실패: '+(error.message||''));return;}
+  }
+  p.track.t=title; p.body=body;
+  renderFeed();
+  showToast('수정했어요');
+}
 
 async function like(i,btn){
   const p=feedData[i];
