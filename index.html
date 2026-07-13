@@ -1183,10 +1183,31 @@ function renderMe(){
     <div class="seg">
       <button class="${myTab==='uploads'?'on':''}" onclick="setMyTab('uploads')">올린 음악</button>
       <button class="${myTab==='liked'?'on':''}" onclick="setMyTab('liked')">좋아요</button>
+      <button class="${myTab==='following'?'on':''}" onclick="setMyTab('following')">팔로잉</button>
     </div>
     <div id="me-list"></div>`;
-  const list=myTab==='uploads'?uploads:liked;
   const box=document.getElementById('me-list');
+
+  if(myTab==='following'){
+    // 내가 팔로우한 크리에이터 목록
+    const names=[...myFollows];
+    box.className='';box.style.margin='0';
+    if(!names.length){box.innerHTML=`<div class="qp-empty" style="padding:50px 20px">아직 팔로우한 크리에이터가 없어요.</div>`;return;}
+    box.innerHTML=`<div class="grid g4">`+names.map(nm=>{
+      const ci=creators.findIndex(c=>c.n===nm);
+      const c=ci>=0?creators[ci]:{n:nm,f:'—',tag:'',v:0};
+      const gi=ci>=0?ci:0;
+      return `<div class="card creator">
+        <div class="cface" style="background:${g(gi)};cursor:${ci>=0?'pointer':'default'}" ${ci>=0?`onclick="openCreator(${ci})"`:''}>${nm[0]}${c.v?'<div class="vf">✓</div>':''}</div>
+        <h4 style="cursor:${ci>=0?'pointer':'default'}" ${ci>=0?`onclick="openCreator(${ci})"`:''}>${nm}</h4>
+        <div class="sub">${c.tag?'팔로워 '+c.f+' · '+c.tag:'크리에이터'}</div>
+        <button class="followbtn ing" onclick="toggleFollow(this,'${nm.replace(/'/g,"\\'")}');setTimeout(renderMe,50)">✓ 팔로잉</button>
+      </div>`;
+    }).join('')+`</div>`;
+    return;
+  }
+
+  const list=myTab==='uploads'?uploads:liked;
   if(!list.length){box.innerHTML=`<div class="qp-empty" style="padding:50px 20px">${myTab==='uploads'?'아직 올린 음악이 없어요. 첫 트랙을 게시해 보세요!':'아직 좋아요한 게시물이 없어요.'}</div>`;return;}
   box.className='feed';box.style.margin='0';
   box.innerHTML=list.map(p=>{const idx=feedData.indexOf(p);return feedCardHTML(p,idx);}).join('');
