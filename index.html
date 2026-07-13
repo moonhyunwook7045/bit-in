@@ -186,6 +186,8 @@
   .track-embed .ti .t{font-weight:700;font-size:14px}
   .track-embed .ti .a{font-size:12px;color:var(--muted)}
   .track-embed .pl{width:40px;height:40px;border-radius:50%;background:var(--cyan);color:#000;display:grid;place-items:center;flex:none;font-size:15px}
+  .track-embed .pl-save{width:38px;height:38px;border-radius:10px;background:var(--panel);border:1px solid var(--line);color:var(--cyan);flex:none;font-size:16px;cursor:pointer;transition:.15s}
+  .track-embed .pl-save:hover{background:var(--cyan);color:#04120f;transform:translateY(-1px)}
   .wave{height:26px;flex:1;display:flex;align-items:center;gap:2px;overflow:hidden}
   .wave i{width:3px;background:var(--dim);border-radius:2px;flex:none}
 
@@ -1332,6 +1334,7 @@ function feedCardHTML(p,idx){return `
         <button class="pl" onclick="playTrack('${p.track.t}','${p.track.a}','${g(idx+1)}','${p.track.e}')">▶</button>
         <div class="ti"><div class="t">${p.track.t}</div><div class="a">${p.track.a}</div></div>
         <div class="wave">${waveBars()}</div>
+        <button class="pl-save" onclick="openAddToPlaylist('${p.track.t.replace(/'/g,"\\'")}','${p.track.a.replace(/'/g,"\\'")}','${p.track.e}')" title="플레이리스트에 저장">♪</button>
       </div>
       ${(p.aiTool||p.aiPrompt)?`
       <div class="ai-box">
@@ -1529,6 +1532,7 @@ function openTrack(t,a,bg,e,genre,plays){
           <button class="btn primary" onclick="playTrack('${t.replace(/'/g,"\\'")}','${a}','${bg}','${e}')">▶ 재생</button>
           <button class="td-like ${liked?'liked':''}" id="td-like-btn" onclick="toggleTrackLike('${t.replace(/'/g,"\\'")}',this)"><span class="heart">${liked?'♥':'♡'}</span> 좋아요</button>
           <button class="td-like" onclick="addToQueue('${t.replace(/'/g,"\\'")}','${a}','${bg}','${e}')">＋ 대기열</button>
+          <button class="td-like" onclick="openAddToPlaylist('${t.replace(/'/g,"\\'")}','${a}','${e}')">♪ 플레이리스트에 저장</button>
         </div>
       </div>
     </div>
