@@ -264,6 +264,7 @@
   /* logged-out top button */
   .login-btn{background:var(--cyan);color:#04120f;font-weight:700;font-size:14px;padding:9px 18px;border-radius:11px;transition:.15s}
   .login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(34,229,200,.3)}
+  .guest-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--volt);background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.35);padding:6px 12px;border-radius:20px;white-space:nowrap}
 
   /* user menu dropdown */
   .user-menu{position:absolute;top:56px;right:30px;background:var(--panel);border:1px solid var(--line);border-radius:14px;width:220px;padding:8px;z-index:60;box-shadow:0 16px 40px rgba(0,0,0,.5)}
@@ -510,10 +511,11 @@
     <div class="topbar">
       <div class="search"><span>⌕</span><input id="search-input" placeholder="곡, 크리에이터, 플레이리스트 검색" onkeydown="if(event.key==='Enter')runSearch(this.value)"></div>
       <div class="top-actions">
+        <span class="guest-badge" id="guest-badge" hidden>👤 게스트 모드</span>
         <button class="icon-btn" id="queue-btn" onclick="toggleQueue()" title="재생 대기열">☰</button>
         <button class="icon-btn bell" id="bell-btn" onclick="toggleNotif()" title="알림">♪<span class="badge" id="notif-badge">0</span></button>
         <button class="login-btn" id="login-btn" onclick="openAuth('login')">로그인</button>
-        <div class="avatar" id="top-avatar" onclick="toggleUserMenu(event)" title="내 계정" hidden>YU</div>
+        <div class="avatar" id="top-avatar" onclick="toggleUserMenu(event)" title="내 계정" hidden>?</div>
       </div>
     </div>
 
@@ -909,6 +911,7 @@ async function submitAuth(){
 function socialAuth(){
   closeAuth();
   isGuest=true;
+  applyAuthUI();
   showToast('게스트로 둘러보는 중이에요 · 저장 기능은 로그인이 필요해요');
 }
 
@@ -943,6 +946,9 @@ function applyAuthUI(){
     document.getElementById('um-name').textContent=currentUser.name;
     document.getElementById('um-email').textContent=currentUser.email;
   }
+  // 게스트 배지: 비로그인 + 게스트 모드일 때만
+  const gb=document.getElementById('guest-badge');
+  if(gb)gb.hidden=!(isGuest&&!on);
 }
 
 // 로그인 필요한 동작 가드
