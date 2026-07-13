@@ -351,6 +351,11 @@
   .seg button{padding:8px 18px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);transition:.15s}
   .seg button.on{background:var(--cyan);color:#04120f}
 
+  /* 음원 파일 선택 */
+  .file-drop{background:var(--panel-2);border:1.5px dashed var(--line);border-radius:12px;padding:16px;text-align:center;cursor:pointer;font-size:14px;color:var(--muted);transition:.15s}
+  .file-drop:hover{border-color:var(--cyan);color:var(--cyan)}
+  .file-drop.has-file{border-style:solid;border-color:var(--cyan);color:var(--cyan);background:rgba(34,229,200,.06)}
+
   /* 플레이리스트 */
   .pl-add-item{display:flex;align-items:center;gap:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:11px 13px;cursor:pointer;transition:.12s}
   .pl-add-item:hover{border-color:var(--cyan)}
@@ -453,17 +458,65 @@
   .ai-copy:hover{transform:translateY(-1px)}
   .ai-copy.done{background:var(--panel-2);color:var(--cyan);border:1px solid var(--cyan)}
 
+  /* 모바일 하단 탭바 (기본 숨김, 모바일에서만 표시) */
+  .mobile-nav{display:none}
+
   @media(max-width:1080px){.g4,.g5{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:860px){
     .app{grid-template-columns:1fr}
     .side{display:none}
     .nowbar{left:0}
     .g4,.g5,.g3{grid-template-columns:repeat(2,1fr)}
-    .row{grid-template-columns:40px 44px 1fr 118px;gap:10px}
+    .row{grid-template-columns:34px 40px 1fr 92px;gap:8px;padding:11px 14px}
     .genre-chip,.plays{display:none}
-    .hero h3{font-size:32px}
-    .rings{opacity:.4}
-    .view{padding:20px}
+    .hero{padding:30px 22px}
+    .hero h3{font-size:30px}
+    .hero p{font-size:14px}
+    .rings{opacity:.25;right:-40px}
+    .view{padding:16px 14px 90px}
+    /* 상단바 모바일 정리 */
+    .topbar{padding:10px 14px;gap:8px}
+    .search input{padding:10px 12px 10px 36px;font-size:13px}
+    .search span{left:12px}
+    .guest-badge{display:none!important}
+    .top-actions{gap:6px}
+    .icon-btn{width:34px;height:34px;font-size:14px}
+    .login-btn{padding:8px 12px;font-size:13px}
+    .avatar{width:34px;height:34px;font-size:13px}
+    /* 헤더 폰트 축소 */
+    .hd h2{font-size:22px}
+    .hd{margin-bottom:16px}
+    /* 하단 탭바 표시 */
+    .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;height:62px;background:rgba(15,19,28,.97);backdrop-filter:blur(16px);border-top:1px solid var(--line);z-index:35;align-items:center;justify-content:space-around;padding:0 6px;padding-bottom:env(safe-area-inset-bottom)}
+    .mnav{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:600;color:var(--dim);background:none;border:none;height:100%;transition:.15s}
+    .mnav span{font-size:19px;line-height:1}
+    .mnav.on{color:var(--cyan)}
+    .mnav-fab{flex:none;width:52px;height:52px;background:var(--cyan);color:#04120f;border-radius:50%;margin-top:-14px;box-shadow:0 6px 20px rgba(34,229,200,.4)}
+    .mnav-fab span{font-size:26px;font-weight:700}
+    /* nowbar가 하단 탭바 위에 오도록 */
+    .nowbar{bottom:62px}
+    /* 대기열·알림 패널 전체화면 */
+    .queue-panel{width:100%;bottom:0}
+    /* 카드·모달 여백 */
+    .modal{padding:22px 18px;border-radius:18px 18px 0 0;max-height:92vh}
+    .overlay{align-items:flex-end;padding:0}
+    /* 프로필/트랙 상세 */
+    .td-hero,.pl-detail-hero,.profile-hero{gap:16px}
+    .td-cover{width:130px;height:130px;font-size:52px}
+    .td-meta h1{font-size:30px}
+    .pl-cover{width:120px;height:120px;font-size:48px}
+    .ph-face{width:84px;height:84px;font-size:32px}
+    .ph-info h2{font-size:26px}
+    /* 곡 상세 액션 버튼 줄바꿈 */
+    .td-actions{gap:8px}
+    .td-actions .btn,.td-actions .td-like{padding:10px 14px;font-size:13px}
+  }
+  @media(max-width:480px){
+    .g4,.g5,.g3{grid-template-columns:repeat(2,1fr);gap:12px}
+    .hero h3{font-size:26px}
+    .td-meta h1{font-size:26px}
+    .seg{width:100%;overflow-x:auto}
+    .seg button{white-space:nowrap;padding:8px 14px}
   }
 </style>
 </head>
@@ -641,6 +694,15 @@
 </div>
 
 
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-nav" id="mobile-nav">
+  <button class="mnav on" data-mview="home" onclick="go('home')"><span>◉</span>홈</button>
+  <button class="mnav" data-mview="chart" onclick="go('chart')"><span>≡</span>차트</button>
+  <button class="mnav mnav-fab" onclick="openUpload()"><span>＋</span></button>
+  <button class="mnav" data-mview="playlists" onclick="go('playlists')"><span>♬</span>플리</button>
+  <button class="mnav" data-mview="community" onclick="go('community')"><span>◇</span>커뮤니티</button>
+</nav>
+
 <!-- NOW PLAYING -->
 <div class="nowbar" id="nowbar">
   <div class="np-cover" id="np-cover" style="background:linear-gradient(135deg,#5b8cff,#ff5c8a)">♪</div>
@@ -763,10 +825,20 @@
     <p class="msub">AI로 만든 트랙을 BIT.IN에 올려보세요</p>
 
     <div class="field">
-      <div class="drop" onclick="event.preventDefault()"><div class="big">♫</div>오디오 파일을 끌어다 놓거나 클릭해서 업로드<br><span style="font-size:12px">MP3 · WAV · 최대 20MB</span></div>
+      <input type="file" id="up-audio" accept="audio/*" style="display:none" onchange="onAudioPick(this)">
+      <div class="drop" id="up-drop" onclick="document.getElementById('up-audio').click()">
+        <div class="big">♫</div>오디오 파일을 클릭해서 업로드<br><span style="font-size:12px">MP3 · WAV · 최대 20MB</span>
+      </div>
     </div>
 
     <div class="field"><label>곡 제목</label><input type="text" id="up-title" placeholder="예: Signal In"></div>
+    <div class="field">
+      <label>🎧 음원 파일 <span style="color:var(--dim);font-weight:400">(mp3, wav 등 · 선택)</span></label>
+      <div class="file-drop" id="up-file-drop" onclick="document.getElementById('up-audio').click()">
+        <input type="file" id="up-audio" accept="audio/*" style="display:none" onchange="onAudioPick(this)">
+        <div id="up-file-label">＋ 음원 파일 선택 <span style="color:var(--dim)">(없으면 무음으로 게시)</span></div>
+      </div>
+    </div>
     <div class="field"><label>소개</label><textarea id="up-desc" placeholder="곡에 대해 자유롭게 적어주세요"></textarea></div>
 
     <div class="field">
@@ -1396,7 +1468,7 @@ const feedData=[
 ];
 function isMyPost(p){return currentUser && p.id && p.user_id && p.user_id===currentUser.id;}
 function feedCardHTML(p,idx){return `
-    <div class="post">
+    <div class="post" data-postid="${p.id||''}" data-title="${(p.track&&p.track.t||'').replace(/"/g,'&quot;')}">
       <div class="post-head">
         <div class="av" style="background:${g(idx)}">${p.who[0]}</div>
         <div><div class="who">${p.who}</div><div class="when">${p.when}</div></div>
@@ -1541,7 +1613,7 @@ async function deleteComment(pi,ci){
   if(sb&&c.id)await sb.from('comments').delete().eq('id',c.id);
 }
 
-function go(v){if(v==='me'&&!currentUser){requireLogin();return;}document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.view!==v);document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.view===v));window.scrollTo({top:0,behavior:'smooth'});if(v==='me')renderMe();if(v==='challenge')renderChallengeView();if(v==='playlists')renderPlaylistsView();}
+function go(v){if(v==='me'&&!currentUser){requireLogin();return;}document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.view!==v);document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.view===v));document.querySelectorAll('.mnav').forEach(n=>n.classList.toggle('on',n.dataset.mview===v));window.scrollTo({top:0,behavior:'smooth'});if(v==='me')renderMe();if(v==='challenge')renderChallengeView();if(v==='playlists')renderPlaylistsView();}
 document.querySelectorAll('.nav').forEach(n=>n.addEventListener('click',()=>go(n.dataset.view)));
 
 /* ============ 검색 ============ */
@@ -1765,15 +1837,18 @@ async function openNotif(i){
   }
   // 좋아요·댓글 → 그 곡(내 게시물)으로 이동해서 반응 확인
   if(n.target){
-    const idx=feedData.findIndex(p=>p.track&&p.track.t===n.target&&(currentUser&&p.user_id===currentUser.id));
-    const anyIdx=idx>=0?idx:feedData.findIndex(p=>p.track&&p.track.t===n.target);
-    if(anyIdx>=0){
+    const exists=feedData.some(p=>p.track&&p.track.t===n.target);
+    if(exists){
       go('community');
       setTimeout(()=>{
-        const cards=document.querySelectorAll('#feed .post');
-        const card=cards[anyIdx];
-        if(card){card.scrollIntoView({behavior:'smooth',block:'center'});card.classList.add('nudge');setTimeout(()=>card.classList.remove('nudge'),1500);}
-      },300);
+        // 곡 제목으로 카드 정확히 찾기 (내 게시물 우선)
+        const cards=[...document.querySelectorAll('#feed .post')];
+        let card=cards.find(c=>c.dataset.title===n.target);
+        if(card){
+          card.scrollIntoView({behavior:'smooth',block:'center'});
+          card.classList.add('nudge');setTimeout(()=>card.classList.remove('nudge'),1600);
+        }
+      },350);
     }else{
       showToast('해당 곡을 찾을 수 없어요 (삭제되었을 수 있어요)');
     }
@@ -1936,13 +2011,18 @@ let isPlaying=false;
 let shuffle=false, repeat=false;
 
 // 곡 하나 재생: 클릭한 곡을 큐 맨 앞 현재로, 전체 트랙을 뒤에 이어붙임
-function playTrack(t,a,bg,e){
+function playTrack(t,a,bg,e,genre,plays,audioUrl){
   radioMode=false;
-  queue=[{t,a,bg,e}];
+  queue=[{t,a,bg,e,audioUrl:audioUrl||findAudioUrl(t,a)}];
   // 같은 곡 빼고 나머지 인기곡을 다음 곡으로 채움
-  tracks.forEach((tr,i)=>{ if(tr.t!==t) queue.push({t:tr.t,a:tr.a,bg:g(i),e:tr.e}); });
+  tracks.forEach((tr,i)=>{ if(tr.t!==t) queue.push({t:tr.t,a:tr.a,bg:g(i),e:tr.e,audioUrl:findAudioUrl(tr.t,tr.a)}); });
   qIndex=0;
   loadCurrent(true);
+}
+// 피드에서 곡 제목·아티스트로 오디오 URL 찾기
+function findAudioUrl(t,a){
+  const p=feedData.find(x=>x.track&&x.track.t===t&&x.track.a===a&&x.track.audioUrl);
+  return p?p.track.audioUrl:null;
 }
 // 큐에 추가만 (재생 중이 아니면 바로 재생)
 function addToQueue(t,a,bg,e){
@@ -1969,6 +2049,8 @@ function startRadio(label){
   showToast(`📻 ${radioLabel} 시작 · 자동으로 이어서 재생돼요`);
 }
 let radioMode=false, radioLabel='';
+const audioPlayer=new Audio();
+audioPlayer.addEventListener('ended',()=>nextTrack()); // 곡 끝나면 다음 곡
 function loadCurrent(play){
   const c=queue[qIndex]; if(!c)return;
   document.getElementById('nowbar').classList.add('up');
@@ -1976,10 +2058,26 @@ function loadCurrent(play){
   document.getElementById('np-artist').textContent=(radioMode?'📻 '+radioLabel+' · ':'')+c.a;
   const cov=document.getElementById('np-cover');cov.style.background=c.bg;cov.textContent=c.e;
   isPlaying=play!==false;
+  // 실제 오디오 재생
+  if(c.audioUrl){
+    if(audioPlayer.src!==c.audioUrl)audioPlayer.src=c.audioUrl;
+    if(isPlaying)audioPlayer.play().catch(()=>{});
+    else audioPlayer.pause();
+  }else{
+    audioPlayer.pause();audioPlayer.removeAttribute('src');
+  }
   document.getElementById('pp').textContent=isPlaying?'❚❚':'▶';
   renderQueue();updateQCount();
 }
-function togglePlay(){isPlaying=!isPlaying;document.getElementById('pp').textContent=isPlaying?'❚❚':'▶';}
+function togglePlay(){
+  isPlaying=!isPlaying;
+  const c=queue[qIndex];
+  if(c&&c.audioUrl){
+    if(isPlaying)audioPlayer.play().catch(()=>{});
+    else audioPlayer.pause();
+  }
+  document.getElementById('pp').textContent=isPlaying?'❚❚':'▶';
+}
 function nextTrack(){
   if(!queue.length)return;
   // 라디오 모드: 곡이 거의 끝나가면 뒤에 곡을 더 채워 끊기지 않게
@@ -2030,6 +2128,21 @@ document.querySelectorAll('#up-aitool button').forEach(b=>b.onclick=()=>{
 });
 function toggleSw(sw){sw.classList.toggle('on')}
 function toggleMain(sw){const on=sw.classList.toggle('on');document.getElementById('sub-toggles').classList.toggle('dim',!on);}
+let pickedAudio=null; // 선택한 오디오 파일
+function onAudioPick(input){
+  const f=input.files&&input.files[0];
+  pickedAudio=f||null;
+  const drop=document.getElementById('up-file-drop');
+  const label=document.getElementById('up-file-label');
+  if(f){
+    label.textContent='🎵 '+f.name;
+    drop.classList.add('has-file');
+  }else{
+    label.innerHTML='＋ 음원 파일 선택 <span style="color:var(--dim)">(없으면 무음으로 게시)</span>';
+    drop.classList.remove('has-file');
+  }
+}
+
 async function submitPost(){
   const uname=currentUser?currentUser.name:'YU';
   const title=document.getElementById('up-title').value.trim()||'제목 없는 트랙';
@@ -2040,17 +2153,29 @@ async function submitPost(){
   const reactionsOn=document.getElementById('tg-main').classList.contains('on');
   const challengeId=(challengeJoin&&activeChallenge)?activeChallenge.id:null;
   const tags=uploadTags.slice();
+  const audioFile=pickedAudio;
   closeUpload();
 
   // 로그인 + 백엔드 준비됐으면 서버에 저장
   if(sb && currentUser && currentUser.id){
+    // 오디오 파일이 있으면 Storage에 업로드
+    let audioUrl=null;
+    if(audioFile){
+      showToast('음원 업로드 중…');
+      const ext=(audioFile.name.split('.').pop()||'mp3').toLowerCase();
+      const path=`${currentUser.id}/${Date.now()}.${ext}`;
+      const {error:upErr}=await sb.storage.from('tracks').upload(path,audioFile,{contentType:audioFile.type||'audio/mpeg'});
+      if(upErr){showToast('음원 업로드 실패: '+(upErr.message||''));return;}
+      const {data:pub}=sb.storage.from('tracks').getPublicUrl(path);
+      audioUrl=pub&&pub.publicUrl||null;
+    }
     const {data,error}=await sb.from('posts').insert({
       user_id:currentUser.id, author_name:uname, title, body, emoji:'🎵',
       reactions:reactionsOn, ai_tool:aiTool||null, ai_prompt:aiPrompt||null, challenge_id:challengeId,
-      tags:tags.length?tags:null
+      tags:tags.length?tags:null, audio_url:audioUrl
     }).select().single();
     if(error){showToast('게시 실패: '+(error.message||'다시 시도해 주세요'));return;}
-    showToast(challengeId?`"${title}" 챌린지 참여 완료! 🎯`:(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`));
+    showToast(audioUrl?`"${title}" 게시 완료! 🎧`:(challengeId?`"${title}" 챌린지 참여 완료! 🎯`:(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`)));
     feedData.unshift(postToFeed(data));
     renderFeed();
   }else{
@@ -2062,6 +2187,8 @@ async function submitPost(){
   document.getElementById('up-title').value='';
   document.getElementById('up-desc').value='';
   document.getElementById('up-prompt').value='';
+  document.getElementById('up-audio').value='';
+  onAudioPick(document.getElementById('up-audio'));
   document.querySelectorAll('#up-aitool button.sel,#up-genres button.sel').forEach(x=>x.classList.remove('sel'));
   challengeJoin=false;
   const csw=document.getElementById('up-challenge-sw');if(csw)csw.classList.remove('on');
@@ -2073,7 +2200,7 @@ function postToFeed(p){
   return {
     id:p.id, user_id:p.user_id, who:p.author_name, when:timeAgo(p.created_at),
     body:p.body||'새 트랙을 올렸어요.',
-    track:{t:p.title, a:p.author_name, e:p.emoji||'🎵'},
+    track:{t:p.title, a:p.author_name, e:p.emoji||'🎵', audioUrl:p.audio_url||null},
     reactions:p.reactions, likes:0, liked:false, comments:[],
     aiTool:p.ai_tool||'', aiPrompt:p.ai_prompt||'', challengeId:p.challenge_id||null, tags:p.tags||[]
   };
