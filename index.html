@@ -67,6 +67,7 @@
   .search span{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--dim)}
   .top-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
   .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--volt),var(--pulse));display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff}
+  .avatar[hidden]{display:none!important}
 
   .view{padding:30px;max-width:1180px}
   .view[hidden]{display:none}
@@ -166,6 +167,8 @@
   /* ---------- COMMUNITY ---------- */
   .feed{max-width:680px;margin:0 auto}
   .post{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:18px}
+  .post.nudge{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(34,229,200,.3),0 8px 30px rgba(34,229,200,.15);animation:nudgePulse .6s ease}
+  @keyframes nudgePulse{0%,100%{transform:scale(1)}30%{transform:scale(1.012)}}
   .post-head{display:flex;align-items:center;gap:11px;margin-bottom:12px}
   .post-head .av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;font-size:15px}
   .post-head .who{font-weight:700;font-size:14px}
@@ -951,6 +954,8 @@ function applyAuthUI(){
     av.textContent=initials(currentUser.name);
     document.getElementById('um-name').textContent=currentUser.name;
     document.getElementById('um-email').textContent=currentUser.email;
+  }else{
+    av.textContent='?'; // 로그아웃 시 아바타 초기화
   }
   // 게스트 배지: 비로그인 + 게스트 모드일 때만
   const gb=document.getElementById('guest-badge');
@@ -1722,7 +1727,8 @@ function notifRow(n){
   return {
     id:n.id, face:(n.actor_name||'?')[0], bg:'linear-gradient(135deg,#5b8cff,#ff5c8a)',
     text:`<b>${n.actor_name}</b>님이 ${m.verb}${tgt}`, emoji:m.emoji,
-    time:timeAgo(n.created_at), unread:!n.is_read, creator:null
+    time:timeAgo(n.created_at), unread:!n.is_read,
+    ntype:n.type, target:n.target, actor:n.actor_name
   };
 }
 async function loadNotifs(){
@@ -1749,6 +1755,29 @@ async function openNotif(i){
   const n=notifs[i];if(!n)return;
   n.unread=false;renderNotif();updateNotifBadge();
   if(sb&&n.id)await sb.from('notifications').update({is_read:true}).eq('id',n.id);
+  // 알림 패널 닫기
+  document.getElementById('notif-panel').classList.remove('open');
+  // 종류별 이동
+  if(n.ntype==='follow'){
+    // 팔로우한 사람 프로필로
+    if(n.actor)openUserProfile(n.actor);
+    return;
+  }
+  // 좋아요·댓글 → 그 곡(내 게시물)으로 이동해서 반응 확인
+  if(n.target){
+    const idx=feedData.findIndex(p=>p.track&&p.track.t===n.target&&(currentUser&&p.user_id===currentUser.id));
+    const anyIdx=idx>=0?idx:feedData.findIndex(p=>p.track&&p.track.t===n.target);
+    if(anyIdx>=0){
+      go('community');
+      setTimeout(()=>{
+        const cards=document.querySelectorAll('#feed .post');
+        const card=cards[anyIdx];
+        if(card){card.scrollIntoView({behavior:'smooth',block:'center'});card.classList.add('nudge');setTimeout(()=>card.classList.remove('nudge'),1500);}
+      },300);
+    }else{
+      showToast('해당 곡을 찾을 수 없어요 (삭제되었을 수 있어요)');
+    }
+  }
 }
 async function markAllRead(){
   notifs.forEach(n=>n.unread=false);renderNotif();updateNotifBadge();
