@@ -367,6 +367,14 @@
   .td-wave{height:60px;display:flex;align-items:center;gap:3px;margin:24px 0;padding:0 2px}
   .td-wave i{flex:1;background:linear-gradient(var(--cyan),var(--volt));border-radius:2px;opacity:.5;min-width:2px}
   .td-desc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;font-size:14px;color:#c9d2e4;line-height:1.7;margin-bottom:30px}
+  .ai-box{background:linear-gradient(135deg,rgba(34,229,200,.08),rgba(91,140,255,.06));border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px}
+  .ai-box-head{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px}
+  .ai-box-head b{color:var(--cyan)}
+  .ai-prompt{display:flex;gap:10px;align-items:flex-start}
+  .ai-prompt code{flex:1;font-family:"JetBrains Mono",monospace;font-size:12px;color:#d3dcec;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+  .ai-copy{flex:none;background:var(--cyan);color:#04120f;font-weight:700;font-size:12px;padding:8px 14px;border-radius:8px;transition:.15s;align-self:stretch}
+  .ai-copy:hover{transform:translateY(-1px)}
+  .ai-copy.done{background:var(--panel-2);color:var(--cyan);border:1px solid var(--cyan)}
 
   @media(max-width:1080px){.g4,.g5{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:860px){
@@ -619,7 +627,15 @@
     </div>
 
     <div class="field"><label>곡 제목</label><input type="text" id="up-title" placeholder="예: Signal In"></div>
-    <div class="field"><label>소개 · 사용한 AI 툴</label><textarea id="up-desc" placeholder="어떻게 만들었는지 자유롭게 적어주세요"></textarea></div>
+    <div class="field"><label>소개</label><textarea id="up-desc" placeholder="곡에 대해 자유롭게 적어주세요"></textarea></div>
+
+    <div class="field">
+      <label>🤖 사용한 AI 툴</label>
+      <div class="chips" id="up-aitool">
+        <button>Suno</button><button>Udio</button><button>Stable Audio</button><button>ElevenLabs</button><button>기타</button>
+      </div>
+    </div>
+    <div class="field"><label>✨ 프롬프트 <span style="color:var(--dim);font-weight:400">(어떻게 만들었는지 · 공유하면 다른 사람도 만들어볼 수 있어요)</span></label><textarea id="up-prompt" placeholder="예: lofi hip hop, rainy night, mellow piano, 80bpm, warm analog"></textarea></div>
 
     <div class="field">
       <label>장르 선택</label>
@@ -964,6 +980,11 @@ function feedCardHTML(p,idx){return `
         <div class="ti"><div class="t">${p.track.t}</div><div class="a">${p.track.a}</div></div>
         <div class="wave">${waveBars()}</div>
       </div>
+      ${(p.aiTool||p.aiPrompt)?`
+      <div class="ai-box">
+        <div class="ai-box-head">🤖 이렇게 만들었어요${p.aiTool?` · <b>${p.aiTool}</b>`:''}</div>
+        ${p.aiPrompt?`<div class="ai-prompt"><code>${p.aiPrompt.replace(/</g,'&lt;')}</code><button class="ai-copy" onclick="copyPrompt(this,'${p.aiPrompt.replace(/'/g,"\\'").replace(/\n/g,' ')}')">복사</button></div>`:''}
+      </div>`:''}
       ${p.reactions ? `
         <div class="reactions">
           <button class="rbtn ${p.liked?'liked':''}" onclick="like(${idx},this)"><span class="heart">${p.liked?'♥':'♡'}</span> <span class="cnt">${p.likes}</span></button>
@@ -1307,31 +1328,44 @@ function openUpload(){if(!requireLogin())return;document.getElementById('upload'
 function closeUpload(){document.getElementById('upload').hidden=true}
 document.getElementById('upload').addEventListener('click',e=>{if(e.target.id==='upload')closeUpload()});
 document.querySelectorAll('#up-genres button').forEach(b=>b.onclick=()=>b.classList.toggle('sel'));
+// AI 툴은 하나만 선택
+document.querySelectorAll('#up-aitool button').forEach(b=>b.onclick=()=>{
+  const on=b.classList.contains('sel');
+  document.querySelectorAll('#up-aitool button').forEach(x=>x.classList.remove('sel'));
+  if(!on)b.classList.add('sel');
+});
 function toggleSw(sw){sw.classList.toggle('on')}
 function toggleMain(sw){const on=sw.classList.toggle('on');document.getElementById('sub-toggles').classList.toggle('dim',!on);}
 async function submitPost(){
   const uname=currentUser?currentUser.name:'YU';
   const title=document.getElementById('up-title').value.trim()||'제목 없는 트랙';
   const body=document.getElementById('up-desc').value.trim()||'새 트랙을 올렸어요.';
+  const aiToolEl=document.querySelector('#up-aitool button.sel');
+  const aiTool=aiToolEl?aiToolEl.textContent:'';
+  const aiPrompt=document.getElementById('up-prompt').value.trim();
   const reactionsOn=document.getElementById('tg-main').classList.contains('on');
   closeUpload();
 
   // 로그인 + 백엔드 준비됐으면 서버에 저장
   if(sb && currentUser && currentUser.id){
     const {data,error}=await sb.from('posts').insert({
-      user_id:currentUser.id, author_name:uname, title, body, emoji:'🎵', reactions:reactionsOn
+      user_id:currentUser.id, author_name:uname, title, body, emoji:'🎵',
+      reactions:reactionsOn, ai_tool:aiTool||null, ai_prompt:aiPrompt||null
     }).select().single();
     if(error){showToast('게시 실패: '+(error.message||'다시 시도해 주세요'));return;}
     showToast(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`);
-    // 방금 저장된 걸 피드 맨 위에 반영
     feedData.unshift(postToFeed(data));
     renderFeed();
   }else{
-    // 백엔드 미연결 시: 기존처럼 메모리에만 (데모 모드)
     showToast(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`);
-    feedData.unshift({who:uname,when:'방금',body,track:{t:title,a:uname,e:'🎵'},reactions:reactionsOn,likes:0,liked:false,comments:[]});
+    feedData.unshift({who:uname,when:'방금',body,track:{t:title,a:uname,e:'🎵'},reactions:reactionsOn,likes:0,liked:false,comments:[],aiTool,aiPrompt});
     renderFeed();
   }
+  // 입력 초기화
+  document.getElementById('up-title').value='';
+  document.getElementById('up-desc').value='';
+  document.getElementById('up-prompt').value='';
+  document.querySelectorAll('#up-aitool button.sel,#up-genres button.sel').forEach(x=>x.classList.remove('sel'));
 }
 
 // Supabase posts 행 → 화면 피드 카드 형식으로 변환
@@ -1340,7 +1374,8 @@ function postToFeed(p){
     id:p.id, user_id:p.user_id, who:p.author_name, when:timeAgo(p.created_at),
     body:p.body||'새 트랙을 올렸어요.',
     track:{t:p.title, a:p.author_name, e:p.emoji||'🎵'},
-    reactions:p.reactions, likes:0, liked:false, comments:[]
+    reactions:p.reactions, likes:0, liked:false, comments:[],
+    aiTool:p.ai_tool||'', aiPrompt:p.ai_prompt||''
   };
 }
 function timeAgo(ts){
@@ -1385,6 +1420,12 @@ async function loadPosts(){
 }
 let tmr;
 function showToast(msg){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;t.classList.add('show');clearTimeout(tmr);tmr=setTimeout(()=>t.classList.remove('show'),2600);}
+function copyPrompt(btn,text){
+  const done=()=>{btn.textContent='✓ 복사됨';btn.classList.add('done');showToast('프롬프트를 복사했어요');setTimeout(()=>{btn.textContent='복사';btn.classList.remove('done');},1800);};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));}
+  else fallbackCopy(text,done);
+}
+function fallbackCopy(text,cb){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);cb&&cb();}
 
 // 초기화
 initAuth();
