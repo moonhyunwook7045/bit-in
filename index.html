@@ -1,0 +1,1242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIT.IN — 비트 안으로</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700;900&family=Syne:wght@700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#080a0f;
+    --panel:#0f131c;
+    --panel-2:#161c28;
+    --line:#232b3a;
+    --ink:#eaf2ff;
+    --muted:#7e8aa3;
+    --dim:#525d75;
+    --cyan:#22e5c8;      /* 시그니처: 디지털 비트 시안 */
+    --volt:#5b8cff;      /* 신호 블루 */
+    --pulse:#ff5c8a;     /* 비트 펄스 핑크 */
+    --r:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:"Noto Sans KR","Space Grotesk",sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.45;
+  }
+  ::selection{background:var(--cyan);color:#000}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+  a{color:inherit;text-decoration:none}
+  .mono{font-family:"JetBrains Mono",monospace}
+
+  .app{display:grid;grid-template-columns:236px 1fr;min-height:100vh}
+
+  /* ---------- SIDEBAR ---------- */
+  .side{background:var(--panel);border-right:1px solid var(--line);position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:22px 14px;gap:5px;overflow-y:auto}
+  .brand{display:flex;align-items:center;gap:11px;padding:4px 8px 20px}
+  /* 로고: 비트가 중심으로 수렴하는 형태 */
+  .logo{width:44px;height:44px;flex:none;position:relative;display:grid;place-items:center;border-radius:13px;background:radial-gradient(circle at 50% 50%,rgba(34,229,200,.16),transparent 70%)}
+  .logo svg{width:44px;height:44px;position:relative;z-index:2}
+  .logo .ring-spin{transform-origin:22px 22px;animation:logospin 7s linear infinite}
+  .logo .core{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--cyan);box-shadow:0 0 16px var(--cyan),0 0 30px rgba(34,229,200,.6);animation:corepulse 1.4s ease-in-out infinite;z-index:3}
+  @keyframes corepulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.5);opacity:.75}}
+  @keyframes logospin{to{transform:rotate(360deg)}}
+  .brand h1{font-family:"Syne",sans-serif;font-size:23px;letter-spacing:-1px;font-weight:800}
+  .brand h1 span{color:var(--cyan)}
+  .brand small{display:block;font-size:9px;letter-spacing:2px;color:var(--muted);font-weight:700;margin-top:-3px}
+
+  .navlabel{font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;padding:14px 10px 6px;font-weight:700}
+  .nav{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:11px;color:var(--muted);font-size:14px;font-weight:500;transition:.15s;width:100%;text-align:left}
+  .nav:hover{background:var(--panel-2);color:var(--ink)}
+  .nav.on{background:linear-gradient(90deg,rgba(34,229,200,.16),transparent);color:var(--ink)}
+  .nav.on .ic{color:var(--cyan)}
+  .ic{width:18px;text-align:center;font-size:15px;color:var(--dim)}
+  .side .cta{margin-top:auto}
+  .post-btn{width:100%;background:var(--cyan);color:#04120f;font-weight:700;padding:12px;border-radius:12px;font-size:14px;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s}
+  .post-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(34,229,200,.3)}
+
+  /* ---------- MAIN ---------- */
+  .main{min-width:0}
+  .topbar{position:sticky;top:0;z-index:20;background:rgba(8,10,15,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:14px 30px;display:flex;align-items:center;gap:16px}
+  .search{flex:1;max-width:440px;position:relative}
+  .search input{width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:11px 14px 11px 40px;font-size:14px;font-family:inherit}
+  .search input::placeholder{color:var(--dim)}
+  .search span{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--dim)}
+  .top-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--volt),var(--pulse));display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff}
+
+  .view{padding:30px;max-width:1180px}
+  .view[hidden]{display:none}
+
+  .hd{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;gap:14px;flex-wrap:wrap}
+  .hd h2{font-family:"Syne",sans-serif;font-size:30px;font-weight:800;letter-spacing:-.5px;display:flex;align-items:center;gap:12px}
+  .hd .tag{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--cyan);background:rgba(34,229,200,.1);padding:5px 10px;border-radius:20px}
+  .hd p{color:var(--muted);font-size:14px}
+  .pill{background:var(--panel-2);border:1px solid var(--line);padding:8px 14px;border-radius:20px;font-size:13px;color:var(--muted);font-weight:500}
+
+  /* ---------- HERO : "비트 안으로 들어오다" ---------- */
+  .hero{border-radius:24px;padding:44px 40px;margin-bottom:34px;position:relative;overflow:hidden;background:radial-gradient(120% 140% at 100% 0%,#0d2a2a 0%,#0a1428 45%,#0a0d16 100%);border:1px solid var(--line)}
+  /* 안으로 수렴하는 링 */
+  .rings{position:absolute;right:8%;top:50%;transform:translateY(-50%);width:340px;height:340px;pointer-events:none}
+  .rings i{position:absolute;inset:0;margin:auto;border-radius:50%;border:1.5px solid var(--cyan);opacity:0;animation:conv 3.2s ease-in infinite}
+  .rings i:nth-child(1){animation-delay:0s}
+  .rings i:nth-child(2){animation-delay:.8s}
+  .rings i:nth-child(3){animation-delay:1.6s}
+  .rings i:nth-child(4){animation-delay:2.4s}
+  @keyframes conv{0%{width:340px;height:340px;opacity:0;border-color:var(--pulse)}20%{opacity:.6}100%{width:14px;height:14px;opacity:0;border-color:var(--cyan)}}
+  .rings .dot{position:absolute;inset:0;margin:auto;width:14px;height:14px;border-radius:50%;background:var(--cyan);box-shadow:0 0 24px var(--cyan);animation:corepulse 1.6s ease-in-out infinite;opacity:1;border:none}
+  .hero-in{position:relative;z-index:2;max-width:560px}
+  .hero .eyebrow{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:2px;font-weight:700;color:var(--cyan);text-transform:uppercase}
+  .hero h3{font-family:"Syne",sans-serif;font-size:46px;line-height:1.0;font-weight:800;letter-spacing:-1.5px;margin:14px 0 16px}
+  .hero h3 em{font-style:normal;color:var(--cyan)}
+  .hero p{color:#b8c4dc;font-size:15px;margin-bottom:26px;max-width:460px}
+  .hero-btns{display:flex;gap:12px;flex-wrap:wrap}
+  .btn{padding:12px 22px;border-radius:12px;font-weight:700;font-size:14px;transition:.15s;display:inline-flex;align-items:center;gap:8px}
+  .btn.primary{background:var(--cyan);color:#04120f}
+  .btn.primary:hover{transform:translateY(-2px)}
+  .btn.ghost{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--ink)}
+  .btn.ghost:hover{border-color:var(--cyan)}
+
+  /* ---------- CHART ---------- */
+  .chart{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .row{display:grid;grid-template-columns:52px 52px 1fr 120px 90px 82px;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);transition:.12s}
+  .row:last-child{border-bottom:none}
+  .row:hover{background:var(--panel-2)}
+  .row-actions{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+  .q-add{width:30px;height:30px;border-radius:50%;background:transparent;border:1px solid var(--line);color:var(--muted);font-size:15px;display:grid;place-items:center;transition:.15s;opacity:0}
+  .row:hover .q-add{opacity:1}
+  .q-add:hover{color:var(--cyan);border-color:var(--cyan)}
+  .rank{font-family:"JetBrains Mono";font-size:19px;font-weight:700;text-align:center;color:var(--muted)}
+  .rank.top{color:var(--cyan)}
+  .cover{width:44px;height:44px;border-radius:9px;background:var(--panel-2);display:grid;place-items:center;font-size:19px}
+  .trk .t{font-weight:700;font-size:14px}
+  .trk .a{font-size:12px;color:var(--muted);margin-top:1px}
+  .badge-ai{font-family:"JetBrains Mono";font-size:9px;font-weight:700;letter-spacing:.5px;color:var(--cyan);border:1px solid rgba(34,229,200,.4);padding:1px 5px;border-radius:5px;margin-left:6px;vertical-align:middle}
+  .genre-chip{font-size:11px;color:var(--muted);background:var(--panel-2);padding:4px 9px;border-radius:8px;justify-self:start;border:1px solid var(--line)}
+  .plays{font-family:"JetBrains Mono";font-size:12px;color:var(--dim);text-align:right}
+  .play{width:34px;height:34px;border-radius:50%;background:var(--panel-2);display:grid;place-items:center;color:var(--muted);transition:.15s;border:1px solid var(--line)}
+  .play:hover{background:var(--cyan);color:#000;border-color:var(--cyan)}
+
+  /* ---------- CARDS ---------- */
+  .grid{display:grid;gap:16px}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g5{grid-template-columns:repeat(5,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px;transition:.16s}
+  .card:hover{transform:translateY(-3px);border-color:var(--volt)}
+  .art{aspect-ratio:1;border-radius:12px;margin-bottom:12px;display:grid;place-items:center;font-size:36px;position:relative;overflow:hidden}
+  .art .plw{position:absolute;inset:0;background:rgba(0,0,0,.35);display:grid;place-items:center;opacity:0;transition:.16s}
+  .card:hover .art .plw{opacity:1}
+  .art .plw div{width:46px;height:46px;border-radius:50%;background:var(--cyan);color:#000;display:grid;place-items:center;font-size:18px}
+  .card h4{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card .sub{font-size:12px;color:var(--muted);margin-top:2px}
+  .card .meta{display:flex;gap:12px;margin-top:10px;font-size:11px;color:var(--dim)}
+
+  .creator{text-align:center;padding:20px 14px}
+  .cface{width:76px;height:76px;border-radius:50%;margin:0 auto 12px;display:grid;place-items:center;font-size:28px;font-weight:800;color:#fff;position:relative}
+  .cface .vf{position:absolute;bottom:-2px;right:-2px;width:22px;height:22px;border-radius:50%;background:var(--cyan);color:#000;display:grid;place-items:center;font-size:11px;border:3px solid var(--panel)}
+  .creator h4{font-size:15px}
+  .creator .sub{font-size:12px;color:var(--muted);margin:2px 0 10px}
+  .followbtn{width:100%;border:1px solid var(--cyan);color:var(--cyan);padding:8px;border-radius:10px;font-weight:700;font-size:13px;transition:.15s}
+  .followbtn:hover{background:var(--cyan);color:#000}
+  .followbtn.ing{background:var(--panel-2);border-color:var(--line);color:var(--muted)}
+
+  .mv{position:relative;border-radius:14px;overflow:hidden;aspect-ratio:16/9;display:grid;place-items:center;font-size:40px;cursor:pointer}
+  .mv .ov{position:absolute;inset:0;background:linear-gradient(transparent 40%,rgba(0,0,0,.85));display:flex;flex-direction:column;justify-content:flex-end;padding:14px}
+  .mv .pbig{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:54px;height:54px;border-radius:50%;background:rgba(34,229,200,.92);color:#000;display:grid;place-items:center;font-size:20px;transition:.16s}
+  .mv:hover .pbig{transform:translate(-50%,-50%) scale(1.12)}
+  .mv .ov h4{font-size:15px;position:relative;z-index:2}
+  .mv .ov .sub{font-size:12px;color:#cbc6d8;position:relative;z-index:2}
+  .mv .dur{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);padding:2px 8px;border-radius:6px;font-size:11px;font-family:"JetBrains Mono"}
+
+  .gtile{border-radius:18px;padding:22px;min-height:138px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease}
+  .gtile::before{content:"";position:absolute;inset:0;background:radial-gradient(130% 90% at 0 0,rgba(255,255,255,.22),transparent 55%);pointer-events:none;mix-blend-mode:overlay}
+  .gtile:hover{transform:translateY(-4px) scale(1.01);box-shadow:0 16px 40px rgba(0,0,0,.4)}
+  .gt-top{position:relative;z-index:2}
+  .gtile h4{font-size:22px;font-weight:900;letter-spacing:-.5px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.25)}
+  .gt-sub{font-size:12px;color:rgba(255,255,255,.9);z-index:2;position:relative;font-weight:600;letter-spacing:.2px;display:flex;align-items:center;gap:6px}
+  .gt-sub em{font-style:normal;opacity:.7;transform:translateX(-3px);transition:.18s;font-weight:800}
+  .gtile:hover .gt-sub em{opacity:1;transform:translateX(2px)}
+  .gtile .em{position:absolute;right:-4px;bottom:-14px;font-size:70px;transform:rotate(-12deg);filter:drop-shadow(0 6px 14px rgba(0,0,0,.3));transition:transform .18s ease;z-index:1}
+  .gtile:hover .em{transform:rotate(-4deg) scale(1.08)}
+
+  /* ---------- COMMUNITY ---------- */
+  .feed{max-width:680px;margin:0 auto}
+  .post{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:18px}
+  .post-head{display:flex;align-items:center;gap:11px;margin-bottom:12px}
+  .post-head .av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;font-size:15px}
+  .post-head .who{font-weight:700;font-size:14px}
+  .post-head .when{font-size:12px;color:var(--dim)}
+  .post-head .more{margin-left:auto;color:var(--dim);font-size:20px}
+  .post-body{font-size:14px;color:#d3dcec;margin-bottom:12px;line-height:1.6}
+  .track-embed{display:flex;align-items:center;gap:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
+  .track-embed .ce{width:52px;height:52px;border-radius:9px;display:grid;place-items:center;font-size:22px;flex:none}
+  .track-embed .ti{flex:1;min-width:0}
+  .track-embed .ti .t{font-weight:700;font-size:14px}
+  .track-embed .ti .a{font-size:12px;color:var(--muted)}
+  .track-embed .pl{width:40px;height:40px;border-radius:50%;background:var(--cyan);color:#000;display:grid;place-items:center;flex:none;font-size:15px}
+  .wave{height:26px;flex:1;display:flex;align-items:center;gap:2px;overflow:hidden}
+  .wave i{width:3px;background:var(--dim);border-radius:2px;flex:none}
+
+  .reactions{display:flex;align-items:center;gap:6px;padding-top:12px;border-top:1px solid var(--line)}
+  .rbtn{display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:10px;font-size:13px;color:var(--muted);font-weight:500;transition:.15s;border:1px solid transparent}
+  .rbtn:hover{background:var(--panel-2)}
+  .rbtn.liked{color:var(--pulse)}
+  .rbtn.liked .heart{transform:scale(1.15)}
+  .heart{transition:.15s;display:inline-block}
+
+  .comments{margin-top:12px;display:flex;flex-direction:column;gap:12px}
+  .cmt{display:flex;gap:10px}
+  .cmt .cav{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff}
+  .cmt .cbody{background:var(--panel-2);border-radius:12px;padding:8px 12px;font-size:13px}
+  .cmt .cbody .cn{font-weight:700;font-size:12px;margin-bottom:2px}
+  .cmt-input{display:flex;gap:10px;margin-top:12px}
+  .cmt-input input{flex:1;background:var(--panel-2);border:1px solid var(--line);border-radius:20px;padding:9px 15px;color:var(--ink);font-size:13px;font-family:inherit}
+  .cmt-input input::placeholder{color:var(--dim)}
+  .cmt-input button{background:var(--cyan);color:#000;font-weight:700;padding:0 18px;border-radius:20px;font-size:13px}
+  .reactions-off{padding:12px;border-top:1px solid var(--line);margin-top:12px;text-align:center;font-size:12px;color:var(--dim);background:repeating-linear-gradient(45deg,transparent 0 8px,rgba(255,255,255,.015) 8px 16px);border-radius:0 0 8px 8px}
+
+  /* ---------- MODAL ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(3,4,8,.78);backdrop-filter:blur(6px);z-index:100;display:grid;place-items:center;padding:20px}
+  .overlay[hidden]{display:none}
+  .modal{background:var(--panel);border:1px solid var(--line);border-radius:22px;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:28px}
+  .modal h3{font-family:"Syne";font-size:24px;font-weight:800;margin-bottom:6px}
+  .modal .msub{color:var(--muted);font-size:13px;margin-bottom:22px}
+  .field{margin-bottom:18px}
+  .field label{display:block;font-size:12px;font-weight:700;color:var(--muted);margin-bottom:7px;letter-spacing:.3px}
+  .field input[type=text],.field textarea{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:12px 14px;color:var(--ink);font-size:14px;font-family:inherit}
+  .field textarea{resize:vertical;min-height:70px}
+  .drop{border:1.5px dashed var(--line);border-radius:14px;padding:30px;text-align:center;color:var(--muted);transition:.15s;cursor:pointer}
+  .drop:hover{border-color:var(--cyan);color:var(--cyan)}
+  .drop .big{font-size:34px;margin-bottom:8px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chips button{padding:7px 13px;border-radius:20px;border:1px solid var(--line);font-size:13px;color:var(--muted);transition:.15s}
+  .chips button.sel{background:var(--cyan);color:#000;border-color:var(--cyan);font-weight:700}
+
+  .toggle-block{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+  .toggle-row{display:flex;align-items:center;gap:14px}
+  .toggle-row .tinfo{flex:1}
+  .toggle-row .tinfo .tt{font-weight:700;font-size:14px}
+  .toggle-row .tinfo .td{font-size:12px;color:var(--muted);margin-top:2px}
+  .switch{width:48px;height:28px;border-radius:20px;background:var(--line);position:relative;flex:none;transition:.2s;cursor:pointer}
+  .switch::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:.2s}
+  .switch.on{background:var(--cyan)}
+  .switch.on::after{left:23px}
+  .sub-toggles{margin-top:14px;padding-top:14px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:12px}
+  .sub-toggles.dim{opacity:.4;pointer-events:none}
+  .stog{display:flex;align-items:center;gap:12px;font-size:13px}
+  .stog .switch{width:40px;height:23px}
+  .stog .switch::after{width:17px;height:17px}
+  .stog .switch.on::after{left:20px}
+  .modal-actions{display:flex;gap:12px;margin-top:8px}
+  .modal-actions .btn{flex:1;justify-content:center}
+  .close-x{position:absolute;top:18px;right:20px;font-size:24px;color:var(--muted)}
+  .modal-wrap{position:relative}
+
+  /* auth modal */
+  .auth-modal{max-width:420px}
+  .auth-brand{text-align:center;margin-bottom:24px}
+  .auth-logo{width:56px;height:56px;margin:0 auto 16px}
+  .auth-logo svg{width:56px;height:56px;filter:drop-shadow(0 0 12px rgba(34,229,200,.5))}
+  .auth-brand h3{font-family:"Syne";font-size:24px;font-weight:800;margin-bottom:6px}
+  .auth-error{background:rgba(255,92,138,.12);border:1px solid rgba(255,92,138,.4);color:#ff8fb0;font-size:13px;padding:10px 14px;border-radius:10px;margin-bottom:14px}
+  .auth-divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--dim);font-size:12px}
+  .auth-divider::before,.auth-divider::after{content:"";flex:1;height:1px;background:var(--line)}
+  .auth-social{width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);padding:12px;border-radius:12px;font-size:14px;font-weight:600;transition:.15s}
+  .auth-social:hover{border-color:var(--cyan);color:var(--cyan)}
+  .auth-switch{text-align:center;font-size:13px;color:var(--muted);margin-top:20px}
+  .auth-switch button{color:var(--cyan);font-weight:700}
+  .auth-switch button:hover{text-decoration:underline}
+
+  /* logged-out top button */
+  .login-btn{background:var(--cyan);color:#04120f;font-weight:700;font-size:14px;padding:9px 18px;border-radius:11px;transition:.15s}
+  .login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(34,229,200,.3)}
+
+  /* user menu dropdown */
+  .user-menu{position:absolute;top:56px;right:30px;background:var(--panel);border:1px solid var(--line);border-radius:14px;width:220px;padding:8px;z-index:60;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+  .user-menu[hidden]{display:none}
+  .um-head{padding:12px 12px 10px;border-bottom:1px solid var(--line);margin-bottom:6px}
+  .um-head .um-name{font-weight:700;font-size:14px}
+  .um-head .um-email{font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .um-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:9px;font-size:14px;color:var(--muted);width:100%;text-align:left;transition:.12s}
+  .um-item:hover{background:var(--panel-2);color:var(--ink)}
+  .um-item.danger:hover{color:var(--pulse)}
+
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--cyan);color:#04120f;font-weight:700;padding:14px 24px;border-radius:14px;font-size:14px;z-index:200;transition:.3s;box-shadow:0 12px 40px rgba(34,229,200,.35);display:flex;align-items:center;gap:10px}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+
+  .nowbar{position:fixed;bottom:0;left:236px;right:0;height:72px;background:rgba(15,19,28,.95);backdrop-filter:blur(16px);border-top:1px solid var(--line);display:flex;align-items:center;padding:0 24px;gap:18px;z-index:30;transform:translateY(100%);transition:.3s}
+  .nowbar.up{transform:translateY(0)}
+  .nowbar .np-cover{width:46px;height:46px;border-radius:9px;display:grid;place-items:center;font-size:20px;flex:none}
+  .nowbar .np-info{min-width:150px}
+  .nowbar .np-info .t{font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nowbar .np-info .a{font-size:11px;color:var(--muted)}
+  .nowbar .controls{display:flex;align-items:center;gap:16px;margin:0 auto}
+  .nowbar .controls button{color:var(--muted);font-size:16px}
+  .nowbar .pp{width:40px;height:40px;border-radius:50%;background:var(--cyan);color:#000;display:grid;place-items:center;font-size:15px}
+  .nowbar .prog{flex:1;max-width:420px;height:4px;background:var(--line);border-radius:2px;position:relative;overflow:hidden}
+  .nowbar .prog i{position:absolute;left:0;top:0;bottom:0;width:34%;background:var(--cyan);border-radius:2px}
+  .nowbar .close-np{color:var(--dim);font-size:20px;margin-left:10px}
+
+  /* top icon buttons */
+  .icon-btn{width:38px;height:38px;border-radius:11px;background:var(--panel-2);border:1px solid var(--line);color:var(--muted);font-size:15px;display:grid;place-items:center;transition:.15s}
+  .icon-btn:hover{color:var(--cyan);border-color:var(--cyan)}
+  .avatar{cursor:pointer}
+  .avatar:hover{box-shadow:0 0 0 2px var(--cyan)}
+
+  /* nowbar queue controls */
+  .nowbar .controls button.act{color:var(--cyan)}
+  .nowbar .q-toggle{background:var(--panel-2);border:1px solid var(--line);color:var(--muted);font-size:13px;padding:7px 12px;border-radius:10px;margin-left:6px;display:flex;align-items:center;gap:5px;transition:.15s}
+  .nowbar .q-toggle:hover{color:var(--cyan);border-color:var(--cyan)}
+
+  /* queue panel */
+  .queue-panel{position:fixed;right:0;bottom:72px;top:0;width:340px;background:var(--panel);border-left:1px solid var(--line);z-index:40;transform:translateX(100%);transition:.28s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-20px 0 50px rgba(0,0,0,.4)}
+  .queue-panel.open{transform:translateX(0)}
+  .qp-head{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 14px}
+  .qp-head h3{font-family:"Syne";font-size:20px;font-weight:800}
+  .qp-head button{color:var(--muted);font-size:20px}
+  .qp-now{padding:0 20px 14px}
+  .qp-label{font-size:11px;letter-spacing:1.5px;color:var(--dim);font-weight:700;padding:14px 20px 8px;border-top:1px solid var(--line);text-transform:uppercase}
+  .qp-list{flex:1;overflow-y:auto;padding:0 12px 20px}
+  .qp-item{display:flex;align-items:center;gap:12px;padding:10px 8px;border-radius:10px;cursor:pointer;transition:.12s}
+  .qp-item:hover{background:var(--panel-2)}
+  .qp-item .qc{width:40px;height:40px;border-radius:8px;display:grid;place-items:center;font-size:18px;flex:none}
+  .qp-item .qi{flex:1;min-width:0}
+  .qp-item .qi .t{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .qp-item .qi .a{font-size:11px;color:var(--muted)}
+  .qp-item .qx{color:var(--dim);font-size:15px;opacity:0;transition:.12s}
+  .qp-item:hover .qx{opacity:1}
+  .qp-now .qp-item{background:linear-gradient(90deg,rgba(34,229,200,.12),transparent);cursor:default}
+  .qp-now .qp-item .np-eq{display:flex;gap:2px;align-items:flex-end;height:16px}
+  .qp-now .qp-item .np-eq i{width:3px;background:var(--cyan);border-radius:2px;animation:eqbar .9s ease-in-out infinite}
+  .qp-now .qp-item .np-eq i:nth-child(2){animation-delay:.3s}
+  .qp-now .qp-item .np-eq i:nth-child(3){animation-delay:.6s}
+  @keyframes eqbar{0%,100%{height:5px}50%{height:16px}}
+  .qp-empty{color:var(--dim);font-size:13px;text-align:center;padding:30px 20px}
+
+  /* creator detail / me page */
+  .profile-hero{border-radius:22px;padding:34px;margin-bottom:28px;position:relative;overflow:hidden;display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+  .profile-hero::after{content:"";position:absolute;inset:0;background:rgba(8,10,15,.55)}
+  .ph-face{width:120px;height:120px;border-radius:50%;display:grid;place-items:center;font-size:46px;font-weight:800;color:#fff;position:relative;z-index:2;border:3px solid rgba(255,255,255,.2)}
+  .ph-info{position:relative;z-index:2;flex:1;min-width:200px}
+  .ph-info .vtag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--cyan);background:rgba(34,229,200,.15);padding:4px 10px;border-radius:20px;margin-bottom:8px}
+  .ph-info h2{font-family:"Syne";font-size:34px;font-weight:800;letter-spacing:-.5px}
+  .ph-info .stats{display:flex;gap:22px;margin-top:12px;color:#d3dcec;font-size:13px}
+  .ph-info .stats b{font-family:"JetBrains Mono";color:#fff;font-size:16px;display:block}
+  .ph-actions{position:relative;z-index:2;display:flex;gap:10px;flex-wrap:wrap}
+  .back-btn{display:inline-flex;align-items:center;gap:7px;color:var(--muted);font-size:13px;font-weight:600;margin-bottom:18px;transition:.15s}
+  .back-btn:hover{color:var(--cyan)}
+  .seg{display:flex;gap:4px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:20px;width:fit-content}
+  .seg button{padding:8px 18px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);transition:.15s}
+  .seg button.on{background:var(--cyan);color:#04120f}
+
+  /* notification bell + badge */
+  .icon-btn{position:relative}
+  .icon-btn .badge{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--pulse);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;font-family:"JetBrains Mono";box-shadow:0 0 0 2px var(--bg)}
+  .icon-btn .badge[data-empty="1"]{display:none}
+  .notif-panel{width:360px}
+  .qp-head .read-all{font-size:12px;color:var(--muted);margin-left:auto;margin-right:12px;font-weight:600}
+  .qp-head .read-all:hover{color:var(--cyan)}
+  .notif-list{flex:1;overflow-y:auto;padding:6px 10px 20px}
+  .nitem{display:flex;gap:12px;padding:12px 10px;border-radius:11px;cursor:pointer;transition:.12s;position:relative}
+  .nitem:hover{background:var(--panel-2)}
+  .nitem.unread{background:linear-gradient(90deg,rgba(34,229,200,.08),transparent)}
+  .nitem.unread::before{content:"";position:absolute;left:2px;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:var(--cyan)}
+  .nitem .nav-face{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;font-size:15px;flex:none}
+  .nitem .ntext{flex:1;font-size:13px;line-height:1.5;color:#d3dcec}
+  .nitem .ntext b{color:#fff;font-weight:700}
+  .nitem .ntime{font-size:11px;color:var(--dim);margin-top:3px}
+  .nitem .nemoji{font-size:20px;align-self:center}
+
+  /* track detail */
+  .td-hero{display:flex;gap:28px;align-items:flex-end;margin-bottom:30px;flex-wrap:wrap}
+  .td-cover{width:210px;height:210px;border-radius:18px;display:grid;place-items:center;font-size:80px;flex:none;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+  .td-meta{flex:1;min-width:240px}
+  .td-meta .kind{font-size:11px;letter-spacing:2px;font-weight:700;color:var(--cyan);text-transform:uppercase}
+  .td-meta h1{font-family:"Syne";font-size:44px;font-weight:800;letter-spacing:-1px;line-height:1.05;margin:8px 0 10px}
+  .td-meta .by{font-size:15px;color:#d3dcec;cursor:pointer}
+  .td-meta .by:hover{color:var(--cyan)}
+  .td-meta .facts{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+  .td-meta .facts span{font-size:12px;color:var(--muted);background:var(--panel-2);border:1px solid var(--line);padding:5px 11px;border-radius:20px}
+  .td-actions{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap}
+  .td-like{border:1px solid var(--line);background:var(--panel-2);color:var(--ink);padding:12px 20px;border-radius:12px;font-weight:700;font-size:14px;display:inline-flex;gap:8px;align-items:center;transition:.15s}
+  .td-like.liked{color:var(--pulse);border-color:var(--pulse)}
+  .td-wave{height:60px;display:flex;align-items:center;gap:3px;margin:24px 0;padding:0 2px}
+  .td-wave i{flex:1;background:linear-gradient(var(--cyan),var(--volt));border-radius:2px;opacity:.5;min-width:2px}
+  .td-desc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;font-size:14px;color:#c9d2e4;line-height:1.7;margin-bottom:30px}
+
+  @media(max-width:1080px){.g4,.g5{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:860px){
+    .app{grid-template-columns:1fr}
+    .side{display:none}
+    .nowbar{left:0}
+    .g4,.g5,.g3{grid-template-columns:repeat(2,1fr)}
+    .row{grid-template-columns:40px 44px 1fr 82px;gap:10px}
+    .genre-chip,.plays{display:none}
+    .hero h3{font-size:32px}
+    .rings{opacity:.4}
+    .view{padding:20px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="side">
+    <div class="brand" onclick="go('home')" style="cursor:pointer" title="홈으로">
+      <div class="logo">
+        <svg viewBox="0 0 44 44" fill="none">
+          <defs>
+            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="2" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <g class="ring-spin" filter="url(#glow)">
+            <!-- 바깥 굵은 아크 -->
+            <path d="M22 4 A18 18 0 1 1 4 22" stroke="#22e5c8" stroke-width="4.5" stroke-linecap="round"/>
+            <!-- 안쪽 시안 아크 (반대 방향) -->
+            <path d="M22 12 A10 10 0 0 1 32 22" stroke="#22e5c8" stroke-width="4.5" stroke-linecap="round"/>
+          </g>
+        </svg>
+        <div class="core"></div>
+      </div>
+      <div><h1>BIT<span>.IN</span></h1><small>비트 안으로</small></div>
+    </div>
+
+    <div class="navlabel">둘러보기</div>
+    <button class="nav on" data-view="home"><span class="ic">◉</span> 홈</button>
+    <button class="nav" data-view="chart"><span class="ic">≡</span> 인기차트</button>
+    <button class="nav" data-view="creators"><span class="ic">✦</span> 인기 크리에이터</button>
+    <button class="nav" data-view="mv"><span class="ic">▷</span> MV</button>
+    <button class="nav" data-view="albums"><span class="ic">◍</span> 앨범</button>
+    <button class="nav" data-view="new"><span class="ic">✧</span> 최신음악</button>
+    <button class="nav" data-view="genre"><span class="ic">◐</span> 장르</button>
+
+    <div class="navlabel">플레이리스트</div>
+    <button class="nav" data-view="playlists"><span class="ic">♫</span> 추천 · 공유</button>
+    <button class="nav" data-view="community"><span class="ic">◇</span> 커뮤니티</button>
+
+    <div class="cta">
+      <button class="post-btn" onclick="openUpload()"><span>＋</span> 내 음악 게시</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="search"><span>⌕</span><input id="search-input" placeholder="곡, 크리에이터, 플레이리스트 검색" onkeydown="if(event.key==='Enter')runSearch(this.value)"></div>
+      <div class="top-actions">
+        <button class="icon-btn" id="queue-btn" onclick="toggleQueue()" title="재생 대기열">☰</button>
+        <button class="icon-btn bell" id="bell-btn" onclick="toggleNotif()" title="알림">♪<span class="badge" id="notif-badge">0</span></button>
+        <button class="login-btn" id="login-btn" onclick="openAuth('login')">로그인</button>
+        <div class="avatar" id="top-avatar" onclick="toggleUserMenu(event)" title="내 계정" hidden>YU</div>
+      </div>
+    </div>
+
+    <!-- USER MENU -->
+    <div class="user-menu" id="user-menu" hidden>
+      <div class="um-head"><div class="um-name" id="um-name">YU</div><div class="um-email" id="um-email">you@example.com</div></div>
+      <button class="um-item" onclick="closeUserMenu();go('me')">◉ 마이페이지</button>
+      <button class="um-item" onclick="closeUserMenu();openUpload()">＋ 내 음악 게시</button>
+      <button class="um-item danger" onclick="logout()">→ 로그아웃</button>
+    </div>
+
+    <!-- HOME -->
+    <section class="view" data-view="home">
+      <div class="hero">
+        <div class="rings"><i></i><i></i><i></i><i></i><div class="dot"></div></div>
+        <div class="hero-in">
+          <h3>비트 안으로,<br><em>BIT.IN</em></h3>
+          <p>AI로 만든 트랙을 올리고, 차트에 오르고, 팬을 만나는 곳. 반응을 보이고 싶지 않다면 조용히, 비트만 흘려보낼 수도 있어요.</p>
+          <div class="hero-btns">
+            <button class="btn primary" onclick="openUpload()">＋ 내 음악 게시하기</button>
+            <button class="btn ghost" onclick="go('chart')">인기차트 보기</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="hd"><h2>오늘의 추천 플레이리스트 <span class="tag">FOR YOU</span></h2><p>취향 기반 자동 큐레이션</p></div>
+      <div class="grid g4" id="home-playlists" style="margin-bottom:36px"></div>
+
+      <div class="hd"><h2>실시간 인기 <span class="tag">TOP 5</span></h2><button class="pill" onclick="go('chart')">전체 →</button></div>
+      <div class="chart" id="home-chart" style="margin-bottom:36px"></div>
+
+      <div class="hd"><h2>주목받는 크리에이터</h2></div>
+      <div class="grid g5" id="home-creators"></div>
+    </section>
+
+    <section class="view" data-view="chart" hidden>
+      <div class="hd"><h2>인기차트 <span class="tag">LIVE</span></h2><p>1시간마다 갱신</p></div>
+      <div class="chart" id="full-chart"></div>
+    </section>
+
+    <section class="view" data-view="creators" hidden>
+      <div class="hd"><h2>인기 크리에이터</h2><p>이번 주 가장 많이 재생된 아티스트</p></div>
+      <div class="grid g4" id="full-creators"></div>
+    </section>
+
+    <section class="view" data-view="mv" hidden>
+      <div class="hd"><h2>MV 게시판</h2><p>AI로 만든 뮤직비디오</p></div>
+      <div class="grid g3" id="mv-grid"></div>
+    </section>
+
+    <section class="view" data-view="albums" hidden>
+      <div class="hd"><h2>앨범 목록</h2><p>싱글 · EP · 정규</p></div>
+      <div class="grid g4" id="albums-grid"></div>
+    </section>
+
+    <section class="view" data-view="new" hidden>
+      <div class="hd"><h2>최신음악 <span class="tag">FRESH</span></h2><p>방금 올라온 트랙</p></div>
+      <div class="chart" id="new-chart"></div>
+    </section>
+
+    <section class="view" data-view="genre" hidden>
+      <div class="hd"><h2>장르 음악</h2><p>무드로 골라 듣기</p></div>
+      <div class="grid g3" id="genre-grid"></div>
+    </section>
+
+    <section class="view" data-view="playlists" hidden>
+      <div class="hd"><h2>플레이리스트 · 공유</h2><p>모두가 만든 플레이리스트</p></div>
+      <div class="grid g4" id="playlists-grid"></div>
+    </section>
+
+    <section class="view" data-view="community" hidden>
+      <div class="hd"><h2>커뮤니티</h2><p>음악을 올리고, 반응을 나눠요</p></div>
+      <div class="feed" id="feed"></div>
+    </section>
+
+    <!-- SEARCH RESULTS -->
+    <section class="view" data-view="search" hidden>
+      <div class="hd"><h2>검색 결과 <span class="tag" id="search-term">—</span></h2></div>
+      <div id="search-body"></div>
+    </section>
+
+    <!-- CREATOR DETAIL -->
+    <section class="view" data-view="creator" hidden>
+      <div id="creator-detail"></div>
+    </section>
+
+    <!-- MY PAGE -->
+    <section class="view" data-view="me" hidden>
+      <div id="me-detail"></div>
+    </section>
+
+    <!-- TRACK DETAIL -->
+    <section class="view" data-view="track" hidden>
+      <div id="track-detail"></div>
+    </section>
+
+    <!-- ALBUM DETAIL -->
+    <section class="view" data-view="album" hidden>
+      <div id="album-detail"></div>
+    </section>
+
+    <div style="height:90px"></div>
+  </div>
+</div>
+
+
+<!-- NOW PLAYING -->
+<div class="nowbar" id="nowbar">
+  <div class="np-cover" id="np-cover" style="background:linear-gradient(135deg,#5b8cff,#ff5c8a)">♪</div>
+  <div class="np-info"><div class="t" id="np-title">재생 중인 곡 없음</div><div class="a" id="np-artist">—</div></div>
+  <div class="controls">
+    <button id="shuffle-btn" onclick="toggleShuffle()" title="셔플">⇄</button>
+    <button onclick="prevTrack()" title="이전 곡">⏮</button>
+    <button class="pp" id="pp" onclick="togglePlay()">▶</button>
+    <button onclick="nextTrack()" title="다음 곡">⏭</button>
+    <button id="repeat-btn" onclick="toggleRepeat()" title="반복">↻</button>
+  </div>
+  <div class="prog"><i id="prog-fill"></i></div>
+  <button class="q-toggle" onclick="toggleQueue()" title="대기열">☰ <span id="q-count">0</span></button>
+  <button class="close-np" onclick="document.getElementById('nowbar').classList.remove('up')">✕</button>
+</div>
+
+<!-- QUEUE PANEL -->
+<div class="queue-panel" id="queue-panel">
+  <div class="qp-head"><h3>재생 대기열</h3><button onclick="toggleQueue()">✕</button></div>
+  <div class="qp-now" id="qp-now"></div>
+  <div class="qp-label">다음 곡</div>
+  <div class="qp-list" id="qp-list"></div>
+</div>
+
+<!-- NOTIFICATION PANEL -->
+<div class="queue-panel notif-panel" id="notif-panel">
+  <div class="qp-head"><h3>알림</h3><button onclick="markAllRead()" class="read-all">모두 읽음</button><button onclick="toggleNotif()">✕</button></div>
+  <div class="notif-list" id="notif-list"></div>
+</div>
+
+<!-- AUTH MODAL -->
+<div class="overlay" id="auth" hidden>
+  <div class="modal modal-wrap auth-modal">
+    <button class="close-x" onclick="closeAuth()">✕</button>
+    <div class="auth-brand">
+      <div class="auth-logo">
+        <svg viewBox="0 0 44 44" fill="none">
+          <g stroke="#22e5c8" stroke-width="4.5" stroke-linecap="round" fill="none">
+            <path d="M22 4 A18 18 0 1 1 4 22"/>
+            <path d="M22 12 A10 10 0 0 1 32 22"/>
+          </g>
+        </svg>
+      </div>
+      <h3 id="auth-title">다시 만나서 반가워요</h3>
+      <p class="msub" id="auth-sub">BIT.IN 계정으로 로그인하세요</p>
+    </div>
+
+    <!-- 회원가입 전용 필드 -->
+    <div class="field auth-only-signup" hidden><label>활동명 (크리에이터 이름)</label><input type="text" id="au-name" placeholder="예: novaa"></div>
+    <div class="field"><label>이메일</label><input type="text" id="au-email" placeholder="you@example.com"></div>
+    <div class="field"><label>비밀번호</label><input type="password" id="au-pw" placeholder="8자 이상"></div>
+    <div class="field auth-only-signup" hidden><label>비밀번호 확인</label><input type="password" id="au-pw2" placeholder="다시 입력"></div>
+
+    <div class="auth-error" id="auth-error" hidden></div>
+
+    <button class="btn primary" style="width:100%;justify-content:center;margin-top:4px" id="auth-submit" onclick="submitAuth()">로그인</button>
+
+    <div class="auth-divider"><span>또는</span></div>
+    <button class="auth-social" onclick="socialAuth()">계정 없이 게스트로 둘러보기</button>
+
+    <p class="auth-switch" id="auth-switch">
+      아직 계정이 없나요? <button onclick="switchAuth('signup')">회원가입</button>
+    </p>
+  </div>
+</div>
+
+<!-- UPLOAD MODAL -->
+<div class="overlay" id="upload" hidden>
+  <div class="modal modal-wrap">
+    <button class="close-x" onclick="closeUpload()">✕</button>
+    <h3>내 음악 게시</h3>
+    <p class="msub">AI로 만든 트랙을 BIT.IN에 올려보세요</p>
+
+    <div class="field">
+      <div class="drop" onclick="event.preventDefault()"><div class="big">♫</div>오디오 파일을 끌어다 놓거나 클릭해서 업로드<br><span style="font-size:12px">MP3 · WAV · 최대 20MB</span></div>
+    </div>
+
+    <div class="field"><label>곡 제목</label><input type="text" id="up-title" placeholder="예: Signal In"></div>
+    <div class="field"><label>소개 · 사용한 AI 툴</label><textarea id="up-desc" placeholder="어떻게 만들었는지 자유롭게 적어주세요"></textarea></div>
+
+    <div class="field">
+      <label>장르 선택</label>
+      <div class="chips" id="up-genres">
+        <button>발라드</button><button>댄스</button><button>랩/힙합</button><button>R&B</button>
+        <button>인디</button><button>록/메탈</button><button>J-POP</button><button>포크/블루스</button>
+      </div>
+    </div>
+
+    <div class="toggle-block">
+      <div class="toggle-row">
+        <div class="tinfo">
+          <div class="tt">공개적으로 반응 받기</div>
+          <div class="td">끄면 댓글·좋아요·재생 수가 다른 사람에게 보이지 않아요</div>
+        </div>
+        <div class="switch on" id="tg-main" onclick="toggleMain(this)"></div>
+      </div>
+      <div class="sub-toggles" id="sub-toggles">
+        <div class="stog"><div class="switch on" data-sub onclick="toggleSw(this)"></div><span>💬 댓글 허용</span></div>
+        <div class="stog"><div class="switch on" data-sub onclick="toggleSw(this)"></div><span>♥ 좋아요 표시</span></div>
+        <div class="stog"><div class="switch on" data-sub onclick="toggleSw(this)"></div><span>▶ 재생 수 공개</span></div>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeUpload()">취소</button>
+      <button class="btn primary" onclick="submitPost()">게시하기</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span>✓</span><span id="toast-msg">게시되었습니다</span></div>
+
+<script>
+const grad=['linear-gradient(135deg,#5b8cff,#ff5c8a)','linear-gradient(135deg,#22e5c8,#1a9e88)','linear-gradient(135deg,#ff5c8a,#ffab5c)','linear-gradient(135deg,#5b8cff,#7048e8)','linear-gradient(135deg,#22e5c8,#5b8cff)','linear-gradient(135deg,#ff6b6b,#feca57)','linear-gradient(135deg,#845ef7,#5c7cfa)','linear-gradient(135deg,#12b886,#22e5c8)'];
+
+/* ============ 인증 (Supabase 백엔드) ============ */
+// ▼▼▼ 여기 두 줄에 본인 Supabase 프로젝트 값을 넣으세요 ▼▼▼
+const SUPABASE_URL = 'https://ldzdzaciwhlorlrlvbub.supabase.co';        // 예: https://abcdefgh.supabase.co
+const SUPABASE_ANON_KEY = 'sb_publishable_DZd8RBBSsXd21k4xlGD2ZQ_mw6AiYs2'; // 예: sb_publishable_... (또는 anon public key)
+// ▲▲▲ Supabase 대시보드 > Project Settings > API 에서 복사 ▲▲▲
+
+const SUPA_READY = SUPABASE_URL.startsWith('http') && SUPABASE_ANON_KEY.length>20;
+let sb = null;
+if(SUPA_READY && window.supabase){
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+let currentUser=null;      // {email, name}
+let authMode='login';      // 'login' | 'signup'
+let authBusy=false;
+
+function initials(name){return (name||'?').trim().slice(0,2).toUpperCase();}
+
+function openAuth(mode){switchAuth(mode||'login');document.getElementById('auth').hidden=false;}
+function closeAuth(){document.getElementById('auth').hidden=true;clearAuthError();}
+function switchAuth(mode){
+  authMode=mode;
+  const signup=mode==='signup';
+  document.querySelectorAll('.auth-only-signup').forEach(el=>el.hidden=!signup);
+  document.getElementById('auth-title').textContent=signup?'BIT.IN에 참여하기':'다시 만나서 반가워요';
+  document.getElementById('auth-sub').textContent=signup?'몇 초면 계정을 만들 수 있어요':'BIT.IN 계정으로 로그인하세요';
+  document.getElementById('auth-submit').textContent=signup?'회원가입':'로그인';
+  document.getElementById('auth-switch').innerHTML=signup
+    ? `이미 계정이 있나요? <button onclick="switchAuth('login')">로그인</button>`
+    : `아직 계정이 없나요? <button onclick="switchAuth('signup')">회원가입</button>`;
+  clearAuthError();
+}
+function authError(msg){const e=document.getElementById('auth-error');e.textContent=msg;e.hidden=false;}
+function clearAuthError(){document.getElementById('auth-error').hidden=true;}
+function setAuthBusy(b){authBusy=b;const btn=document.getElementById('auth-submit');btn.disabled=b;btn.style.opacity=b?'.6':'1';btn.textContent=b?'처리 중…':(authMode==='signup'?'회원가입':'로그인');}
+
+// Supabase 에러 메시지를 한국어로 순화
+function friendlyAuthError(msg){
+  msg=(msg||'').toLowerCase();
+  if(msg.includes('invalid login'))return '이메일 또는 비밀번호가 맞지 않아요.';
+  if(msg.includes('already registered')||msg.includes('already been registered'))return '이미 가입된 이메일이에요. 로그인해 주세요.';
+  if(msg.includes('password')&&msg.includes('6'))return '비밀번호는 6자 이상이어야 해요.';
+  if(msg.includes('email')&&msg.includes('confirm'))return '가입 확인 메일을 보냈어요. 메일함을 확인해 주세요.';
+  if(msg.includes('rate limit'))return '요청이 너무 잦아요. 잠시 후 다시 시도해 주세요.';
+  return msg||'문제가 발생했어요. 다시 시도해 주세요.';
+}
+
+async function submitAuth(){
+  if(authBusy)return;
+  if(!sb){authError('백엔드가 아직 설정되지 않았어요. 파일 상단의 Supabase URL/KEY를 입력해 주세요.');return;}
+  const email=document.getElementById('au-email').value.trim();
+  const pw=document.getElementById('au-pw').value;
+  if(!email||!pw){authError('이메일과 비밀번호를 입력해 주세요.');return;}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){authError('이메일 형식이 올바르지 않아요.');return;}
+  clearAuthError();
+
+  if(authMode==='signup'){
+    const name=document.getElementById('au-name').value.trim();
+    const pw2=document.getElementById('au-pw2').value;
+    if(!name){authError('활동명을 입력해 주세요.');return;}
+    if(pw.length<8){authError('비밀번호는 8자 이상이어야 해요.');return;}
+    if(pw!==pw2){authError('비밀번호가 서로 달라요.');return;}
+    setAuthBusy(true);
+    const {data,error}=await sb.auth.signUp({email,password:pw,options:{data:{name}}});
+    setAuthBusy(false);
+    if(error){authError(friendlyAuthError(error.message));return;}
+    if(data.session){ // 이메일 확인이 꺼져 있으면 바로 로그인됨
+      showToast(`환영해요, ${name}님! 가입이 완료됐어요`);
+    }else{ // 이메일 확인 필요
+      closeAuth();
+      showToast('가입 확인 메일을 보냈어요. 메일함을 확인해 주세요');
+    }
+  }else{
+    setAuthBusy(true);
+    const {error}=await sb.auth.signInWithPassword({email,password:pw});
+    setAuthBusy(false);
+    if(error){authError(friendlyAuthError(error.message));return;}
+    // onAuthStateChange가 UI를 갱신함
+  }
+}
+function socialAuth(){authError('게스트 모드는 백엔드 설정 후 이용할 수 있어요.');}
+
+async function logout(){
+  closeUserMenu();
+  if(sb)await sb.auth.signOut();
+  else{currentUser=null;applyAuthUI();}
+  const cur=document.querySelector('.view:not([hidden])');
+  if(cur&&['me'].includes(cur.dataset.view))go('home');
+  showToast('로그아웃되었어요');
+}
+
+// 세션 → currentUser 매핑 후 UI 반영
+function setUserFromSession(session){
+  if(session&&session.user){
+    const u=session.user;
+    currentUser={email:u.email,name:(u.user_metadata&&u.user_metadata.name)||u.email.split('@')[0]};
+  }else{
+    currentUser=null;
+  }
+  applyAuthUI();
+}
+
+function applyAuthUI(){
+  const on=!!currentUser;
+  document.getElementById('login-btn').hidden=on;
+  const av=document.getElementById('top-avatar');
+  av.hidden=!on;
+  if(on){
+    av.textContent=initials(currentUser.name);
+    document.getElementById('um-name').textContent=currentUser.name;
+    document.getElementById('um-email').textContent=currentUser.email;
+  }
+}
+
+// 로그인 필요한 동작 가드
+function requireLogin(after){
+  if(currentUser){after&&after();return true;}
+  openAuth('login');
+  showToast('먼저 로그인해 주세요');
+  return false;
+}
+
+// 세션 유지 + 상태 변화 구독
+async function initAuth(){
+  if(!sb){applyAuthUI();return;}
+  const {data}=await sb.auth.getSession();
+  setUserFromSession(data.session);
+  sb.auth.onAuthStateChange((event,session)=>{
+    const wasLoggedIn=!!currentUser;
+    setUserFromSession(session);
+    if(event==='SIGNED_IN'){
+      closeAuth();
+      if(currentUser)showToast(`${currentUser.name}님, 환영해요`);
+    }
+  });
+}
+
+function toggleUserMenu(ev){
+  if(ev){ev.stopPropagation();ev.preventDefault();}
+  // 아바타 = 마이페이지 토글: 열려 있으면 홈으로, 아니면 마이페이지 열기
+  const meOpen=!document.querySelector('[data-view="me"]').hidden;
+  if(meOpen){go('home');}else{go('me');}
+}
+function closeUserMenu(){document.getElementById('user-menu').hidden=true;}
+document.addEventListener('click',e=>{
+  const m=document.getElementById('user-menu');
+  if(!m.hidden&&!m.contains(e.target)&&e.target.id!=='top-avatar')closeUserMenu();
+});
+document.getElementById('auth').addEventListener('click',e=>{if(e.target.id==='auth')closeAuth();});
+// Enter 키로 제출
+['au-email','au-pw','au-pw2','au-name'].forEach(id=>{const el=document.getElementById(id);if(el)el.addEventListener('keydown',e=>{if(e.key==='Enter')submitAuth();});});
+const g=i=>grad[i%grad.length];
+
+const tracks=[
+  {t:'Signal In',a:'SYNTHIA',genre:'Synthwave',plays:'1.2M',e:'📡'},
+  {t:'수면 위로',a:'물결',genre:'Ambient',plays:'980K',e:'🌊'},
+  {t:'City Lights 03',a:'Kudo',genre:'City Pop',plays:'870K',e:'🌃'},
+  {t:'파랑 (feat. AI)',a:'novaa',genre:'K-Pop',plays:'760K',e:'💙'},
+  {t:'Midnight Loop',a:'해질녘',genre:'인디',plays:'690K',e:'🌙'},
+  {t:'전류',a:'VOLT',genre:'Hip-hop',plays:'540K',e:'⚡'},
+  {t:'Glass Garden',a:'petal',genre:'Ambient',plays:'480K',e:'🌸'},
+  {t:'RUN',a:'nightcore.ai',genre:'Rock',plays:'420K',e:'🔥'},
+];
+const creators=[
+  {n:'SYNTHIA',f:'12.4만',tag:'Synthwave',v:1},
+  {n:'물결',f:'8.9만',tag:'Ambient',v:1},
+  {n:'Kudo',f:'7.1만',tag:'City Pop',v:1},
+  {n:'novaa',f:'6.3만',tag:'K-Pop',v:1},
+  {n:'해질녘',f:'5.5만',tag:'인디',v:0},
+  {n:'VOLT',f:'4.8만',tag:'Hip-hop',v:1},
+  {n:'petal',f:'3.9만',tag:'Ambient',v:0},
+  {n:'nightcore.ai',f:'3.2만',tag:'Rock',v:0},
+];
+const playlists=[
+  {t:'집중이 필요할 때',n:'32곡 · BIT.IN',e:'🎧'},
+  {t:'새벽 감성 AI 인디',n:'28곡 · 물결',e:'🌙'},
+  {t:'운동할 때 터지는 EDM',n:'40곡 · VOLT',e:'⚡'},
+  {t:'비 오는 날 시티팝',n:'24곡 · Kudo',e:'🌧️'},
+  {t:'AI가 만든 K-Pop 신곡',n:'35곡 · BIT.IN',e:'💿'},
+  {t:'몽환 앰비언트',n:'19곡 · petal',e:'🔮'},
+  {t:'출근길 부스터',n:'30곡 · novaa',e:'🚀'},
+  {t:'잠들기 전 5분',n:'12곡 · BIT.IN',e:'😴'},
+];
+const genres=[
+  {n:'발라드',c:'linear-gradient(135deg,#6b76c9,#9a83d4)',e:'🌙'},
+  {n:'댄스',c:'linear-gradient(135deg,#37c4b4,#3a9bcc)',e:'🪩'},
+  {n:'랩/힙합',c:'linear-gradient(135deg,#4a3a8f,#c14b78)',e:'🎤'},
+  {n:'R&B',c:'linear-gradient(135deg,#9a4b8f,#6b4699)',e:'🎧'},
+  {n:'인디',c:'linear-gradient(135deg,#3fb391,#3e8a97)',e:'🌿'},
+  {n:'록/메탈',c:'linear-gradient(135deg,#c14b78,#cc6b4a)',e:'🎸'},
+  {n:'J-POP',c:'linear-gradient(135deg,#d1698c,#d99a5c)',e:'🌸'},
+  {n:'포크/블루스',c:'linear-gradient(135deg,#4a63b3,#4a9bc4)',e:'🎻'},
+];
+const albums=[
+  {t:'AFTERGLOW',a:'SYNTHIA',n:'정규 · 10곡',e:'🌇'},
+  {t:'조용한 물',a:'물결',n:'EP · 5곡',e:'💧'},
+  {t:'NEON EP',a:'Kudo',n:'EP · 4곡',e:'🌆'},
+  {t:'파랑',a:'novaa',n:'싱글',e:'💙'},
+  {t:'404 dreams',a:'해질녘',n:'정규 · 12곡',e:'🌀'},
+  {t:'VOLTAGE',a:'VOLT',n:'EP · 6곡',e:'⚡'},
+  {t:'petals',a:'petal',n:'싱글',e:'🌸'},
+  {t:'OVERDRIVE',a:'nightcore.ai',n:'EP · 5곡',e:'🔥'},
+];
+const mvs=[
+  {t:'Signal In (Official MV)',a:'SYNTHIA',dur:'3:24',e:'📡'},
+  {t:'파랑 MV',a:'novaa',dur:'2:58',e:'💙'},
+  {t:'RUN — Visualizer',a:'nightcore.ai',dur:'3:10',e:'🔥'},
+  {t:'City Lights MV',a:'Kudo',dur:'4:02',e:'🌃'},
+  {t:'전류 (Live AI)',a:'VOLT',dur:'2:45',e:'⚡'},
+  {t:'수면 위로 (Ambient Film)',a:'물결',dur:'5:30',e:'🌊'},
+];
+
+function chartRows(list,container){
+  container.innerHTML=list.map((t,i)=>{
+    const args=`'${t.t.replace(/'/g,"\\'")}','${t.a}','${g(i)}','${t.e}','${(t.genre||'')}','${(t.plays||'')}'`;
+    const pargs=`'${t.t.replace(/'/g,"\\'")}','${t.a}','${g(i)}','${t.e}'`;
+    return `
+    <div class="row" style="cursor:pointer" onclick="openTrack(${args})">
+      <div class="rank ${i<3?'top':''}">${i+1}</div>
+      <div class="cover" style="background:${g(i)}">${t.e}</div>
+      <div class="trk"><div class="t">${t.t}${i%2===0?'<span class="badge-ai">AI</span>':''}</div><div class="a">${t.a}</div></div>
+      <div class="genre-chip">${t.genre||''}</div>
+      <div class="plays">${t.plays?'▶ '+t.plays:''}</div>
+      <div class="row-actions">
+        <button class="q-add" onclick="event.stopPropagation();addToQueue(${pargs})" title="대기열에 추가">＋</button>
+        <button class="play" onclick="event.stopPropagation();playTrack(${pargs})">▶</button>
+      </div>
+    </div>`;}).join('');
+}
+function creatorCards(list,container){
+  container.innerHTML=list.map((c)=>{const i=creators.indexOf(c);return `
+    <div class="card creator">
+      <div class="cface" style="background:${g(i)};cursor:pointer" onclick="openCreator(${i})">${c.n[0]}${c.v?'<div class="vf">✓</div>':''}</div>
+      <h4 style="cursor:pointer" onclick="openCreator(${i})">${c.n}</h4><div class="sub">팔로워 ${c.f} · ${c.tag}</div>
+      <button class="followbtn" onclick="toggleFollow(this)">＋ 팔로우</button>
+    </div>`;}).join('');
+}
+function plCards(list,container){
+  container.innerHTML=list.map((p,i)=>`
+    <div class="card">
+      <div class="art" style="background:${g(i)}">${p.e}<div class="plw"><div>▶</div></div></div>
+      <h4>${p.t}</h4><div class="sub">${p.n}</div>
+      <div class="meta"><span>♥ ${(Math.random()*900+100|0)}</span><span>↗ 공유</span></div>
+    </div>`).join('');
+}
+function albumCards(list,container){
+  container.innerHTML=list.map((al)=>{const i=albums.indexOf(al);return `
+    <div class="card" style="cursor:pointer" onclick="openAlbum(${i})">
+      <div class="art" style="background:${g(i+2)}">${al.e}<div class="plw"><div>▶</div></div></div>
+      <h4>${al.t}</h4><div class="sub">${al.a} · ${al.n}</div>
+    </div>`;}).join('');
+}
+
+chartRows(tracks.slice(0,5),document.getElementById('home-chart'));
+chartRows(tracks,document.getElementById('full-chart'));
+chartRows([...tracks].reverse(),document.getElementById('new-chart'));
+creatorCards(creators.slice(0,5),document.getElementById('home-creators'));
+creatorCards(creators,document.getElementById('full-creators'));
+plCards(playlists.slice(0,4),document.getElementById('home-playlists'));
+plCards(playlists,document.getElementById('playlists-grid'));
+albumCards(albums,document.getElementById('albums-grid'));
+
+document.getElementById('genre-grid').innerHTML=genres.map(gn=>`
+  <div class="gtile" style="background:${gn.c}" onclick="go('chart')">
+    <div class="gt-top"><h4>${gn.n}</h4></div>
+    <span class="gt-sub">지금 뜨는 트랙 <em>→</em></span>
+    <div class="em">${gn.e}</div>
+  </div>`).join('');
+
+document.getElementById('mv-grid').innerHTML=mvs.map((m,i)=>`
+  <div>
+    <div class="mv" style="background:${g(i)}" onclick="playTrack('${m.t}','${m.a}','${g(i)}','${m.e}')">
+      <span style="font-size:44px">${m.e}</span>
+      <div class="dur">${m.dur}</div>
+      <div class="pbig">▶</div>
+      <div class="ov"><h4>${m.t}</h4><div class="sub">${m.a}</div></div>
+    </div>
+  </div>`).join('');
+
+const waveBars=()=>Array.from({length:48},()=>`<i style="height:${Math.random()*22+4|0}px"></i>`).join('');
+const feedData=[
+  {who:'SYNTHIA',when:'2시간 전',body:'세 달 걸린 신곡 드디어 완성 🎉 AI 프롬프트만 200번 넘게 돌렸어요. 피드백 환영!',track:{t:'Signal In',a:'SYNTHIA',e:'📡'},likes:342,liked:false,reactions:true,
+    comments:[{n:'물결',t:'인트로 신스 미쳤다...'},{n:'Kudo',t:'벌스 코드 진행 궁금해요'}]},
+  {who:'petal',when:'5시간 전',body:'조용히 올려요. 반응은 안 봐도 괜찮아요, 그냥 누군가 들어줬으면 해서.',track:{t:'Glass Garden',a:'petal',e:'🌸'},reactions:false},
+  {who:'VOLT',when:'어제',body:'이번 비트 어떤가요? 드랍 부분 특히 신경 썼습니다 ⚡',track:{t:'전류',a:'VOLT',e:'⚡'},likes:589,liked:true,reactions:true,
+    comments:[{n:'novaa',t:'드랍에서 소름 돋음 진짜'}]},
+];
+function feedCardHTML(p,idx){return `
+    <div class="post">
+      <div class="post-head">
+        <div class="av" style="background:${g(idx)}">${p.who[0]}</div>
+        <div><div class="who">${p.who}</div><div class="when">${p.when}</div></div>
+        <div class="more">⋯</div>
+      </div>
+      <div class="post-body">${p.body}</div>
+      <div class="track-embed">
+        <div class="ce" style="background:${g(idx+1)}">${p.track.e}</div>
+        <button class="pl" onclick="playTrack('${p.track.t}','${p.track.a}','${g(idx+1)}','${p.track.e}')">▶</button>
+        <div class="ti"><div class="t">${p.track.t}</div><div class="a">${p.track.a}</div></div>
+        <div class="wave">${waveBars()}</div>
+      </div>
+      ${p.reactions ? `
+        <div class="reactions">
+          <button class="rbtn ${p.liked?'liked':''}" onclick="like(${idx},this)"><span class="heart">${p.liked?'♥':'♡'}</span> <span class="cnt">${p.likes}</span></button>
+          <button class="rbtn"><span>💬</span> ${p.comments?p.comments.length:0}</button>
+          <button class="rbtn"><span>↗</span> 공유</button>
+        </div>
+        <div class="comments">
+          ${(p.comments||[]).map((c,ci)=>`<div class="cmt"><div class="cav" style="background:${g(ci+3)}">${c.n[0]}</div><div class="cbody"><div class="cn">${c.n}</div>${c.t}</div></div>`).join('')}
+        </div>
+        <div class="cmt-input"><input placeholder="댓글 달기…" onkeydown="if(event.key==='Enter')addComment(${idx},this)"><button onclick="addComment(${idx},this.previousElementSibling)">등록</button></div>
+      ` : `
+        <div class="reactions-off">🔒 이 게시물은 반응이 숨김 처리되어 있어요 · 조용히 감상만 할 수 있습니다</div>
+      `}
+    </div>`;}
+function renderFeed(){
+  document.getElementById('feed').innerHTML=feedData.map((p,idx)=>feedCardHTML(p,idx)).join('');
+}
+renderFeed();
+
+function like(i,btn){const p=feedData[i];p.liked=!p.liked;p.likes+=p.liked?1:-1;btn.classList.toggle('liked',p.liked);btn.querySelector('.heart').textContent=p.liked?'♥':'♡';btn.querySelector('.cnt').textContent=p.likes;}
+function addComment(i,input){const v=input.value.trim();if(!v)return;feedData[i].comments=feedData[i].comments||[];feedData[i].comments.push({n:'YU',t:v});renderFeed();}
+
+function go(v){if(v==='me'&&!currentUser){requireLogin();return;}document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.view!==v);document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.view===v));window.scrollTo({top:0,behavior:'smooth'});if(v==='me')renderMe();}
+document.querySelectorAll('.nav').forEach(n=>n.addEventListener('click',()=>go(n.dataset.view)));
+
+/* ============ 검색 ============ */
+function runSearch(q){
+  q=(q||'').trim(); if(!q){return;}
+  document.getElementById('search-term').textContent=q;
+  const ql=q.toLowerCase();
+  const tHit=tracks.filter(t=>t.t.toLowerCase().includes(ql)||t.a.toLowerCase().includes(ql));
+  const cHit=creators.filter(c=>c.n.toLowerCase().includes(ql)||c.tag.toLowerCase().includes(ql));
+  const pHit=playlists.filter(p=>p.t.toLowerCase().includes(ql));
+  let html='';
+  if(!tHit.length&&!cHit.length&&!pHit.length){
+    html=`<div class="qp-empty" style="padding:60px 20px">"${q}"에 대한 결과가 없어요.<br>다른 키워드로 검색해 보세요.</div>`;
+  }else{
+    if(cHit.length){html+=`<div class="hd" style="margin-top:8px"><h2 style="font-size:22px">크리에이터</h2></div><div class="grid g4" style="margin-bottom:30px">`+cHit.map(c=>{const i=creators.indexOf(c);return `<div class="card creator"><div class="cface" style="background:${g(i)};cursor:pointer" onclick="openCreator(${i})">${c.n[0]}${c.v?'<div class="vf">✓</div>':''}</div><h4 style="cursor:pointer" onclick="openCreator(${i})">${c.n}</h4><div class="sub">팔로워 ${c.f} · ${c.tag}</div><button class="followbtn" onclick="toggleFollow(this)">＋ 팔로우</button></div>`;}).join('')+`</div>`;}
+    if(tHit.length){html+=`<div class="hd"><h2 style="font-size:22px">곡</h2></div><div class="chart" id="search-tracks" style="margin-bottom:30px"></div>`;}
+    if(pHit.length){html+=`<div class="hd"><h2 style="font-size:22px">플레이리스트</h2></div><div class="grid g4" id="search-pls"></div>`;}
+  }
+  document.getElementById('search-body').innerHTML=html;
+  if(tHit.length)chartRows(tHit,document.getElementById('search-tracks'));
+  if(pHit.length)plCards(pHit,document.getElementById('search-pls'));
+  go('search');
+}
+
+/* ============ 크리에이터 상세 ============ */
+function openCreator(i){
+  const c=creators[i];
+  const own=tracks.filter(t=>t.a===c.n);
+  const disc=own.length?own:tracks.slice(0,3); // 데모용: 없으면 샘플
+  const alb=albums.filter(a=>a.a===c.n);
+  document.getElementById('creator-detail').innerHTML=`
+    <a class="back-btn" onclick="go('creators')">← 크리에이터 목록</a>
+    <div class="profile-hero" style="background:${g(i)}">
+      <div class="ph-face" style="background:rgba(0,0,0,.25)">${c.n[0]}</div>
+      <div class="ph-info">
+        ${c.v?'<span class="vtag">✓ 인증 크리에이터</span>':''}
+        <h2>${c.n}</h2>
+        <div class="stats"><div><b>${c.f}</b>팔로워</div><div><b>${disc.length}</b>트랙</div><div><b>${alb.length||1}</b>앨범</div></div>
+      </div>
+      <div class="ph-actions">
+        <button class="btn primary" onclick="playTrack('${disc[0].t}','${c.n}','${g(i)}','${disc[0].e}')">▶ 전체 재생</button>
+        <button class="followbtn" style="width:auto;padding:12px 22px" onclick="toggleFollow(this)">＋ 팔로우</button>
+      </div>
+    </div>
+    <div class="hd"><h2 style="font-size:22px">인기 트랙</h2></div>
+    <div class="chart" id="creator-tracks"></div>`;
+  chartRows(disc.map(t=>({...t,a:c.n})),document.getElementById('creator-tracks'));
+  go('creator');
+}
+
+/* ============ 곡 상세 ============ */
+const trackLikes={}; // 제목 -> bool
+function openTrack(t,a,bg,e,genre,plays){
+  const liked=!!trackLikes[t];
+  const ci=creators.findIndex(c=>c.n===a);
+  const bars=Array.from({length:70},(_,k)=>{const h=20+Math.abs(Math.sin(k*0.5))*40+Math.random()*10;return `<i style="height:${h|0}px;opacity:${(0.35+Math.random()*0.5).toFixed(2)}"></i>`;}).join('');
+  document.getElementById('track-detail').innerHTML=`
+    <a class="back-btn" onclick="history.back?go('chart'):go('chart')">← 뒤로</a>
+    <div class="td-hero">
+      <div class="td-cover" style="background:${bg}">${e}</div>
+      <div class="td-meta">
+        <div class="kind">TRACK</div>
+        <h1>${t}</h1>
+        <div class="by" ${ci>=0?`onclick="openCreator(${ci})"`:''}>${a}${ci>=0&&creators[ci].v?' ✓':''}</div>
+        <div class="facts">${genre?`<span>${genre}</span>`:''}${plays?`<span>▶ ${plays} 재생</span>`:''}<span>AI 생성</span><span>3:24</span></div>
+        <div class="td-actions">
+          <button class="btn primary" onclick="playTrack('${t.replace(/'/g,"\\'")}','${a}','${bg}','${e}')">▶ 재생</button>
+          <button class="td-like ${liked?'liked':''}" id="td-like-btn" onclick="toggleTrackLike('${t.replace(/'/g,"\\'")}',this)"><span class="heart">${liked?'♥':'♡'}</span> 좋아요</button>
+          <button class="td-like" onclick="addToQueue('${t.replace(/'/g,"\\'")}','${a}','${bg}','${e}')">＋ 대기열</button>
+        </div>
+      </div>
+    </div>
+    <div class="td-wave">${bars}</div>
+    <div class="td-desc">AI로 완성한 트랙이에요. 프롬프트를 수십 번 다듬으며 무드와 코드 진행을 잡았습니다. 헤드폰으로 들으면 공간감이 더 살아나요.</div>
+    <div class="hd"><h2 style="font-size:22px">이 곡과 비슷한</h2></div>
+    <div class="chart" id="td-similar"></div>`;
+  chartRows(tracks.filter(x=>x.t!==t).slice(0,4),document.getElementById('td-similar'));
+  go('track');
+}
+function toggleTrackLike(t,btn){
+  trackLikes[t]=!trackLikes[t];
+  btn.classList.toggle('liked',trackLikes[t]);
+  btn.querySelector('.heart').textContent=trackLikes[t]?'♥':'♡';
+  if(trackLikes[t])pushNotif({face:'YU',bg:'linear-gradient(135deg,#5b8cff,#ff5c8a)',text:`<b>${t}</b>을(를) 좋아요 목록에 담았어요`,emoji:'💚',time:'방금'});
+}
+
+/* ============ 앨범 상세 ============ */
+function openAlbum(i){
+  const al=albums[i];
+  const ci=creators.findIndex(c=>c.n===al.a);
+  const nTracks=parseInt((al.n.match(/(\d+)곡/)||[])[1]||'6');
+  const titles=['Intro','첫 장면','Signal','여백','Runaway','한낮의 꿈','Echo','밤의 끝','Reprise','Outro','또 다른 시작','잔상'];
+  const list=Array.from({length:nTracks},(_,k)=>({t:titles[k%titles.length],a:al.a,genre:'',plays:(Math.random()*400+50|0)+'K',e:al.e}));
+  document.getElementById('album-detail').innerHTML=`
+    <a class="back-btn" onclick="go('albums')">← 앨범 목록</a>
+    <div class="td-hero">
+      <div class="td-cover" style="background:${g(i+2)}">${al.e}</div>
+      <div class="td-meta">
+        <div class="kind">ALBUM · ${al.n.split(' · ')[0]}</div>
+        <h1>${al.t}</h1>
+        <div class="by" ${ci>=0?`onclick="openCreator(${ci})"`:''}>${al.a}${ci>=0&&creators[ci].v?' ✓':''}</div>
+        <div class="facts"><span>${nTracks}곡</span><span>${2024+i%2}</span><span>AI 앨범</span></div>
+        <div class="td-actions">
+          <button class="btn primary" onclick="playTrack('${list[0].t}','${al.a}','${g(i+2)}','${al.e}')">▶ 전체 재생</button>
+          <button class="td-like" onclick="queueAlbum(${i})">＋ 대기열에 모두</button>
+        </div>
+      </div>
+    </div>
+    <div class="hd"><h2 style="font-size:22px">수록곡</h2></div>
+    <div class="chart" id="album-tracks"></div>`;
+  chartRows(list,document.getElementById('album-tracks'));
+  window._albumList=list.map((t,k)=>({t:t.t,a:al.a,bg:g(i+2),e:al.e}));
+  go('album');
+}
+function queueAlbum(i){(window._albumList||[]).forEach(c=>queue.push(c));if(qIndex<0){qIndex=0;loadCurrent(true);}renderQueue();updateQCount();showToast('앨범 전체를 대기열에 담았어요');}
+
+/* ============ 알림 ============ */
+let notifs=[
+  {face:'S',bg:'linear-gradient(135deg,#5b8cff,#ff5c8a)',who:'SYNTHIA',text:'<b>SYNTHIA</b>님이 새 곡 <b>Signal In</b>을 올렸어요',emoji:'🎵',time:'2시간 전',unread:true,creator:0},
+  {face:'V',bg:'linear-gradient(135deg,#ff5c8a,#ffab5c)',who:'VOLT',text:'<b>VOLT</b>님이 회원님의 댓글에 좋아요를 눌렀어요',emoji:'♥',time:'5시간 전',unread:true,creator:5},
+  {face:'물',bg:'linear-gradient(135deg,#22e5c8,#1a9e88)',who:'물결',text:'<b>물결</b>님이 회원님을 팔로우하기 시작했어요',emoji:'✦',time:'어제',unread:true,creator:1},
+  {face:'n',bg:'linear-gradient(135deg,#845ef7,#5c7cfa)',who:'novaa',text:'팔로우하는 <b>novaa</b>님이 새 MV를 게시했어요',emoji:'▷',time:'2일 전',unread:false,creator:3},
+];
+function pushNotif(n){notifs.unshift({...n,unread:true});renderNotif();updateNotifBadge();}
+function renderNotif(){
+  document.getElementById('notif-list').innerHTML=notifs.length?notifs.map((n,i)=>`
+    <div class="nitem ${n.unread?'unread':''}" onclick="openNotif(${i})">
+      <div class="nav-face" style="background:${n.bg}">${n.face}</div>
+      <div class="ntext">${n.text}<div class="ntime">${n.time}</div></div>
+      <div class="nemoji">${n.emoji}</div>
+    </div>`).join(''):'<div class="qp-empty" style="padding:40px 20px">새 알림이 없어요</div>';
+}
+function updateNotifBadge(){const n=notifs.filter(x=>x.unread).length;const b=document.getElementById('notif-badge');b.textContent=n;b.setAttribute('data-empty',n?'0':'1');}
+function openNotif(i){notifs[i].unread=false;const c=notifs[i].creator;renderNotif();updateNotifBadge();if(c!=null){toggleNotif();openCreator(c);}}
+function markAllRead(){notifs.forEach(n=>n.unread=false);renderNotif();updateNotifBadge();}
+function toggleNotif(){document.getElementById('queue-panel').classList.remove('open');document.getElementById('notif-panel').classList.toggle('open');renderNotif();}
+
+/* ============ 마이페이지 ============ */
+let myTab='uploads';
+function renderMe(){
+  const uname=currentUser?currentUser.name:'YU';
+  const uploads=feedData.filter(p=>p.who===uname);
+  const liked=feedData.filter(p=>p.liked);
+  const el=document.getElementById('me-detail');
+  el.innerHTML=`
+    <div class="profile-hero" style="background:linear-gradient(135deg,#5b8cff,#ff5c8a)">
+      <div class="ph-face" style="background:rgba(0,0,0,.25)">${initials(uname)}</div>
+      <div class="ph-info">
+        <span class="vtag">MY PAGE</span>
+        <h2>${uname}</h2>
+        <div class="stats"><div><b>${uploads.length}</b>올린 곡</div><div><b>${liked.length}</b>좋아요</div><div><b>128</b>팔로잉</div></div>
+      </div>
+      <div class="ph-actions"><button class="btn primary" onclick="openUpload()">＋ 새 음악 게시</button><button class="btn ghost" onclick="logout()">로그아웃</button></div>
+    </div>
+    <div class="seg">
+      <button class="${myTab==='uploads'?'on':''}" onclick="setMyTab('uploads')">올린 음악</button>
+      <button class="${myTab==='liked'?'on':''}" onclick="setMyTab('liked')">좋아요</button>
+    </div>
+    <div id="me-list"></div>`;
+  const list=myTab==='uploads'?uploads:liked;
+  const box=document.getElementById('me-list');
+  if(!list.length){box.innerHTML=`<div class="qp-empty" style="padding:50px 20px">${myTab==='uploads'?'아직 올린 음악이 없어요. 첫 트랙을 게시해 보세요!':'아직 좋아요한 게시물이 없어요.'}</div>`;return;}
+  box.className='feed';box.style.margin='0';
+  box.innerHTML=list.map(p=>{const idx=feedData.indexOf(p);return feedCardHTML(p,idx);}).join('');
+}
+function setMyTab(t){myTab=t;renderMe();}
+
+function toggleFollow(b){const ing=b.classList.toggle('ing');b.textContent=ing?'✓ 팔로잉':'＋ 팔로우';}
+
+/* ============ 재생 큐 시스템 ============ */
+let queue=[];          // {t,a,bg,e} 배열
+let qIndex=-1;         // 현재 재생 인덱스
+let isPlaying=false;
+let shuffle=false, repeat=false;
+
+// 곡 하나 재생: 클릭한 곡을 큐 맨 앞 현재로, 전체 트랙을 뒤에 이어붙임
+function playTrack(t,a,bg,e){
+  queue=[{t,a,bg,e}];
+  // 같은 곡 빼고 나머지 인기곡을 다음 곡으로 채움
+  tracks.forEach((tr,i)=>{ if(tr.t!==t) queue.push({t:tr.t,a:tr.a,bg:g(i),e:tr.e}); });
+  qIndex=0;
+  loadCurrent(true);
+}
+// 큐에 추가만 (재생 중이 아니면 바로 재생)
+function addToQueue(t,a,bg,e){
+  queue.push({t,a,bg,e});
+  if(qIndex<0){qIndex=0;loadCurrent(true);}
+  showToast(`"${t}" 대기열에 추가됨`);
+  renderQueue();updateQCount();
+}
+function loadCurrent(play){
+  const c=queue[qIndex]; if(!c)return;
+  document.getElementById('nowbar').classList.add('up');
+  document.getElementById('np-title').textContent=c.t;
+  document.getElementById('np-artist').textContent=c.a;
+  const cov=document.getElementById('np-cover');cov.style.background=c.bg;cov.textContent=c.e;
+  isPlaying=play!==false;
+  document.getElementById('pp').textContent=isPlaying?'❚❚':'▶';
+  renderQueue();updateQCount();
+}
+function togglePlay(){isPlaying=!isPlaying;document.getElementById('pp').textContent=isPlaying?'❚❚':'▶';}
+function nextTrack(){
+  if(!queue.length)return;
+  if(shuffle){qIndex=Math.floor(Math.random()*queue.length);}
+  else if(qIndex<queue.length-1){qIndex++;}
+  else if(repeat){qIndex=0;}
+  else{return;}
+  loadCurrent(true);
+}
+function prevTrack(){if(!queue.length)return;qIndex=qIndex>0?qIndex-1:(repeat?queue.length-1:0);loadCurrent(true);}
+function toggleShuffle(){shuffle=!shuffle;document.getElementById('shuffle-btn').classList.toggle('act',shuffle);}
+function toggleRepeat(){repeat=!repeat;document.getElementById('repeat-btn').classList.toggle('act',repeat);}
+function playFromQueue(i){qIndex=i;loadCurrent(true);}
+function removeFromQueue(i,ev){ev.stopPropagation();queue.splice(i,1);if(i<qIndex)qIndex--;else if(i===qIndex)loadCurrent(isPlaying);renderQueue();updateQCount();}
+function updateQCount(){const n=Math.max(0,queue.length-qIndex-1);document.getElementById('q-count').textContent=n;}
+
+function toggleQueue(){document.getElementById('notif-panel').classList.remove('open');document.getElementById('queue-panel').classList.toggle('open');renderQueue();}
+function renderQueue(){
+  const now=queue[qIndex];
+  document.getElementById('qp-now').innerHTML=now?`
+    <div class="qp-item"><div class="qc" style="background:${now.bg}">${now.e}</div>
+      <div class="qi"><div class="t">${now.t}</div><div class="a">${now.a}</div></div>
+      <div class="np-eq"><i></i><i></i><i></i></div></div>`:'<div class="qp-empty">재생 중인 곡이 없어요</div>';
+  const up=queue.slice(qIndex+1);
+  document.getElementById('qp-list').innerHTML=up.length?up.map((c,i)=>`
+    <div class="qp-item" onclick="playFromQueue(${qIndex+1+i})">
+      <div class="qc" style="background:${c.bg}">${c.e}</div>
+      <div class="qi"><div class="t">${c.t}</div><div class="a">${c.a}</div></div>
+      <button class="qx" onclick="removeFromQueue(${qIndex+1+i},event)">✕</button>
+    </div>`).join(''):'<div class="qp-empty">대기열이 비어 있어요</div>';
+}
+
+function openUpload(){if(!requireLogin())return;document.getElementById('upload').hidden=false}
+function closeUpload(){document.getElementById('upload').hidden=true}
+document.getElementById('upload').addEventListener('click',e=>{if(e.target.id==='upload')closeUpload()});
+document.querySelectorAll('#up-genres button').forEach(b=>b.onclick=()=>b.classList.toggle('sel'));
+function toggleSw(sw){sw.classList.toggle('on')}
+function toggleMain(sw){const on=sw.classList.toggle('on');document.getElementById('sub-toggles').classList.toggle('dim',!on);}
+function submitPost(){
+  const uname=currentUser?currentUser.name:'YU';
+  const title=document.getElementById('up-title').value.trim()||'제목 없는 트랙';
+  const reactionsOn=document.getElementById('tg-main').classList.contains('on');
+  closeUpload();
+  showToast(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`);
+  feedData.unshift({who:uname,when:'방금',body:document.getElementById('up-desc').value.trim()||'새 트랙을 올렸어요.',track:{t:title,a:uname,e:'🎵'},reactions:reactionsOn,likes:0,liked:false,comments:[]});
+  renderFeed();
+}
+let tmr;
+function showToast(msg){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;t.classList.add('show');clearTimeout(tmr);tmr=setTimeout(()=>t.classList.remove('show'),2600);}
+
+// 초기화
+initAuth();
+updateNotifBadge();
+renderNotif();
+
+// 새 팔로우/게시 알림 시뮬레이션 (진짜 서비스 느낌)
+setTimeout(()=>pushNotif({face:'K',bg:'linear-gradient(135deg,#ff5c8a,#ffab5c)',who:'Kudo',text:'<b>Kudo</b>님이 새 앨범 <b>NEON EP</b>를 발매했어요',emoji:'💿',time:'방금',creator:2}),9000);
+</script>
+</body>
+</html>
