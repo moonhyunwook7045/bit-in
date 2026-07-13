@@ -939,6 +939,7 @@ function setUserFromSession(session){
 
 function applyAuthUI(){
   const on=!!currentUser;
+  if(on)isGuest=false; // 로그인 상태면 게스트 모드는 무조건 해제
   document.getElementById('login-btn').hidden=on;
   const av=document.getElementById('top-avatar');
   av.hidden=!on;
