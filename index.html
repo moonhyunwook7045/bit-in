@@ -333,6 +333,21 @@
   .seg button{padding:8px 18px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);transition:.15s}
   .seg button.on{background:var(--cyan);color:#04120f}
 
+  /* 챌린지 */
+  .challenge-banner{border-radius:18px;padding:24px 26px;margin-bottom:34px;position:relative;overflow:hidden;display:flex;align-items:center;gap:20px;background:linear-gradient(115deg,#1a2740,#241a3a);border:1px solid var(--line);cursor:pointer;transition:.18s}
+  .challenge-banner:hover{transform:translateY(-2px);border-color:var(--cyan)}
+  .cb-emoji{font-size:52px;flex:none;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}
+  .cb-info{flex:1;position:relative;z-index:2}
+  .cb-tag{display:inline-block;font-size:11px;letter-spacing:1px;font-weight:700;color:var(--cyan);background:rgba(34,229,200,.12);padding:4px 10px;border-radius:20px;margin-bottom:8px}
+  .cb-info h3{font-family:"Syne",sans-serif;font-size:24px;font-weight:800;letter-spacing:-.5px}
+  .cb-info p{color:var(--muted);font-size:14px;margin-top:4px}
+  .cb-cta{flex:none;background:var(--cyan);color:#04120f;font-weight:700;font-size:14px;padding:12px 20px;border-radius:12px;position:relative;z-index:2}
+  .challenge-opt{display:flex;align-items:center;gap:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer}
+  .challenge-opt .co-info{flex:1}
+  .challenge-opt .co-title{font-weight:700;font-size:14px}
+  .challenge-opt .co-sub{font-size:12px;color:var(--muted);margin-top:2px}
+  @media(max-width:860px){.challenge-banner{flex-wrap:wrap}.cb-cta{width:100%;text-align:center}}
+
   /* 통계 대시보드 */
   .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
   .stat-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center;transition:.16s}
@@ -445,6 +460,7 @@
 
     <div class="navlabel">플레이리스트</div>
     <button class="nav" data-view="playlists"><span class="ic">♫</span> 추천 · 공유</button>
+    <button class="nav" data-view="challenge"><span class="ic">◎</span> 챌린지</button>
     <button class="nav" data-view="community"><span class="ic">◇</span> 커뮤니티</button>
 
     <div class="cta">
@@ -485,6 +501,8 @@
           </div>
         </div>
       </div>
+
+      <div id="home-challenge-banner"></div>
 
       <div class="hd"><h2>오늘의 추천 플레이리스트 <span class="tag">FOR YOU</span></h2><p>취향 기반 자동 큐레이션</p></div>
       <div class="grid g4" id="home-playlists" style="margin-bottom:36px"></div>
@@ -534,6 +552,11 @@
     <section class="view" data-view="community" hidden>
       <div class="hd"><h2>커뮤니티</h2><p>음악을 올리고, 반응을 나눠요</p></div>
       <div class="feed" id="feed"></div>
+    </section>
+
+    <!-- CHALLENGE -->
+    <section class="view" data-view="challenge" hidden>
+      <div id="challenge-body"></div>
     </section>
 
     <!-- SEARCH RESULTS -->
@@ -660,6 +683,14 @@
       <div class="chips" id="up-genres">
         <button>발라드</button><button>댄스</button><button>랩/힙합</button><button>R&B</button>
         <button>인디</button><button>록/메탈</button><button>J-POP</button><button>포크/블루스</button>
+      </div>
+    </div>
+
+    <div class="field" id="up-challenge-field" hidden>
+      <label>◎ 이번 주 챌린지 참여</label>
+      <div class="challenge-opt" id="up-challenge-opt" onclick="toggleChallengeJoin()">
+        <div class="switch" id="up-challenge-sw"></div>
+        <div class="co-info"><div class="co-title" id="up-challenge-title">—</div><div class="co-sub">참여하면 챌린지 목록에 함께 올라가요</div></div>
       </div>
     </div>
 
@@ -820,6 +851,7 @@ async function initAuth(){
   setUserFromSession(data.session);
   await loadFollows();
   loadPosts(); // 페이지 열릴 때 공개 게시물 불러오기
+  loadChallenge(); // 이번 주 챌린지 불러오기
   sb.auth.onAuthStateChange((event,session)=>{
     const wasLoggedIn=!!currentUser;
     setUserFromSession(session);
@@ -1065,7 +1097,7 @@ async function addComment(i,input){
   renderFeed();
 }
 
-function go(v){if(v==='me'&&!currentUser){requireLogin();return;}document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.view!==v);document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.view===v));window.scrollTo({top:0,behavior:'smooth'});if(v==='me')renderMe();}
+function go(v){if(v==='me'&&!currentUser){requireLogin();return;}document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.view!==v);document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.view===v));window.scrollTo({top:0,behavior:'smooth'});if(v==='me')renderMe();if(v==='challenge')renderChallengeView();}
 document.querySelectorAll('.nav').forEach(n=>n.addEventListener('click',()=>go(n.dataset.view)));
 
 /* ============ 검색 ============ */
@@ -1436,16 +1468,17 @@ async function submitPost(){
   const aiTool=aiToolEl?aiToolEl.textContent:'';
   const aiPrompt=document.getElementById('up-prompt').value.trim();
   const reactionsOn=document.getElementById('tg-main').classList.contains('on');
+  const challengeId=(challengeJoin&&activeChallenge)?activeChallenge.id:null;
   closeUpload();
 
   // 로그인 + 백엔드 준비됐으면 서버에 저장
   if(sb && currentUser && currentUser.id){
     const {data,error}=await sb.from('posts').insert({
       user_id:currentUser.id, author_name:uname, title, body, emoji:'🎵',
-      reactions:reactionsOn, ai_tool:aiTool||null, ai_prompt:aiPrompt||null
+      reactions:reactionsOn, ai_tool:aiTool||null, ai_prompt:aiPrompt||null, challenge_id:challengeId
     }).select().single();
     if(error){showToast('게시 실패: '+(error.message||'다시 시도해 주세요'));return;}
-    showToast(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`);
+    showToast(challengeId?`"${title}" 챌린지 참여 완료! 🎯`:(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`));
     feedData.unshift(postToFeed(data));
     renderFeed();
   }else{
@@ -1458,6 +1491,8 @@ async function submitPost(){
   document.getElementById('up-desc').value='';
   document.getElementById('up-prompt').value='';
   document.querySelectorAll('#up-aitool button.sel,#up-genres button.sel').forEach(x=>x.classList.remove('sel'));
+  challengeJoin=false;
+  const csw=document.getElementById('up-challenge-sw');if(csw)csw.classList.remove('on');
 }
 
 // Supabase posts 행 → 화면 피드 카드 형식으로 변환
@@ -1467,7 +1502,7 @@ function postToFeed(p){
     body:p.body||'새 트랙을 올렸어요.',
     track:{t:p.title, a:p.author_name, e:p.emoji||'🎵'},
     reactions:p.reactions, likes:0, liked:false, comments:[],
-    aiTool:p.ai_tool||'', aiPrompt:p.ai_prompt||''
+    aiTool:p.ai_tool||'', aiPrompt:p.ai_prompt||'', challengeId:p.challenge_id||null
   };
 }
 function timeAgo(ts){
@@ -1512,6 +1547,61 @@ async function loadPosts(){
 }
 let tmr;
 function showToast(msg){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;t.classList.add('show');clearTimeout(tmr);tmr=setTimeout(()=>t.classList.remove('show'),2600);}
+
+/* ============ 주간 챌린지 ============ */
+let activeChallenge=null;   // 현재 활성 챌린지
+let challengeJoin=false;    // 업로드 시 참여 여부
+async function loadChallenge(){
+  if(!sb)return;
+  const {data}=await sb.from('challenges').select('*').eq('active',true).order('created_at',{ascending:false}).limit(1);
+  activeChallenge=(data&&data[0])||null;
+  renderChallengeBanner();
+  // 업로드 모달 챌린지 필드 갱신
+  const field=document.getElementById('up-challenge-field');
+  if(field){
+    field.hidden=!activeChallenge;
+    if(activeChallenge)document.getElementById('up-challenge-title').textContent=`${activeChallenge.emoji||'🎯'} ${activeChallenge.title}`;
+  }
+}
+function renderChallengeBanner(){
+  const el=document.getElementById('home-challenge-banner');
+  if(!el)return;
+  if(!activeChallenge){el.innerHTML='';return;}
+  el.innerHTML=`
+    <div class="challenge-banner" onclick="go('challenge')">
+      <div class="cb-emoji">${activeChallenge.emoji||'🎯'}</div>
+      <div class="cb-info">
+        <span class="cb-tag">이번 주 챌린지</span>
+        <h3>${activeChallenge.title}</h3>
+        <p>${activeChallenge.description||''}</p>
+      </div>
+      <div class="cb-cta">참여하기 →</div>
+    </div>`;
+}
+async function renderChallengeView(){
+  const box=document.getElementById('challenge-body');
+  if(!activeChallenge){box.innerHTML=`<div class="hd"><h2>챌린지</h2></div><div class="qp-empty" style="padding:60px 20px">진행 중인 챌린지가 없어요.</div>`;return;}
+  box.innerHTML=`
+    <div class="challenge-banner" style="cursor:default;margin-bottom:26px">
+      <div class="cb-emoji">${activeChallenge.emoji||'🎯'}</div>
+      <div class="cb-info"><span class="cb-tag">이번 주 챌린지</span><h3>${activeChallenge.title}</h3><p>${activeChallenge.description||''}</p></div>
+      <button class="cb-cta" onclick="openUpload()">＋ 참여하기</button>
+    </div>
+    <div class="hd"><h2 style="font-size:22px">참여한 곡</h2></div>
+    <div class="feed" id="challenge-feed"><div class="qp-empty" style="padding:40px 20px">불러오는 중…</div></div>`;
+  // 이 챌린지에 참여한 공개 게시물 조회
+  if(sb){
+    const {data}=await sb.from('posts').select('*').eq('challenge_id',activeChallenge.id).order('created_at',{ascending:false});
+    const feed=(data||[]).map(postToFeed);
+    const cf=document.getElementById('challenge-feed');
+    if(!feed.length){cf.innerHTML=`<div class="qp-empty" style="padding:40px 20px">아직 참여한 곡이 없어요. 첫 참여자가 되어보세요!</div>`;return;}
+    cf.innerHTML=feed.map((p,idx)=>feedCardHTML(p,idx)).join('');
+  }
+}
+function toggleChallengeJoin(){
+  challengeJoin=!challengeJoin;
+  document.getElementById('up-challenge-sw').classList.toggle('on',challengeJoin);
+}
 function copyPrompt(btn,text){
   const done=()=>{btn.textContent='✓ 복사됨';btn.classList.add('done');showToast('프롬프트를 복사했어요');setTimeout(()=>{btn.textContent='복사';btn.classList.remove('done');},1800);};
   if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));}
