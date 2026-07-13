@@ -460,11 +460,16 @@
 
   /* 모바일 하단 탭바 (기본 숨김, 모바일에서만 표시) */
   .mobile-nav{display:none}
+  .side-overlay{display:none}
 
   @media(max-width:1080px){.g4,.g5{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:860px){
     .app{grid-template-columns:1fr}
-    .side{display:none}
+    /* 사이드바를 슬라이드 메뉴로 */
+    .side{display:flex;position:fixed;top:0;left:0;height:100vh;width:260px;max-width:82vw;z-index:60;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:8px 0 40px rgba(0,0,0,.5)}
+    .side.open{transform:translateX(0)}
+    .side-overlay{display:block;position:fixed;inset:0;background:rgba(3,4,8,.6);backdrop-filter:blur(2px);z-index:55;opacity:0;pointer-events:none;transition:opacity .28s}
+    .side-overlay.open{opacity:1;pointer-events:auto}
     .nowbar{left:0}
     .g4,.g5,.g3{grid-template-columns:repeat(2,1fr)}
     .row{grid-template-columns:34px 40px 1fr 92px;gap:8px;padding:11px 14px}
@@ -524,8 +529,9 @@
 <div class="app">
 
   <!-- SIDEBAR -->
-  <aside class="side">
-    <div class="brand" onclick="go('home')" style="cursor:pointer" title="홈으로">
+  <div class="side-overlay" id="side-overlay" onclick="closeSideMenu()"></div>
+  <aside class="side" id="side">
+    <div class="brand" onclick="go('home');closeSideMenu()" style="cursor:pointer" title="홈으로">
       <div class="logo">
         <svg viewBox="0 0 44 44" fill="none">
           <defs>
@@ -561,8 +567,8 @@
     <button class="nav" data-view="community"><span class="ic">◇</span> 커뮤니티</button>
 
     <div class="cta">
-      <button class="post-btn" style="background:var(--panel-2);color:var(--cyan);border:1px solid var(--cyan);margin-bottom:8px" onclick="openNewPlaylist()"><span>＋</span> 내 플레이리스트 만들기</button>
-      <button class="post-btn" onclick="openUpload()"><span>＋</span> 내 음악 게시</button>
+      <button class="post-btn" style="background:var(--panel-2);color:var(--cyan);border:1px solid var(--cyan);margin-bottom:8px" onclick="closeSideMenu();openNewPlaylist()"><span>＋</span> 내 플레이리스트 만들기</button>
+      <button class="post-btn" onclick="closeSideMenu();openUpload()"><span>＋</span> 내 음악 게시</button>
     </div>
   </aside>
 
@@ -572,7 +578,7 @@
       <div class="search"><span>⌕</span><input id="search-input" placeholder="곡, 크리에이터, 플레이리스트 검색" onkeydown="if(event.key==='Enter')runSearch(this.value)"></div>
       <div class="top-actions">
         <span class="guest-badge" id="guest-badge" hidden>👤 게스트 모드</span>
-        <button class="icon-btn" id="queue-btn" onclick="toggleQueue()" title="재생 대기열">☰</button>
+        <button class="icon-btn" id="menu-btn" onclick="toggleSideMenu()" title="메뉴">☰</button>
         <button class="icon-btn bell" id="bell-btn" onclick="toggleNotif()" title="알림">♪<span class="badge" id="notif-badge">0</span></button>
         <button class="login-btn" id="login-btn" onclick="openAuth('login')">로그인</button>
         <div class="avatar" id="top-avatar" onclick="toggleUserMenu(event)" title="내 계정" hidden>?</div>
@@ -1614,7 +1620,16 @@ async function deleteComment(pi,ci){
 }
 
 function go(v){if(v==='me'&&!currentUser){requireLogin();return;}document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.view!==v);document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.view===v));document.querySelectorAll('.mnav').forEach(n=>n.classList.toggle('on',n.dataset.mview===v));window.scrollTo({top:0,behavior:'smooth'});if(v==='me')renderMe();if(v==='challenge')renderChallengeView();if(v==='playlists')renderPlaylistsView();}
-document.querySelectorAll('.nav').forEach(n=>n.addEventListener('click',()=>go(n.dataset.view)));
+document.querySelectorAll('.nav').forEach(n=>n.addEventListener('click',()=>{go(n.dataset.view);closeSideMenu();}));
+// 모바일 슬라이드 메뉴
+function toggleSideMenu(){
+  const s=document.getElementById('side'),o=document.getElementById('side-overlay');
+  const open=s.classList.toggle('open');o.classList.toggle('open',open);
+}
+function closeSideMenu(){
+  document.getElementById('side').classList.remove('open');
+  document.getElementById('side-overlay').classList.remove('open');
+}
 
 /* ============ 검색 ============ */
 function runSearch(q){
