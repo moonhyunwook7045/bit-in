@@ -1465,6 +1465,7 @@ async function editPost(idx){
 }
 
 async function like(i,btn){
+  if(!currentUser)return requireLogin(); // 게스트·비로그인은 차단
   const p=feedData[i];
   // 서버 게시물이면 Supabase에 반영
   if(sb && currentUser && currentUser.id && p.id){
@@ -1487,6 +1488,7 @@ async function like(i,btn){
   btn.querySelector('.cnt').textContent=p.likes;
 }
 async function addComment(i,input){
+  if(!currentUser)return requireLogin(); // 게스트·비로그인은 차단
   const v=input.value.trim();if(!v)return;
   const p=feedData[i];
   const uname=currentUser?currentUser.name:'YU';
