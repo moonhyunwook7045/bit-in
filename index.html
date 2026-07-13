@@ -1548,10 +1548,30 @@ function runSearch(q){
   const tHit=tracks.filter(t=>t.t.toLowerCase().includes(ql)||t.a.toLowerCase().includes(ql));
   const cHit=creators.filter(c=>c.n.toLowerCase().includes(ql)||c.tag.toLowerCase().includes(ql));
   const pHit=playlists.filter(p=>p.t.toLowerCase().includes(ql));
+
+  // 실제 유저: 게시물 작성자 중 검색어와 일치 (데모 크리에이터와 중복 제외)
+  const creatorNames=new Set(creators.map(c=>c.n.toLowerCase()));
+  const userMap={};
+  feedData.forEach(p=>{
+    if(p.who && p.who.toLowerCase().includes(ql) && !creatorNames.has(p.who.toLowerCase())){
+      (userMap[p.who]=userMap[p.who]||[]).push(p);
+    }
+  });
+  const userHits=Object.keys(userMap);
+
   let html='';
-  if(!tHit.length&&!cHit.length&&!pHit.length){
+  if(!tHit.length&&!cHit.length&&!pHit.length&&!userHits.length){
     html=`<div class="qp-empty" style="padding:60px 20px">"${q}"에 대한 결과가 없어요.<br>다른 키워드로 검색해 보세요.</div>`;
   }else{
+    // 실제 유저 프로필
+    if(userHits.length){html+=`<div class="hd" style="margin-top:8px"><h2 style="font-size:22px">사용자</h2></div><div class="grid g4" style="margin-bottom:30px">`+userHits.map((nm,ui)=>{
+      const cnt=userMap[nm].length;
+      return `<div class="card creator">
+        <div class="cface" style="background:${g(ui)};cursor:pointer" onclick="openUserProfile('${nm.replace(/'/g,"\\'")}')">${nm[0]}</div>
+        <h4 style="cursor:pointer" onclick="openUserProfile('${nm.replace(/'/g,"\\'")}')">${nm}</h4>
+        <div class="sub">올린 곡 ${cnt}곡</div>
+        <button class="followbtn ${isFollowing(nm)?'ing':''}" onclick="toggleFollow(this,'${nm.replace(/'/g,"\\'")}')">${isFollowing(nm)?'✓ 팔로잉':'＋ 팔로우'}</button>
+      </div>`;}).join('')+`</div>`;}
     if(cHit.length){html+=`<div class="hd" style="margin-top:8px"><h2 style="font-size:22px">크리에이터</h2></div><div class="grid g4" style="margin-bottom:30px">`+cHit.map(c=>{const i=creators.indexOf(c);return `<div class="card creator"><div class="cface" style="background:${g(i)};cursor:pointer" onclick="openCreator(${i})">${c.n[0]}${c.v?'<div class="vf">✓</div>':''}</div><h4 style="cursor:pointer" onclick="openCreator(${i})">${c.n}</h4><div class="sub">팔로워 ${c.f} · ${c.tag}</div><button class="followbtn ${isFollowing(c.n)?'ing':''}" onclick="toggleFollow(this,'${c.n.replace(/'/g,"\\'")}')">${isFollowing(c.n)?'✓ 팔로잉':'＋ 팔로우'}</button></div>`;}).join('')+`</div>`;}
     if(tHit.length){html+=`<div class="hd"><h2 style="font-size:22px">곡</h2></div><div class="chart" id="search-tracks" style="margin-bottom:30px"></div>`;}
     if(pHit.length){html+=`<div class="hd"><h2 style="font-size:22px">플레이리스트</h2></div><div class="grid g4" id="search-pls"></div>`;}
@@ -1560,6 +1580,27 @@ function runSearch(q){
   if(tHit.length)chartRows(tHit,document.getElementById('search-tracks'));
   if(pHit.length)plCards(pHit,document.getElementById('search-pls'));
   go('search');
+}
+
+// 실제 유저 프로필 (게시물 작성자) — 그 유저가 올린 곡 모아보기
+function openUserProfile(name){
+  const posts=feedData.filter(p=>p.who===name);
+  const cnt=posts.length;
+  document.getElementById('creator-detail').innerHTML=`
+    <a class="back-btn" onclick="go('home')">← 뒤로</a>
+    <div class="profile-hero" style="background:linear-gradient(135deg,#5b8cff,#7048e8)">
+      <div class="ph-face" style="background:rgba(0,0,0,.25)">${name[0]}</div>
+      <div class="ph-info">
+        <span class="vtag">USER</span>
+        <h2>${name}</h2>
+        <div class="stats"><div><b>${cnt}</b>올린 곡</div></div>
+      </div>
+      <div class="ph-actions"><button class="followbtn ${isFollowing(name)?'ing':''}" style="width:auto;padding:12px 22px" onclick="toggleFollow(this,'${name.replace(/'/g,"\\'")}')">${isFollowing(name)?'✓ 팔로잉':'＋ 팔로우'}</button></div>
+    </div>
+    <div class="hd"><h2 style="font-size:22px">올린 곡</h2></div>
+    <div class="feed" id="user-feed"></div>`;
+  document.getElementById('user-feed').innerHTML=posts.length?posts.map(p=>feedCardHTML(p,feedData.indexOf(p))).join(''):`<div class="qp-empty" style="padding:40px 20px">아직 올린 곡이 없어요.</div>`;
+  go('creator');
 }
 
 /* ============ 크리에이터 상세 ============ */
