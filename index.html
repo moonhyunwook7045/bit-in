@@ -971,6 +971,7 @@ async function initAuth(){
   loadPosts(); // 페이지 열릴 때 공개 게시물 불러오기
   loadChallenge(); // 이번 주 챌린지 불러오기
   loadPlaylists(); // 플레이리스트 불러오기
+  loadNotifs(); // 내 알림 불러오기
   sb.auth.onAuthStateChange((event,session)=>{
     const wasLoggedIn=!!currentUser;
     setUserFromSession(session);
@@ -979,11 +980,13 @@ async function initAuth(){
       if(currentUser)showToast(`${currentUser.name}님, 환영해요`);
       loadFollows().then(loadPosts); // 로그인하면 내 팔로우·비공개 글까지 다시 불러오기
       loadPlaylists();
+      loadNotifs();
     }
     if(event==='SIGNED_OUT'){
       myFollows=new Set();
       myFollowerCount=null;
       isGuest=false;
+      notifs=[];renderNotif();updateNotifBadge();
       applyAuthUI();
     }
   });
@@ -1486,6 +1489,7 @@ async function like(i,btn){
     }else{
       p.liked=true;p.likes+=1;
       await sb.from('post_likes').insert({user_id:currentUser.id,post_id:p.id});
+      createNotif(p.user_id,'like',p.track.t); // 작성자에게 좋아요 알림
     }
   }else if(!p.id && !currentUser){
     // 데모 게시물이면서 비로그인: 로그인 유도
@@ -1510,6 +1514,7 @@ async function addComment(i,input){
     if(error){showToast('댓글 실패: '+(error.message||''));return;}
     p.comments=p.comments||[];
     p.comments.push({n:uname,t:v});
+    createNotif(p.user_id,'comment',p.track.t); // 작성자에게 댓글 알림
   }else if(!p.id && !currentUser){
     return requireLogin();
   }else{
@@ -1653,13 +1658,31 @@ function openAlbum(i){
 function queueAlbum(i){(window._albumList||[]).forEach(c=>queue.push(c));if(qIndex<0){qIndex=0;loadCurrent(true);}renderQueue();updateQCount();showToast('앨범 전체를 대기열에 담았어요');}
 
 /* ============ 알림 ============ */
-let notifs=[
-  {face:'S',bg:'linear-gradient(135deg,#5b8cff,#ff5c8a)',who:'SYNTHIA',text:'<b>SYNTHIA</b>님이 새 곡 <b>Signal In</b>을 올렸어요',emoji:'🎵',time:'2시간 전',unread:true,creator:0},
-  {face:'V',bg:'linear-gradient(135deg,#ff5c8a,#ffab5c)',who:'VOLT',text:'<b>VOLT</b>님이 회원님의 댓글에 좋아요를 눌렀어요',emoji:'♥',time:'5시간 전',unread:true,creator:5},
-  {face:'물',bg:'linear-gradient(135deg,#22e5c8,#1a9e88)',who:'물결',text:'<b>물결</b>님이 회원님을 팔로우하기 시작했어요',emoji:'✦',time:'어제',unread:true,creator:1},
-  {face:'n',bg:'linear-gradient(135deg,#845ef7,#5c7cfa)',who:'novaa',text:'팔로우하는 <b>novaa</b>님이 새 MV를 게시했어요',emoji:'▷',time:'2일 전',unread:false,creator:3},
-];
+let notifs=[]; // 서버에서 채움 (데모 데이터 제거)
 function pushNotif(n){notifs.unshift({...n,unread:true});renderNotif();updateNotifBadge();}
+
+// 서버 알림 → 화면용 변환
+function notifRow(n){
+  const map={like:{emoji:'♥',verb:'회원님의 곡을 좋아해요'},comment:{emoji:'💬',verb:'회원님의 곡에 댓글을 남겼어요'},follow:{emoji:'✦',verb:'회원님을 팔로우하기 시작했어요'}};
+  const m=map[n.type]||{emoji:'🔔',verb:'알림'};
+  const tgt=n.target?` · <b>${n.target}</b>`:'';
+  return {
+    id:n.id, face:(n.actor_name||'?')[0], bg:'linear-gradient(135deg,#5b8cff,#ff5c8a)',
+    text:`<b>${n.actor_name}</b>님이 ${m.verb}${tgt}`, emoji:m.emoji,
+    time:timeAgo(n.created_at), unread:!n.is_read, creator:null
+  };
+}
+async function loadNotifs(){
+  if(!sb||!currentUser){notifs=[];renderNotif();updateNotifBadge();return;}
+  const {data}=await sb.from('notifications').select('*').eq('recipient',currentUser.id).order('created_at',{ascending:false}).limit(40);
+  notifs=(data||[]).map(notifRow);
+  renderNotif();updateNotifBadge();
+}
+// 알림 생성 (상대에게) — recipientId가 나 자신이면 생략
+async function createNotif(recipientId,type,target){
+  if(!sb||!currentUser||!recipientId||recipientId===currentUser.id)return;
+  await sb.from('notifications').insert({recipient:recipientId,actor_name:currentUser.name,type,target:target||null});
+}
 function renderNotif(){
   document.getElementById('notif-list').innerHTML=notifs.length?notifs.map((n,i)=>`
     <div class="nitem ${n.unread?'unread':''}" onclick="openNotif(${i})">
@@ -1669,8 +1692,15 @@ function renderNotif(){
     </div>`).join(''):'<div class="qp-empty" style="padding:40px 20px">새 알림이 없어요</div>';
 }
 function updateNotifBadge(){const n=notifs.filter(x=>x.unread).length;const b=document.getElementById('notif-badge');b.textContent=n;b.setAttribute('data-empty',n?'0':'1');}
-function openNotif(i){notifs[i].unread=false;const c=notifs[i].creator;renderNotif();updateNotifBadge();if(c!=null){toggleNotif();openCreator(c);}}
-function markAllRead(){notifs.forEach(n=>n.unread=false);renderNotif();updateNotifBadge();}
+async function openNotif(i){
+  const n=notifs[i];if(!n)return;
+  n.unread=false;renderNotif();updateNotifBadge();
+  if(sb&&n.id)await sb.from('notifications').update({is_read:true}).eq('id',n.id);
+}
+async function markAllRead(){
+  notifs.forEach(n=>n.unread=false);renderNotif();updateNotifBadge();
+  if(sb&&currentUser)await sb.from('notifications').update({is_read:true}).eq('recipient',currentUser.id).eq('is_read',false);
+}
 function toggleNotif(){document.getElementById('queue-panel').classList.remove('open');document.getElementById('notif-panel').classList.toggle('open');renderNotif();}
 
 /* ============ 마이페이지 ============ */
@@ -1803,6 +1833,9 @@ async function toggleFollow(b,name){
     if(nowFollowing){
       await sb.from('follows').insert({user_id:currentUser.id,creator:name});
       myFollows.add(name);
+      // 팔로우 대상이 실제 유저면 알림 전송 (그 이름으로 올린 게시물의 작성자 찾기)
+      const {data:po}=await sb.from('posts').select('user_id').eq('author_name',name).limit(1);
+      if(po&&po[0])createNotif(po[0].user_id,'follow',null);
     }else{
       await sb.from('follows').delete().eq('user_id',currentUser.id).eq('creator',name);
       myFollows.delete(name);
