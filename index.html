@@ -67,7 +67,6 @@
   .search span{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--dim)}
   .top-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
   .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--volt),var(--pulse));display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff}
-  .avatar[hidden]{display:none!important}
 
   .view{padding:30px;max-width:1180px}
   .view[hidden]{display:none}
@@ -103,7 +102,7 @@
 
   /* ---------- CHART ---------- */
   .chart{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-  .row{display:grid;grid-template-columns:52px 52px 1fr 110px 80px 118px;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);transition:.12s}
+  .row{display:grid;grid-template-columns:52px 52px 1fr 120px 90px 82px;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);transition:.12s}
   .row:last-child{border-bottom:none}
   .row:hover{background:var(--panel-2)}
   .row-actions{display:flex;align-items:center;gap:6px;justify-content:flex-end}
@@ -167,21 +166,11 @@
   /* ---------- COMMUNITY ---------- */
   .feed{max-width:680px;margin:0 auto}
   .post{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px;margin-bottom:18px}
-  .post.nudge{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(34,229,200,.3),0 8px 30px rgba(34,229,200,.15);animation:nudgePulse .6s ease}
-  @keyframes nudgePulse{0%,100%{transform:scale(1)}30%{transform:scale(1.012)}}
   .post-head{display:flex;align-items:center;gap:11px;margin-bottom:12px}
   .post-head .av{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-weight:700;color:#fff;font-size:15px}
   .post-head .who{font-weight:700;font-size:14px}
   .post-head .when{font-size:12px;color:var(--dim)}
   .post-head .more{margin-left:auto;color:var(--dim);font-size:20px}
-  .more-wrap{margin-left:auto;position:relative}
-  .more-wrap .more{color:var(--dim);font-size:20px;background:none;border:none;cursor:pointer;padding:0 4px}
-  .more-wrap .more:hover{color:var(--ink)}
-  .more-menu{position:absolute;top:26px;right:0;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:6px;z-index:50;box-shadow:0 12px 30px rgba(0,0,0,.5);min-width:120px}
-  .more-menu[hidden]{display:none}
-  .more-menu button{display:block;width:100%;text-align:left;padding:8px 12px;border-radius:7px;font-size:13px;color:var(--muted);background:none;border:none;cursor:pointer;transition:.12s}
-  .more-menu button:hover{background:var(--panel-2);color:var(--ink)}
-  .more-menu button.danger:hover{color:var(--pulse)}
   .post-body{font-size:14px;color:#d3dcec;margin-bottom:12px;line-height:1.6}
   .track-embed{display:flex;align-items:center;gap:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px}
   .track-embed .ce{width:52px;height:52px;border-radius:9px;display:grid;place-items:center;font-size:22px;flex:none}
@@ -189,8 +178,6 @@
   .track-embed .ti .t{font-weight:700;font-size:14px}
   .track-embed .ti .a{font-size:12px;color:var(--muted)}
   .track-embed .pl{width:40px;height:40px;border-radius:50%;background:var(--cyan);color:#000;display:grid;place-items:center;flex:none;font-size:15px}
-  .track-embed .pl-save{width:40px;height:40px;border-radius:50%;background:transparent;border:1.5px solid var(--cyan);color:var(--cyan);flex:none;font-size:17px;cursor:pointer;transition:.15s;display:grid;place-items:center}
-  .track-embed .pl-save:hover{background:var(--cyan);color:#04120f;box-shadow:0 0 16px rgba(34,229,200,.4)}
   .wave{height:26px;flex:1;display:flex;align-items:center;gap:2px;overflow:hidden}
   .wave i{width:3px;background:var(--dim);border-radius:2px;flex:none}
 
@@ -202,13 +189,10 @@
   .heart{transition:.15s;display:inline-block}
 
   .comments{margin-top:12px;display:flex;flex-direction:column;gap:12px}
-  .cmt{display:flex;gap:10px;align-items:center}
+  .cmt{display:flex;gap:10px}
   .cmt .cav{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;font-size:12px;font-weight:700;color:#fff}
   .cmt .cbody{background:var(--panel-2);border-radius:12px;padding:8px 12px;font-size:13px}
   .cmt .cbody .cn{font-weight:700;font-size:12px;margin-bottom:2px}
-  .cmt .cmt-del{flex:none;background:none;border:none;color:var(--dim);font-size:13px;cursor:pointer;padding:2px 6px;border-radius:6px;transition:.12s;opacity:0}
-  .cmt:hover .cmt-del{opacity:1}
-  .cmt .cmt-del:hover{color:var(--pulse);background:rgba(255,92,138,.1)}
   .cmt-input{display:flex;gap:10px;margin-top:12px}
   .cmt-input input{flex:1;background:var(--panel-2);border:1px solid var(--line);border-radius:20px;padding:9px 15px;color:var(--ink);font-size:13px;font-family:inherit}
   .cmt-input input::placeholder{color:var(--dim)}
@@ -270,8 +254,6 @@
   /* logged-out top button */
   .login-btn{background:var(--cyan);color:#04120f;font-weight:700;font-size:14px;padding:9px 18px;border-radius:11px;transition:.15s}
   .login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(34,229,200,.3)}
-  .guest-badge{display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--volt);background:rgba(91,140,255,.12);border:1px solid rgba(91,140,255,.35);padding:6px 12px;border-radius:20px;white-space:nowrap}
-  .guest-badge[hidden]{display:none!important}
 
   /* user menu dropdown */
   .user-menu{position:absolute;top:56px;right:30px;background:var(--panel);border:1px solid var(--line);border-radius:14px;width:220px;padding:8px;z-index:60;box-shadow:0 16px 40px rgba(0,0,0,.5)}
@@ -307,6 +289,19 @@
 
   /* nowbar queue controls */
   .nowbar .controls button.act{color:var(--cyan)}
+  /* 셔플·반복 활성 상태를 pill로 명확히 */
+  .nowbar .controls .mode-btn{position:relative;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;transition:.15s;font-size:15px}
+  .nowbar .controls .mode-btn.act{background:rgba(34,229,200,.16);color:var(--cyan);box-shadow:inset 0 0 0 1px rgba(34,229,200,.5)}
+  .nowbar .controls .mode-btn .rep-one{position:absolute;right:3px;bottom:2px;font-size:8px;font-family:"JetBrains Mono";font-weight:700;line-height:1}
+  /* 볼륨 컨트롤 */
+  .nowbar .vol{display:flex;align-items:center;gap:9px;margin-left:4px}
+  .nowbar .vol .vol-btn{color:var(--muted);font-size:16px;width:26px;text-align:center;transition:.15s}
+  .nowbar .vol .vol-btn:hover{color:var(--cyan)}
+  .nowbar .vol input[type=range]{-webkit-appearance:none;appearance:none;width:92px;height:4px;border-radius:2px;background:var(--line);cursor:pointer;outline:none}
+  .nowbar .vol input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:13px;height:13px;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px rgba(34,229,200,.6);cursor:pointer;transition:.12s}
+  .nowbar .vol input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.2)}
+  .nowbar .vol input[type=range]::-moz-range-thumb{width:13px;height:13px;border:none;border-radius:50%;background:var(--cyan);box-shadow:0 0 8px rgba(34,229,200,.6);cursor:pointer}
+  @media(max-width:860px){.nowbar .vol{display:none}}
   .nowbar .q-toggle{background:var(--panel-2);border:1px solid var(--line);color:var(--muted);font-size:13px;padding:7px 12px;border-radius:10px;margin-left:6px;display:flex;align-items:center;gap:5px;transition:.15s}
   .nowbar .q-toggle:hover{color:var(--cyan);border-color:var(--cyan)}
 
@@ -351,70 +346,6 @@
   .seg button{padding:8px 18px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);transition:.15s}
   .seg button.on{background:var(--cyan);color:#04120f}
 
-  /* 음원 파일 선택 */
-  .file-drop{background:var(--panel-2);border:1.5px dashed var(--line);border-radius:12px;padding:16px;text-align:center;cursor:pointer;font-size:14px;color:var(--muted);transition:.15s}
-  .file-drop:hover{border-color:var(--cyan);color:var(--cyan)}
-  .file-drop.has-file{border-style:solid;border-color:var(--cyan);color:var(--cyan);background:rgba(34,229,200,.06)}
-
-  /* 플레이리스트 */
-  .pl-add-item{display:flex;align-items:center;gap:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:11px 13px;cursor:pointer;transition:.12s}
-  .pl-add-item:hover{border-color:var(--cyan)}
-  .pl-add-item .pae{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;font-size:18px;flex:none}
-  .pl-add-item .pai{flex:1}
-  .pl-add-item .pai .t{font-weight:700;font-size:14px}
-  .pl-add-item .pai .c{font-size:12px;color:var(--muted)}
-  .pl-add-item .check{color:var(--cyan);font-size:16px}
-  .pl-detail-hero{display:flex;gap:26px;align-items:flex-end;margin-bottom:28px;flex-wrap:wrap}
-  .pl-cover{width:180px;height:180px;border-radius:18px;display:grid;place-items:center;font-size:70px;flex:none;box-shadow:0 20px 50px rgba(0,0,0,.5)}
-  .pl-meta{flex:1;min-width:220px}
-  .pl-meta .kind{font-size:11px;letter-spacing:2px;font-weight:700;color:var(--cyan);text-transform:uppercase}
-  .pl-meta h1{font-family:"Syne";font-size:38px;font-weight:800;letter-spacing:-1px;margin:8px 0 6px}
-  .pl-meta .by{font-size:14px;color:#d3dcec}
-  .pl-meta .cnt{font-size:13px;color:var(--muted);margin-top:6px}
-  .pl-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
-
-  /* 무드 태그 */
-  .tag-input{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:8px 10px;min-height:44px;cursor:text}
-  .tag-input input{flex:1;min-width:100px;background:none;border:none;color:var(--ink);font-size:14px;font-family:inherit;outline:none}
-  .tag-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(34,229,200,.15);color:var(--cyan);border:1px solid rgba(34,229,200,.4);border-radius:16px;padding:3px 6px 3px 10px;font-size:12px;font-weight:600}
-  .tag-chip button{background:none;border:none;color:var(--cyan);cursor:pointer;font-size:14px;line-height:1;padding:0 2px}
-  .post-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
-  .post-tag{font-size:12px;color:var(--cyan);background:rgba(34,229,200,.1);border:1px solid rgba(34,229,200,.3);border-radius:16px;padding:3px 10px;cursor:pointer;transition:.12s}
-  .post-tag:hover{background:var(--cyan);color:#04120f}
-
-  /* 챌린지 */
-  .challenge-banner{border-radius:18px;padding:24px 26px;margin-bottom:34px;position:relative;overflow:hidden;display:flex;align-items:center;gap:20px;background:linear-gradient(115deg,#1a2740,#241a3a);border:1px solid var(--line);cursor:pointer;transition:.18s}
-  .challenge-banner:hover{transform:translateY(-2px);border-color:var(--cyan)}
-  .cb-emoji{font-size:52px;flex:none;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}
-  .cb-info{flex:1;position:relative;z-index:2}
-  .cb-tag{display:inline-block;font-size:11px;letter-spacing:1px;font-weight:700;color:var(--cyan);background:rgba(34,229,200,.12);padding:4px 10px;border-radius:20px;margin-bottom:8px}
-  .cb-info h3{font-family:"Syne",sans-serif;font-size:24px;font-weight:800;letter-spacing:-.5px}
-  .cb-info p{color:var(--muted);font-size:14px;margin-top:4px}
-  .cb-cta{flex:none;background:var(--cyan);color:#04120f;font-weight:700;font-size:14px;padding:12px 20px;border-radius:12px;position:relative;z-index:2}
-  .challenge-opt{display:flex;align-items:center;gap:14px;background:var(--panel-2);border:1px solid var(--line);border-radius:12px;padding:14px;cursor:pointer}
-  .challenge-opt .co-info{flex:1}
-  .challenge-opt .co-title{font-weight:700;font-size:14px}
-  .challenge-opt .co-sub{font-size:12px;color:var(--muted);margin-top:2px}
-  @media(max-width:860px){.challenge-banner{flex-wrap:wrap}.cb-cta{width:100%;text-align:center}}
-
-  /* 통계 대시보드 */
-  .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
-  .stat-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center;transition:.16s}
-  .stat-card:hover{transform:translateY(-3px);border-color:var(--cyan)}
-  .stat-card .stat-ic{font-size:26px;margin-bottom:8px}
-  .stat-card b{display:block;font-family:"JetBrains Mono",monospace;font-size:30px;font-weight:700;color:var(--ink);line-height:1}
-  .stat-card span{display:block;font-size:12px;color:var(--muted);margin-top:6px}
-  .stat-section{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}
-  .stat-section h3{font-family:"Syne",sans-serif;font-size:18px;font-weight:800;margin-bottom:16px}
-  .stat-row{display:grid;grid-template-columns:32px 1fr 120px 60px;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
-  .stat-row:last-child{border-bottom:none}
-  .stat-rank{font-family:"JetBrains Mono";font-weight:700;color:var(--cyan);text-align:center}
-  .stat-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .stat-bar{height:8px;background:var(--panel-2);border-radius:4px;overflow:hidden}
-  .stat-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--volt));border-radius:4px;transition:width .5s ease}
-  .stat-val{font-family:"JetBrains Mono";font-size:13px;color:var(--pulse);text-align:right}
-  @media(max-width:860px){.stat-cards{grid-template-columns:repeat(2,1fr)}.stat-row{grid-template-columns:28px 1fr 70px 50px}}
-
   /* notification bell + badge */
   .icon-btn{position:relative}
   .icon-btn .badge{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--pulse);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;font-family:"JetBrains Mono";box-shadow:0 0 0 2px var(--bg)}
@@ -449,82 +380,18 @@
   .td-wave{height:60px;display:flex;align-items:center;gap:3px;margin:24px 0;padding:0 2px}
   .td-wave i{flex:1;background:linear-gradient(var(--cyan),var(--volt));border-radius:2px;opacity:.5;min-width:2px}
   .td-desc{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;font-size:14px;color:#c9d2e4;line-height:1.7;margin-bottom:30px}
-  .ai-box{background:linear-gradient(135deg,rgba(34,229,200,.08),rgba(91,140,255,.06));border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:12px}
-  .ai-box-head{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:8px}
-  .ai-box-head b{color:var(--cyan)}
-  .ai-prompt{display:flex;gap:10px;align-items:flex-start}
-  .ai-prompt code{flex:1;font-family:"JetBrains Mono",monospace;font-size:12px;color:#d3dcec;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 11px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
-  .ai-copy{flex:none;background:var(--cyan);color:#04120f;font-weight:700;font-size:12px;padding:8px 14px;border-radius:8px;transition:.15s;align-self:stretch}
-  .ai-copy:hover{transform:translateY(-1px)}
-  .ai-copy.done{background:var(--panel-2);color:var(--cyan);border:1px solid var(--cyan)}
-
-  /* 모바일 하단 탭바 (기본 숨김, 모바일에서만 표시) */
-  .mobile-nav{display:none}
-  .side-overlay{display:none}
-  .menu-btn-mobile{display:none}
 
   @media(max-width:1080px){.g4,.g5{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:860px){
     .app{grid-template-columns:1fr}
-    /* 사이드바를 슬라이드 메뉴로 */
-    .side{display:flex;position:fixed;top:0;left:0;height:100vh;width:260px;max-width:82vw;z-index:60;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1);box-shadow:8px 0 40px rgba(0,0,0,.5)}
-    .side.open{transform:translateX(0)}
-    .side-overlay{display:block;position:fixed;inset:0;background:rgba(3,4,8,.6);backdrop-filter:blur(2px);z-index:55;opacity:0;pointer-events:none;transition:opacity .28s}
-    .side-overlay.open{opacity:1;pointer-events:auto}
+    .side{display:none}
     .nowbar{left:0}
     .g4,.g5,.g3{grid-template-columns:repeat(2,1fr)}
-    .row{grid-template-columns:34px 40px 1fr 92px;gap:8px;padding:11px 14px}
+    .row{grid-template-columns:40px 44px 1fr 82px;gap:10px}
     .genre-chip,.plays{display:none}
-    .hero{padding:30px 22px}
-    .hero h3{font-size:30px}
-    .hero p{font-size:14px}
-    .rings{opacity:.25;right:-40px}
-    .view{padding:16px 14px 90px}
-    /* 상단바 모바일 정리 */
-    .topbar{padding:10px 12px;gap:8px}
-    .menu-btn-mobile{display:grid;place-items:center;flex:none;width:42px;height:42px;border-radius:12px;background:var(--cyan);color:#04120f;font-size:20px;font-weight:700;border:none;box-shadow:0 4px 14px rgba(34,229,200,.35);transition:.15s}
-    .menu-btn-mobile:active{transform:scale(.92)}
-    .search input{padding:10px 12px 10px 36px;font-size:13px}
-    .search span{left:12px}
-    .guest-badge{display:none!important}
-    .top-actions{gap:6px}
-    .icon-btn{width:34px;height:34px;font-size:14px}
-    .login-btn{padding:8px 12px;font-size:13px}
-    .avatar{width:34px;height:34px;font-size:13px}
-    /* 헤더 폰트 축소 */
-    .hd h2{font-size:22px}
-    .hd{margin-bottom:16px}
-    /* 하단 탭바 표시 */
-    .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;height:62px;background:rgba(15,19,28,.97);backdrop-filter:blur(16px);border-top:1px solid var(--line);z-index:35;align-items:center;justify-content:space-around;padding:0 6px;padding-bottom:env(safe-area-inset-bottom)}
-    .mnav{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:600;color:var(--dim);background:none;border:none;height:100%;transition:.15s}
-    .mnav span{font-size:19px;line-height:1}
-    .mnav.on{color:var(--cyan)}
-    .mnav-fab{flex:none;width:52px;height:52px;background:var(--cyan);color:#04120f;border-radius:50%;margin-top:-14px;box-shadow:0 6px 20px rgba(34,229,200,.4)}
-    .mnav-fab span{font-size:26px;font-weight:700}
-    /* nowbar가 하단 탭바 위에 오도록 */
-    .nowbar{bottom:62px}
-    /* 대기열·알림 패널 전체화면 */
-    .queue-panel{width:100%;bottom:0}
-    /* 카드·모달 여백 */
-    .modal{padding:22px 18px;border-radius:18px 18px 0 0;max-height:92vh}
-    .overlay{align-items:flex-end;padding:0}
-    /* 프로필/트랙 상세 */
-    .td-hero,.pl-detail-hero,.profile-hero{gap:16px}
-    .td-cover{width:130px;height:130px;font-size:52px}
-    .td-meta h1{font-size:30px}
-    .pl-cover{width:120px;height:120px;font-size:48px}
-    .ph-face{width:84px;height:84px;font-size:32px}
-    .ph-info h2{font-size:26px}
-    /* 곡 상세 액션 버튼 줄바꿈 */
-    .td-actions{gap:8px}
-    .td-actions .btn,.td-actions .td-like{padding:10px 14px;font-size:13px}
-  }
-  @media(max-width:480px){
-    .g4,.g5,.g3{grid-template-columns:repeat(2,1fr);gap:12px}
-    .hero h3{font-size:26px}
-    .td-meta h1{font-size:26px}
-    .seg{width:100%;overflow-x:auto}
-    .seg button{white-space:nowrap;padding:8px 14px}
+    .hero h3{font-size:32px}
+    .rings{opacity:.4}
+    .view{padding:20px}
   }
 </style>
 </head>
@@ -532,9 +399,8 @@
 <div class="app">
 
   <!-- SIDEBAR -->
-  <div class="side-overlay" id="side-overlay" onclick="closeSideMenu()"></div>
-  <aside class="side" id="side">
-    <div class="brand" onclick="go('home');closeSideMenu()" style="cursor:pointer" title="홈으로">
+  <aside class="side">
+    <div class="brand" onclick="go('home')" style="cursor:pointer" title="홈으로">
       <div class="logo">
         <svg viewBox="0 0 44 44" fill="none">
           <defs>
@@ -558,7 +424,6 @@
     <div class="navlabel">둘러보기</div>
     <button class="nav on" data-view="home"><span class="ic">◉</span> 홈</button>
     <button class="nav" data-view="chart"><span class="ic">≡</span> 인기차트</button>
-    <button class="nav" data-view="playlists"><span class="ic">♬</span> 인기 플레이리스트</button>
     <button class="nav" data-view="creators"><span class="ic">✦</span> 인기 크리에이터</button>
     <button class="nav" data-view="mv"><span class="ic">▷</span> MV</button>
     <button class="nav" data-view="albums"><span class="ic">◍</span> 앨범</button>
@@ -566,25 +431,23 @@
     <button class="nav" data-view="genre"><span class="ic">◐</span> 장르</button>
 
     <div class="navlabel">플레이리스트</div>
-    <button class="nav" data-view="challenge"><span class="ic">◎</span> 챌린지</button>
+    <button class="nav" data-view="playlists"><span class="ic">♫</span> 추천 · 공유</button>
     <button class="nav" data-view="community"><span class="ic">◇</span> 커뮤니티</button>
 
     <div class="cta">
-      <button class="post-btn" style="background:var(--panel-2);color:var(--cyan);border:1px solid var(--cyan);margin-bottom:8px" onclick="closeSideMenu();openNewPlaylist()"><span>＋</span> 내 플레이리스트 만들기</button>
-      <button class="post-btn" onclick="closeSideMenu();openUpload()"><span>＋</span> 내 음악 게시</button>
+      <button class="post-btn" onclick="openUpload()"><span>＋</span> 내 음악 게시</button>
     </div>
   </aside>
 
   <!-- MAIN -->
   <div class="main">
     <div class="topbar">
-      <button class="menu-btn-mobile" id="menu-btn" onclick="toggleSideMenu()" title="메뉴" aria-label="메뉴 열기">☰</button>
       <div class="search"><span>⌕</span><input id="search-input" placeholder="곡, 크리에이터, 플레이리스트 검색" onkeydown="if(event.key==='Enter')runSearch(this.value)"></div>
       <div class="top-actions">
-        <span class="guest-badge" id="guest-badge" hidden>👤 게스트 모드</span>
+        <button class="icon-btn" id="queue-btn" onclick="toggleQueue()" title="재생 대기열">☰</button>
         <button class="icon-btn bell" id="bell-btn" onclick="toggleNotif()" title="알림">♪<span class="badge" id="notif-badge">0</span></button>
         <button class="login-btn" id="login-btn" onclick="openAuth('login')">로그인</button>
-        <div class="avatar" id="top-avatar" onclick="toggleUserMenu(event)" title="내 계정" hidden>?</div>
+        <div class="avatar" id="top-avatar" onclick="toggleUserMenu(event)" title="내 계정" hidden>YU</div>
       </div>
     </div>
 
@@ -605,12 +468,10 @@
           <p>AI로 만든 트랙을 올리고, 차트에 오르고, 팬을 만나는 곳. 반응을 보이고 싶지 않다면 조용히, 비트만 흘려보낼 수도 있어요.</p>
           <div class="hero-btns">
             <button class="btn primary" onclick="openUpload()">＋ 내 음악 게시하기</button>
-            <button class="btn ghost" onclick="startRadio()">📻 라디오 켜기</button>
+            <button class="btn ghost" onclick="go('chart')">인기차트 보기</button>
           </div>
         </div>
       </div>
-
-      <div id="home-challenge-banner"></div>
 
       <div class="hd"><h2>오늘의 추천 플레이리스트 <span class="tag">FOR YOU</span></h2><p>취향 기반 자동 큐레이션</p></div>
       <div class="grid g4" id="home-playlists" style="margin-bottom:36px"></div>
@@ -653,23 +514,13 @@
     </section>
 
     <section class="view" data-view="playlists" hidden>
-      <div class="hd"><h2>플레이리스트 · 공유</h2><button class="btn primary" style="padding:10px 18px" onclick="openNewPlaylist()">＋ 새 플레이리스트</button></div>
-      <div id="playlists-body"></div>
-    </section>
-
-    <!-- PLAYLIST DETAIL -->
-    <section class="view" data-view="playlist" hidden>
-      <div id="playlist-detail"></div>
+      <div class="hd"><h2>플레이리스트 · 공유</h2><p>모두가 만든 플레이리스트</p></div>
+      <div class="grid g4" id="playlists-grid"></div>
     </section>
 
     <section class="view" data-view="community" hidden>
       <div class="hd"><h2>커뮤니티</h2><p>음악을 올리고, 반응을 나눠요</p></div>
       <div class="feed" id="feed"></div>
-    </section>
-
-    <!-- CHALLENGE -->
-    <section class="view" data-view="challenge" hidden>
-      <div id="challenge-body"></div>
     </section>
 
     <!-- SEARCH RESULTS -->
@@ -703,27 +554,22 @@
 </div>
 
 
-<!-- MOBILE BOTTOM NAV -->
-<nav class="mobile-nav" id="mobile-nav">
-  <button class="mnav on" data-mview="home" onclick="go('home')"><span>◉</span>홈</button>
-  <button class="mnav" data-mview="chart" onclick="go('chart')"><span>≡</span>차트</button>
-  <button class="mnav mnav-fab" onclick="openUpload()"><span>＋</span></button>
-  <button class="mnav" data-mview="playlists" onclick="go('playlists')"><span>♬</span>플리</button>
-  <button class="mnav" data-mview="community" onclick="go('community')"><span>◇</span>커뮤니티</button>
-</nav>
-
 <!-- NOW PLAYING -->
 <div class="nowbar" id="nowbar">
   <div class="np-cover" id="np-cover" style="background:linear-gradient(135deg,#5b8cff,#ff5c8a)">♪</div>
   <div class="np-info"><div class="t" id="np-title">재생 중인 곡 없음</div><div class="a" id="np-artist">—</div></div>
   <div class="controls">
-    <button id="shuffle-btn" onclick="toggleShuffle()" title="셔플">⇄</button>
+    <button class="mode-btn" id="shuffle-btn" onclick="toggleShuffle()" title="셔플">⇄</button>
     <button onclick="prevTrack()" title="이전 곡">⏮</button>
     <button class="pp" id="pp" onclick="togglePlay()">▶</button>
     <button onclick="nextTrack()" title="다음 곡">⏭</button>
-    <button id="repeat-btn" onclick="toggleRepeat()" title="반복">↻</button>
+    <button class="mode-btn" id="repeat-btn" onclick="toggleRepeat()" title="반복 안 함">↻<span class="rep-one" id="rep-one" hidden>1</span></button>
   </div>
   <div class="prog"><i id="prog-fill"></i></div>
+  <div class="vol">
+    <button class="vol-btn" id="vol-btn" onclick="toggleMute()" title="음소거">🔊</button>
+    <input type="range" id="vol-slider" min="0" max="100" value="80" oninput="setVolume(this.value)" title="볼륨">
+  </div>
   <button class="q-toggle" onclick="toggleQueue()" title="대기열">☰ <span id="q-count">0</span></button>
   <button class="close-np" onclick="document.getElementById('nowbar').classList.remove('up')">✕</button>
 </div>
@@ -740,54 +586,6 @@
 <div class="queue-panel notif-panel" id="notif-panel">
   <div class="qp-head"><h3>알림</h3><button onclick="markAllRead()" class="read-all">모두 읽음</button><button onclick="toggleNotif()">✕</button></div>
   <div class="notif-list" id="notif-list"></div>
-</div>
-
-<!-- NEW PLAYLIST MODAL -->
-<div class="overlay" id="newpl" hidden>
-  <div class="modal modal-wrap" style="max-width:440px">
-    <button class="close-x" onclick="closeNewPlaylist()">✕</button>
-    <h3>새 플레이리스트</h3>
-    <p class="msub">나만의 곡 모음을 만들어보세요</p>
-    <div class="field">
-      <label>이모지</label>
-      <div class="chips" id="npl-emoji">
-        <button class="sel">🎵</button><button>🌙</button><button>⚡</button><button>🌊</button><button>🔥</button><button>🎧</button><button>🌸</button><button>🚀</button>
-      </div>
-    </div>
-    <div class="field"><label>플레이리스트 이름</label><input type="text" id="npl-title" placeholder="예: 새벽 감성 모음"></div>
-    <div class="toggle-block">
-      <div class="toggle-row">
-        <div class="tinfo"><div class="tt">공개</div><div class="td">끄면 나만 볼 수 있어요</div></div>
-        <div class="switch on" id="npl-public" onclick="toggleSw(this)"></div>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn ghost" onclick="closeNewPlaylist()">취소</button>
-      <button class="btn primary" onclick="createPlaylist()">만들기</button>
-    </div>
-  </div>
-</div>
-
-<!-- ADD TO PLAYLIST MODAL -->
-<div class="overlay" id="addtopl" hidden>
-  <div class="modal modal-wrap" style="max-width:420px">
-    <button class="close-x" onclick="closeAddToPlaylist()">✕</button>
-    <h3>플레이리스트에 담기</h3>
-    <p class="msub" id="addtopl-track">—</p>
-    <div id="addtopl-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
-    <button class="btn ghost" style="width:100%;justify-content:center" onclick="closeAddToPlaylist();openNewPlaylist()">＋ 새 플레이리스트 만들기</button>
-  </div>
-</div>
-
-<!-- PICK TRACK MODAL (플레이리스트에 곡 추가) -->
-<div class="overlay" id="picktrack" hidden>
-  <div class="modal modal-wrap" style="max-width:460px">
-    <button class="close-x" onclick="closePickTrack()">✕</button>
-    <h3>곡 추가</h3>
-    <p class="msub">플레이리스트에 담을 곡을 골라보세요</p>
-    <div class="field"><input type="text" id="pick-search" placeholder="곡 · 아티스트 검색" oninput="renderPickList()"></div>
-    <div id="pick-list" style="display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto"></div>
-  </div>
 </div>
 
 <!-- AUTH MODAL -->
@@ -834,56 +632,17 @@
     <p class="msub">AI로 만든 트랙을 BIT.IN에 올려보세요</p>
 
     <div class="field">
-      <input type="file" id="up-audio" accept="audio/*" style="display:none" onchange="onAudioPick(this)">
-      <div class="drop" id="up-drop" onclick="document.getElementById('up-audio').click()">
-        <div class="big">♫</div>오디오 파일을 클릭해서 업로드<br><span style="font-size:12px">MP3 · WAV · 최대 20MB</span>
-      </div>
+      <div class="drop" onclick="event.preventDefault()"><div class="big">♫</div>오디오 파일을 끌어다 놓거나 클릭해서 업로드<br><span style="font-size:12px">MP3 · WAV · 최대 20MB</span></div>
     </div>
 
     <div class="field"><label>곡 제목</label><input type="text" id="up-title" placeholder="예: Signal In"></div>
-    <div class="field">
-      <label>🎧 음원 파일 <span style="color:var(--dim);font-weight:400">(mp3, wav 등 · 선택)</span></label>
-      <div class="file-drop" id="up-file-drop" onclick="document.getElementById('up-audio').click()">
-        <input type="file" id="up-audio" accept="audio/*" style="display:none" onchange="onAudioPick(this)">
-        <div id="up-file-label">＋ 음원 파일 선택 <span style="color:var(--dim)">(없으면 무음으로 게시)</span></div>
-      </div>
-    </div>
-    <div class="field"><label>소개</label><textarea id="up-desc" placeholder="곡에 대해 자유롭게 적어주세요"></textarea></div>
-
-    <div class="field">
-      <label>🤖 사용한 AI 툴</label>
-      <div class="chips" id="up-aitool">
-        <button>Suno</button><button>Udio</button><button>Stable Audio</button><button>ElevenLabs</button><button>기타</button>
-      </div>
-    </div>
-    <div class="field"><label>✨ 프롬프트 <span style="color:var(--dim);font-weight:400">(어떻게 만들었는지 · 공유하면 다른 사람도 만들어볼 수 있어요)</span></label><textarea id="up-prompt" placeholder="예: lofi hip hop, rainy night, mellow piano, 80bpm, warm analog"></textarea></div>
+    <div class="field"><label>소개 · 사용한 AI 툴</label><textarea id="up-desc" placeholder="어떻게 만들었는지 자유롭게 적어주세요"></textarea></div>
 
     <div class="field">
       <label>장르 선택</label>
       <div class="chips" id="up-genres">
         <button>발라드</button><button>댄스</button><button>랩/힙합</button><button>R&B</button>
         <button>인디</button><button>록/메탈</button><button>J-POP</button><button>포크/블루스</button>
-      </div>
-    </div>
-
-    <div class="field">
-      <label># 무드 태그 <span style="color:var(--dim);font-weight:400">(엔터로 추가 · 최대 5개)</span></label>
-      <div class="tag-input" id="up-tag-box" onclick="document.getElementById('up-tag-field').focus()">
-        <span id="up-tag-list"></span>
-        <input type="text" id="up-tag-field" placeholder="예: 새벽감성" onkeydown="tagKeydown(event)">
-      </div>
-      <div class="chips" id="up-tag-suggest" style="margin-top:8px">
-        <button onclick="addTag('새벽감성')">새벽감성</button><button onclick="addTag('드라이브')">드라이브</button>
-        <button onclick="addTag('집중')">집중</button><button onclick="addTag('운동')">운동</button>
-        <button onclick="addTag('비오는날')">비오는날</button><button onclick="addTag('몽환')">몽환</button>
-      </div>
-    </div>
-
-    <div class="field" id="up-challenge-field" hidden>
-      <label>◎ 이번 주 챌린지 참여</label>
-      <div class="challenge-opt" id="up-challenge-opt" onclick="toggleChallengeJoin()">
-        <div class="switch" id="up-challenge-sw"></div>
-        <div class="co-info"><div class="co-title" id="up-challenge-title">—</div><div class="co-sub">참여하면 챌린지 목록에 함께 올라가요</div></div>
       </div>
     </div>
 
@@ -913,7 +672,6 @@
 
 <script>
 const grad=['linear-gradient(135deg,#5b8cff,#ff5c8a)','linear-gradient(135deg,#22e5c8,#1a9e88)','linear-gradient(135deg,#ff5c8a,#ffab5c)','linear-gradient(135deg,#5b8cff,#7048e8)','linear-gradient(135deg,#22e5c8,#5b8cff)','linear-gradient(135deg,#ff6b6b,#feca57)','linear-gradient(135deg,#845ef7,#5c7cfa)','linear-gradient(135deg,#12b886,#22e5c8)'];
-let myFollows=new Set(); // 내가 팔로우한 크리에이터 이름 (서버에서 채움)
 
 /* ============ 인증 (Supabase 백엔드) ============ */
 // ▼▼▼ 여기 두 줄에 본인 Supabase 프로젝트 값을 넣으세요 ▼▼▼
@@ -928,7 +686,6 @@ if(SUPA_READY && window.supabase){
 }
 
 let currentUser=null;      // {email, name}
-let isGuest=false;         // 게스트 둘러보기 모드
 let authMode='login';      // 'login' | 'signup'
 let authBusy=false;
 
@@ -996,16 +753,10 @@ async function submitAuth(){
     // onAuthStateChange가 UI를 갱신함
   }
 }
-function socialAuth(){
-  closeAuth();
-  isGuest=true;
-  applyAuthUI();
-  showToast('게스트로 둘러보는 중이에요 · 저장 기능은 로그인이 필요해요');
-}
+function socialAuth(){authError('게스트 모드는 백엔드 설정 후 이용할 수 있어요.');}
 
 async function logout(){
   closeUserMenu();
-  isGuest=false; // 로그아웃하면 게스트 모드도 해제
   if(sb)await sb.auth.signOut();
   else{currentUser=null;applyAuthUI();}
   const cur=document.querySelector('.view:not([hidden])');
@@ -1017,8 +768,7 @@ async function logout(){
 function setUserFromSession(session){
   if(session&&session.user){
     const u=session.user;
-    currentUser={id:u.id,email:u.email,name:(u.user_metadata&&u.user_metadata.name)||u.email.split('@')[0]};
-    isGuest=false; // 로그인하면 게스트 해제
+    currentUser={email:u.email,name:(u.user_metadata&&u.user_metadata.name)||u.email.split('@')[0]};
   }else{
     currentUser=null;
   }
@@ -1027,7 +777,6 @@ function setUserFromSession(session){
 
 function applyAuthUI(){
   const on=!!currentUser;
-  if(on)isGuest=false; // 로그인 상태면 게스트 모드는 무조건 해제
   document.getElementById('login-btn').hidden=on;
   const av=document.getElementById('top-avatar');
   av.hidden=!on;
@@ -1035,19 +784,14 @@ function applyAuthUI(){
     av.textContent=initials(currentUser.name);
     document.getElementById('um-name').textContent=currentUser.name;
     document.getElementById('um-email').textContent=currentUser.email;
-  }else{
-    av.textContent='?'; // 로그아웃 시 아바타 초기화
   }
-  // 게스트 배지: 비로그인 + 게스트 모드일 때만
-  const gb=document.getElementById('guest-badge');
-  if(gb)gb.hidden=!(isGuest&&!on);
 }
 
 // 로그인 필요한 동작 가드
 function requireLogin(after){
   if(currentUser){after&&after();return true;}
   openAuth('login');
-  showToast(isGuest?'이 기능은 로그인이 필요해요':'먼저 로그인해 주세요');
+  showToast('먼저 로그인해 주세요');
   return false;
 }
 
@@ -1056,27 +800,12 @@ async function initAuth(){
   if(!sb){applyAuthUI();return;}
   const {data}=await sb.auth.getSession();
   setUserFromSession(data.session);
-  await loadFollows();
-  loadPosts(); // 페이지 열릴 때 공개 게시물 불러오기
-  loadChallenge(); // 이번 주 챌린지 불러오기
-  loadPlaylists(); // 플레이리스트 불러오기
-  loadNotifs(); // 내 알림 불러오기
   sb.auth.onAuthStateChange((event,session)=>{
     const wasLoggedIn=!!currentUser;
     setUserFromSession(session);
     if(event==='SIGNED_IN'){
       closeAuth();
       if(currentUser)showToast(`${currentUser.name}님, 환영해요`);
-      loadFollows().then(loadPosts); // 로그인하면 내 팔로우·비공개 글까지 다시 불러오기
-      loadPlaylists();
-      loadNotifs();
-    }
-    if(event==='SIGNED_OUT'){
-      myFollows=new Set();
-      myFollowerCount=null;
-      isGuest=false;
-      notifs=[];renderNotif();updateNotifBadge();
-      applyAuthUI();
     }
   });
 }
@@ -1168,18 +897,17 @@ function chartRows(list,container){
       <div class="genre-chip">${t.genre||''}</div>
       <div class="plays">${t.plays?'▶ '+t.plays:''}</div>
       <div class="row-actions">
-        <button class="q-add" onclick="event.stopPropagation();openAddToPlaylist('${t.t.replace(/'/g,"\\'")}','${t.a}','${t.e}')" title="플레이리스트에 담기">♪</button>
         <button class="q-add" onclick="event.stopPropagation();addToQueue(${pargs})" title="대기열에 추가">＋</button>
         <button class="play" onclick="event.stopPropagation();playTrack(${pargs})">▶</button>
       </div>
     </div>`;}).join('');
 }
 function creatorCards(list,container){
-  container.innerHTML=list.map((c)=>{const i=creators.indexOf(c);const f=isFollowing(c.n);return `
+  container.innerHTML=list.map((c)=>{const i=creators.indexOf(c);return `
     <div class="card creator">
       <div class="cface" style="background:${g(i)};cursor:pointer" onclick="openCreator(${i})">${c.n[0]}${c.v?'<div class="vf">✓</div>':''}</div>
       <h4 style="cursor:pointer" onclick="openCreator(${i})">${c.n}</h4><div class="sub">팔로워 ${c.f} · ${c.tag}</div>
-      <button class="followbtn ${f?'ing':''}" onclick="toggleFollow(this,'${c.n.replace(/'/g,"\\'")}')">${f?'✓ 팔로잉':'＋ 팔로우'}</button>
+      <button class="followbtn" onclick="toggleFollow(this)">＋ 팔로우</button>
     </div>`;}).join('');
 }
 function plCards(list,container){
@@ -1198,262 +926,19 @@ function albumCards(list,container){
     </div>`;}).join('');
 }
 
-/* ============ 플레이리스트 시스템 ============ */
-let myPlaylists=[];      // 내가 만든 것
-let popularPlaylists=[]; // 공개 전체 (인기순)
-let plLikes=new Set();   // 내가 좋아요한 플레이리스트 id
-let addTrackTarget=null; // 담기 대상 곡 {t,a,e}
-let newplEmoji='🎵';
-
-async function loadPlaylists(){
-  if(!sb){renderPlaylistsView();return;}
-  // 공개 + 내 것
-  const {data:pls}=await sb.from('playlists').select('*').order('created_at',{ascending:false}).limit(100);
-  const all=pls||[];
-  // 각 플레이리스트 좋아요 수
-  const ids=all.map(p=>p.id);
-  let likeCount={};
-  if(ids.length){
-    const {data:likes}=await sb.from('playlist_likes').select('playlist_id,user_id').in('playlist_id',ids);
-    (likes||[]).forEach(l=>{likeCount[l.playlist_id]=(likeCount[l.playlist_id]||0)+1; if(currentUser&&l.user_id===currentUser.id)plLikes.add(l.playlist_id);});
-  }
-  all.forEach(p=>p.likes=likeCount[p.id]||0);
-  myPlaylists=currentUser?all.filter(p=>p.user_id===currentUser.id):[];
-  popularPlaylists=all.filter(p=>p.is_public).sort((a,b)=>b.likes-a.likes);
-  renderPlaylistsView();
-}
-
-function plServerCard(p){
-  return `<div class="card" style="cursor:pointer" onclick="openPlaylist('${p.id}')">
-    <div class="art" style="background:${plColor(p.id)}">${p.emoji||'🎵'}<div class="plw"><div>▶</div></div></div>
-    <h4>${p.title}</h4><div class="sub">${p.owner_name}${p.is_public?'':' · 🔒 비공개'}</div>
-    <div class="meta"><span>♥ ${p.likes||0}</span></div>
-  </div>`;
-}
-function plColor(id){let s=0;for(let i=0;i<id.length;i++)s+=id.charCodeAt(i);return g(s);}
-
-function renderPlaylistsView(){
-  const box=document.getElementById('playlists-body');
-  if(!box)return;
-  let html='';
-  // 인기 플레이리스트
-  html+=`<div class="hd" style="margin-top:8px"><h2 style="font-size:22px">🔥 인기 플레이리스트</h2></div>`;
-  html+= popularPlaylists.length
-    ? `<div class="grid g4" style="margin-bottom:34px">${popularPlaylists.slice(0,8).map(plServerCard).join('')}</div>`
-    : `<div class="qp-empty" style="padding:30px 20px;margin-bottom:20px">아직 공개된 플레이리스트가 없어요. 첫 플레이리스트를 만들어보세요!</div>`;
-  // 내 플레이리스트
-  if(currentUser){
-    html+=`<div class="hd"><h2 style="font-size:22px">내 플레이리스트</h2></div>`;
-    html+= myPlaylists.length
-      ? `<div class="grid g4">${myPlaylists.map(plServerCard).join('')}</div>`
-      : `<div class="qp-empty" style="padding:30px 20px">아직 만든 플레이리스트가 없어요.</div>`;
-  }
-  box.innerHTML=html;
-}
-
-// 새 플레이리스트 모달
-function openNewPlaylist(){if(!requireLogin())return;newplEmoji='🎵';document.querySelectorAll('#npl-emoji button').forEach((b,i)=>b.classList.toggle('sel',i===0));document.getElementById('npl-title').value='';document.getElementById('newpl').hidden=false;}
-function closeNewPlaylist(){document.getElementById('newpl').hidden=true;}
-async function createPlaylist(){
-  const title=document.getElementById('npl-title').value.trim();
-  if(!title){showToast('플레이리스트 이름을 입력해 주세요');return;}
-  const isPublic=document.getElementById('npl-public').classList.contains('on');
-  if(!sb||!currentUser){showToast('로그인이 필요해요');return;}
-  const {data,error}=await sb.from('playlists').insert({
-    user_id:currentUser.id, owner_name:currentUser.name, title, emoji:newplEmoji, is_public:isPublic
-  }).select().single();
-  if(error){showToast('생성 실패: '+(error.message||''));return;}
-  closeNewPlaylist();
-  showToast(`"${title}" 플레이리스트를 만들었어요`);
-  await loadPlaylists();
-  // 담을 곡이 있었으면 바로 담기
-  if(addTrackTarget){await addTrackToPlaylist(data.id,addTrackTarget);addTrackTarget=null;}
-}
-
-// 곡을 플레이리스트에 담기
-function openAddToPlaylist(t,a,e){
-  if(!requireLogin())return;
-  addTrackTarget={t,a,e};
-  document.getElementById('addtopl-track').textContent=`${e} ${t} · ${a}`;
-  const list=document.getElementById('addtopl-list');
-  if(!myPlaylists.length){
-    list.innerHTML=`<div class="qp-empty" style="padding:20px">아직 플레이리스트가 없어요. 아래에서 만들어보세요.</div>`;
-  }else{
-    list.innerHTML=myPlaylists.map(p=>`
-      <div class="pl-add-item" onclick="addTrackToPlaylist('${p.id}',{t:'${t.replace(/'/g,"\\'")}',a:'${a.replace(/'/g,"\\'")}',e:'${e}'})">
-        <div class="pae" style="background:${plColor(p.id)}">${p.emoji||'🎵'}</div>
-        <div class="pai"><div class="t">${p.title}</div><div class="c">${p.is_public?'공개':'비공개'}</div></div>
-      </div>`).join('');
-  }
-  document.getElementById('addtopl').hidden=false;
-}
-function closeAddToPlaylist(){document.getElementById('addtopl').hidden=true;}
-
-// 플레이리스트 상세에서 곡 추가 (곡 목록에서 고르기)
-let pickTrackPlId=null;
-function openPickTrack(plId){
-  if(!requireLogin())return;
-  pickTrackPlId=plId;
-  document.getElementById('pick-search').value='';
-  renderPickList();
-  document.getElementById('picktrack').hidden=false;
-}
-function closePickTrack(){document.getElementById('picktrack').hidden=true;if(pickTrackPlId)openPlaylist(pickTrackPlId);}
-function pickTrackPool(){
-  // 차트 곡 + 커뮤니티 게시물 곡을 합쳐 중복 제거
-  const pool=[];
-  const seen=new Set();
-  tracks.forEach((t,i)=>{const k=t.t+'|'+t.a;if(!seen.has(k)){seen.add(k);pool.push({t:t.t,a:t.a,e:t.e});}});
-  feedData.forEach(p=>{if(p.track){const k=p.track.t+'|'+p.track.a;if(!seen.has(k)){seen.add(k);pool.push({t:p.track.t,a:p.track.a,e:p.track.e});}}});
-  return pool;
-}
-function renderPickList(){
-  const q=(document.getElementById('pick-search').value||'').toLowerCase().trim();
-  let pool=pickTrackPool();
-  if(q)pool=pool.filter(t=>t.t.toLowerCase().includes(q)||t.a.toLowerCase().includes(q));
-  const box=document.getElementById('pick-list');
-  if(!pool.length){box.innerHTML=`<div class="qp-empty" style="padding:20px">검색 결과가 없어요.</div>`;return;}
-  box.innerHTML=pool.slice(0,40).map((t,i)=>`
-    <div class="pl-add-item" onclick="pickAddTrack('${t.t.replace(/'/g,"\\'")}','${t.a.replace(/'/g,"\\'")}','${t.e}',this)">
-      <div class="pae" style="background:${g(i)}">${t.e}</div>
-      <div class="pai"><div class="t">${t.t}</div><div class="c">${t.a}</div></div>
-      <div class="check">＋</div>
-    </div>`).join('');
-}
-async function pickAddTrack(t,a,e,el){
-  if(!pickTrackPlId||!sb)return;
-  const {error}=await sb.from('playlist_tracks').insert({playlist_id:pickTrackPlId,track_title:t,track_artist:a,emoji:e||'🎵'});
-  if(error){showToast('추가 실패: '+(error.message||''));return;}
-  // 담긴 표시
-  if(el){const c=el.querySelector('.check');if(c){c.textContent='✓';el.style.opacity='.55';el.style.pointerEvents='none';}}
-  showToast(`"${t}" 추가됨`);
-}
-async function addTrackToPlaylist(plId,track){
-  if(!sb)return;
-  const {error}=await sb.from('playlist_tracks').insert({
-    playlist_id:plId, track_title:track.t, track_artist:track.a, emoji:track.e||'🎵'
-  });
-  closeAddToPlaylist();
-  if(error){showToast('담기 실패: '+(error.message||''));return;}
-  showToast('플레이리스트에 담았어요');
-}
-
-// 플레이리스트 상세
-async function openPlaylist(id){
-  if(!sb)return;
-  const {data:pl}=await sb.from('playlists').select('*').eq('id',id).single();
-  if(!pl){showToast('플레이리스트를 찾을 수 없어요');return;}
-  const {data:tracks_}=await sb.from('playlist_tracks').select('*').eq('playlist_id',id).order('added_at',{ascending:true});
-  const trs=tracks_||[];
-  const {count}=await sb.from('playlist_likes').select('*',{count:'exact',head:true}).eq('playlist_id',id);
-  const isMine=currentUser&&pl.user_id===currentUser.id;
-  const liked=plLikes.has(id);
-  document.getElementById('playlist-detail').innerHTML=`
-    <a class="back-btn" onclick="go('playlists')">← 플레이리스트</a>
-    <div class="pl-detail-hero">
-      <div class="pl-cover" style="background:${plColor(id)}">${pl.emoji||'🎵'}</div>
-      <div class="pl-meta">
-        <div class="kind">PLAYLIST${pl.is_public?'':' · 🔒 비공개'}</div>
-        <h1>${pl.title}</h1>
-        <div class="by">${pl.owner_name}</div>
-        <div class="cnt">${trs.length}곡 · ♥ ${count||0}</div>
-        <div class="pl-actions">
-          ${trs.length?`<button class="btn primary" onclick="playPlaylist('${id}')">▶ 전체 재생</button>`:''}
-          <button class="td-like ${liked?'liked':''}" id="pl-like-btn" onclick="togglePlaylistLike('${id}',this)"><span class="heart">${liked?'♥':'♡'}</span> 좋아요</button>
-          ${isMine?`<button class="td-like" onclick="deletePlaylist('${id}')">🗑 삭제</button>`:''}
-        </div>
-      </div>
-    </div>
-    <div class="hd"><h2 style="font-size:22px">수록곡</h2>${isMine?`<button class="btn primary" style="padding:9px 16px" onclick="openPickTrack('${id}')">＋ 곡 추가</button>`:''}</div>
-    <div class="chart" id="pl-tracks"></div>`;
-  const cont=document.getElementById('pl-tracks');
-  if(!trs.length){cont.innerHTML=`<div class="qp-empty" style="padding:40px 20px">아직 담긴 곡이 없어요.${isMine?' 곡의 ♪ 버튼으로 담아보세요.':''}</div>`;}
-  else{
-    cont.innerHTML=trs.map((t,i)=>`
-      <div class="row">
-        <div class="rank ${i<3?'top':''}">${i+1}</div>
-        <div class="cover" style="background:${g(i)}">${t.emoji||'🎵'}</div>
-        <div class="trk"><div class="t">${t.track_title}</div><div class="a">${t.track_artist||''}</div></div>
-        <div class="genre-chip"></div><div class="plays"></div>
-        <div class="row-actions">
-          ${isMine?`<button class="q-add" onclick="removePlTrack('${t.id}','${id}')" title="빼기">✕</button>`:''}
-          <button class="play" onclick="playTrack('${t.track_title.replace(/'/g,"\\'")}','${(t.track_artist||'').replace(/'/g,"\\'")}','${g(i)}','${t.emoji||'🎵'}')">▶</button>
-        </div>
-      </div>`).join('');
-  }
-  window._plTracks=trs.map((t,i)=>({t:t.track_title,a:t.track_artist||'',bg:g(i),e:t.emoji||'🎵'}));
-  go('playlist');
-}
-function playPlaylist(id){
-  const list=window._plTracks||[];
-  if(!list.length)return;
-  radioMode=false; queue=list.slice(); qIndex=0; loadCurrent(true);
-  showToast('플레이리스트를 재생해요');
-}
-async function togglePlaylistLike(id,btn){
-  if(!requireLogin())return;
-  const liked=plLikes.has(id);
-  if(sb){
-    if(liked){await sb.from('playlist_likes').delete().eq('user_id',currentUser.id).eq('playlist_id',id);plLikes.delete(id);}
-    else{await sb.from('playlist_likes').insert({user_id:currentUser.id,playlist_id:id});plLikes.add(id);}
-  }
-  btn.classList.toggle('liked',!liked);
-  btn.querySelector('.heart').textContent=!liked?'♥':'♡';
-}
-async function removePlTrack(trackId,plId){
-  if(!sb)return;
-  await sb.from('playlist_tracks').delete().eq('id',trackId);
-  openPlaylist(plId);
-}
-async function deletePlaylist(id){
-  if(!confirm('이 플레이리스트를 삭제할까요?'))return;
-  if(sb)await sb.from('playlists').delete().eq('id',id);
-  showToast('삭제했어요');
-  await loadPlaylists();
-  go('playlists');
-}
-// 마이페이지에서 플레이리스트 삭제 (삭제 후 마이페이지 유지)
-async function deletePlaylistFromMe(id){
-  if(!confirm('이 플레이리스트를 삭제할까요?'))return;
-  if(sb)await sb.from('playlists').delete().eq('id',id);
-  showToast('삭제했어요');
-  await loadPlaylists();
-  if(!document.querySelector('[data-view="me"]').hidden)renderMe();
-}
-// 플레이리스트 이름·공개여부 수정
-async function renamePlaylist(id){
-  const pl=myPlaylists.find(p=>p.id===id);
-  if(!pl)return;
-  const newTitle=prompt('플레이리스트 이름 수정', pl.title);
-  if(newTitle===null)return;
-  const title=newTitle.trim()||pl.title;
-  const makePublic=confirm('공개로 설정할까요?\n확인=공개, 취소=비공개');
-  if(sb){
-    const {error}=await sb.from('playlists').update({title,is_public:makePublic}).eq('id',id);
-    if(error){showToast('수정 실패: '+(error.message||''));return;}
-  }
-  showToast('수정했어요');
-  await loadPlaylists();
-  if(!document.querySelector('[data-view="me"]').hidden)renderMe();
-}
-// 이모지 선택
-document.querySelectorAll('#npl-emoji button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('#npl-emoji button').forEach(x=>x.classList.remove('sel'));
-  b.classList.add('sel');newplEmoji=b.textContent;
-});
-
 chartRows(tracks.slice(0,5),document.getElementById('home-chart'));
 chartRows(tracks,document.getElementById('full-chart'));
 chartRows([...tracks].reverse(),document.getElementById('new-chart'));
 creatorCards(creators.slice(0,5),document.getElementById('home-creators'));
 creatorCards(creators,document.getElementById('full-creators'));
 plCards(playlists.slice(0,4),document.getElementById('home-playlists'));
+plCards(playlists,document.getElementById('playlists-grid'));
 albumCards(albums,document.getElementById('albums-grid'));
 
 document.getElementById('genre-grid').innerHTML=genres.map(gn=>`
-  <div class="gtile" style="background:${gn.c}" onclick="startRadio('${gn.n}')">
+  <div class="gtile" style="background:${gn.c}" onclick="go('chart')">
     <div class="gt-top"><h4>${gn.n}</h4></div>
-    <span class="gt-sub">📻 라디오 재생 <em>→</em></span>
+    <span class="gt-sub">지금 뜨는 트랙 <em>→</em></span>
     <div class="em">${gn.e}</div>
   </div>`).join('');
 
@@ -1475,40 +960,28 @@ const feedData=[
   {who:'VOLT',when:'어제',body:'이번 비트 어떤가요? 드랍 부분 특히 신경 썼습니다 ⚡',track:{t:'전류',a:'VOLT',e:'⚡'},likes:589,liked:true,reactions:true,
     comments:[{n:'novaa',t:'드랍에서 소름 돋음 진짜'}]},
 ];
-function isMyPost(p){return currentUser && p.id && p.user_id && p.user_id===currentUser.id;}
 function feedCardHTML(p,idx){return `
-    <div class="post" data-postid="${p.id||''}" data-title="${(p.track&&p.track.t||'').replace(/"/g,'&quot;')}">
+    <div class="post">
       <div class="post-head">
         <div class="av" style="background:${g(idx)}">${p.who[0]}</div>
         <div><div class="who">${p.who}</div><div class="when">${p.when}</div></div>
-        ${isMyPost(p)?`<div class="more-wrap"><button class="more" onclick="toggleMore(this,event)">⋯</button>
-          <div class="more-menu" hidden>
-            <button onclick="editPost(${idx})">✎ 수정</button>
-            <button class="danger" onclick="deletePost(${idx})">🗑 삭제</button>
-          </div></div>`:'<div class="more">⋯</div>'}
+        <div class="more">⋯</div>
       </div>
       <div class="post-body">${p.body}</div>
-      ${(p.tags&&p.tags.length)?`<div class="post-tags">${p.tags.map(t=>`<span class="post-tag" onclick="openTag('${String(t).replace(/'/g,"\\'")}')">#${t}</span>`).join('')}</div>`:''}
       <div class="track-embed">
         <div class="ce" style="background:${g(idx+1)}">${p.track.e}</div>
         <button class="pl" onclick="playTrack('${p.track.t}','${p.track.a}','${g(idx+1)}','${p.track.e}')">▶</button>
         <div class="ti"><div class="t">${p.track.t}</div><div class="a">${p.track.a}</div></div>
         <div class="wave">${waveBars()}</div>
-        <button class="pl-save" onclick="openAddToPlaylist('${p.track.t.replace(/'/g,"\\'")}','${p.track.a.replace(/'/g,"\\'")}','${p.track.e}')" title="플레이리스트에 저장">♪</button>
       </div>
-      ${(p.aiTool||p.aiPrompt)?`
-      <div class="ai-box">
-        <div class="ai-box-head">🤖 이렇게 만들었어요${p.aiTool?` · <b>${p.aiTool}</b>`:''}</div>
-        ${p.aiPrompt?`<div class="ai-prompt"><code>${p.aiPrompt.replace(/</g,'&lt;')}</code><button class="ai-copy" onclick="copyPrompt(this,'${p.aiPrompt.replace(/'/g,"\\'").replace(/\n/g,' ')}')">복사</button></div>`:''}
-      </div>`:''}
       ${p.reactions ? `
         <div class="reactions">
           <button class="rbtn ${p.liked?'liked':''}" onclick="like(${idx},this)"><span class="heart">${p.liked?'♥':'♡'}</span> <span class="cnt">${p.likes}</span></button>
           <button class="rbtn"><span>💬</span> ${p.comments?p.comments.length:0}</button>
-          <button class="rbtn" onclick="shareTrack('${p.track.t.replace(/'/g,"\\'")}','${p.track.a.replace(/'/g,"\\'")}','${p.track.e}')"><span>↗</span> 공유</button>
+          <button class="rbtn"><span>↗</span> 공유</button>
         </div>
         <div class="comments">
-          ${(p.comments||[]).map((c,ci)=>{const mine=currentUser&&((c.uid&&c.uid===currentUser.id)||(!c.uid&&c.n===currentUser.name));return `<div class="cmt"><div class="cav" style="background:${g(ci+3)}">${c.n[0]}</div><div class="cbody"><div class="cn">${c.n}</div>${c.t}</div>${mine?`<button class="cmt-del" onclick="deleteComment(${idx},${ci})" title="삭제">✕</button>`:''}</div>`;}).join('')}
+          ${(p.comments||[]).map((c,ci)=>`<div class="cmt"><div class="cav" style="background:${g(ci+3)}">${c.n[0]}</div><div class="cbody"><div class="cn">${c.n}</div>${c.t}</div></div>`).join('')}
         </div>
         <div class="cmt-input"><input placeholder="댓글 달기…" onkeydown="if(event.key==='Enter')addComment(${idx},this)"><button onclick="addComment(${idx},this.previousElementSibling)">등록</button></div>
       ` : `
@@ -1520,166 +993,25 @@ function renderFeed(){
 }
 renderFeed();
 
-// 게시물 더보기 메뉴
-function toggleMore(btn,ev){
-  ev.stopPropagation();
-  const m=btn.parentElement.querySelector('.more-menu');
-  const willOpen=m && m.hidden;
-  document.querySelectorAll('.more-menu').forEach(x=>x.hidden=true);
-  if(m)m.hidden=!willOpen;
-}
-// 메뉴 바깥을 클릭했을 때만 닫기 (더보기 버튼/메뉴 내부 클릭은 무시)
-document.addEventListener('click',(e)=>{
-  if(e.target.closest && (e.target.closest('.more-wrap')||e.target.closest('.more-menu')))return;
-  document.querySelectorAll('.more-menu').forEach(x=>x.hidden=true);
-});
+function like(i,btn){const p=feedData[i];p.liked=!p.liked;p.likes+=p.liked?1:-1;btn.classList.toggle('liked',p.liked);btn.querySelector('.heart').textContent=p.liked?'♥':'♡';btn.querySelector('.cnt').textContent=p.likes;}
+function addComment(i,input){const v=input.value.trim();if(!v)return;feedData[i].comments=feedData[i].comments||[];feedData[i].comments.push({n:'YU',t:v});renderFeed();}
 
-async function deletePost(idx){
-  const p=feedData[idx];
-  if(!p||!isMyPost(p))return;
-  if(!confirm(`"${p.track.t}" 곡을 삭제할까요? 되돌릴 수 없어요.`))return;
-  if(sb){
-    const {error}=await sb.from('posts').delete().eq('id',p.id);
-    if(error){showToast('삭제 실패: '+(error.message||''));return;}
-  }
-  feedData.splice(idx,1);
-  renderFeed();
-  if(!document.querySelector('[data-view="me"]').hidden)renderMe();
-  showToast('곡을 삭제했어요');
-}
-
-async function editPost(idx){
-  const p=feedData[idx];
-  if(!p||!isMyPost(p))return;
-  const newTitle=prompt('곡 제목 수정', p.track.t);
-  if(newTitle===null)return; // 취소
-  const newBody=prompt('소개 수정', p.body);
-  if(newBody===null)return;
-  const title=newTitle.trim()||p.track.t;
-  const body=newBody.trim()||p.body;
-  if(sb){
-    const {error}=await sb.from('posts').update({title,body}).eq('id',p.id);
-    if(error){showToast('수정 실패: '+(error.message||''));return;}
-  }
-  p.track.t=title; p.body=body;
-  renderFeed();
-  if(!document.querySelector('[data-view="me"]').hidden)renderMe();
-  showToast('수정했어요');
-}
-
-async function like(i,btn){
-  if(!currentUser)return requireLogin(); // 게스트·비로그인은 차단
-  const p=feedData[i];
-  // 서버 게시물이면 Supabase에 반영
-  if(sb && currentUser && currentUser.id && p.id){
-    if(p.liked){
-      p.liked=false;p.likes=Math.max(0,p.likes-1);
-      await sb.from('post_likes').delete().eq('user_id',currentUser.id).eq('post_id',p.id);
-    }else{
-      p.liked=true;p.likes+=1;
-      await sb.from('post_likes').insert({user_id:currentUser.id,post_id:p.id});
-      try{createNotif(p.user_id,'like',p.track.t);}catch(e){} // 알림 실패 무시
-    }
-  }else if(!p.id && !currentUser){
-    // 데모 게시물이면서 비로그인: 로그인 유도
-    return requireLogin();
-  }else{
-    // 데모 게시물(메모리)
-    p.liked=!p.liked;p.likes+=p.liked?1:-1;
-  }
-  btn.classList.toggle('liked',p.liked);
-  btn.querySelector('.heart').textContent=p.liked?'♥':'♡';
-  btn.querySelector('.cnt').textContent=p.likes;
-}
-async function addComment(i,input){
-  if(!currentUser)return requireLogin(); // 게스트·비로그인은 차단
-  const v=input.value.trim();if(!v)return;
-  const p=feedData[i];
-  const uname=currentUser.name;
-  // 즉시 입력창 비우고 화면에 먼저 반영 (체감 속도 개선)
-  input.value='';
-  p.comments=p.comments||[];
-  p.comments.push({n:uname,t:v,uid:currentUser.id});
-  renderFeed();
-  // 서버 저장 (있으면)
-  if(sb && currentUser.id && p.id){
-    const {error}=await sb.from('comments').insert({
-      post_id:p.id, user_id:currentUser.id, author_name:uname, body:v
-    });
-    if(error){showToast('댓글 저장 실패: '+(error.message||''));return;}
-    try{createNotif(p.user_id,'comment',p.track.t);}catch(e){}
-  }
-}
-async function deleteComment(pi,ci){
-  const p=feedData[pi];if(!p||!p.comments)return;
-  const c=p.comments[ci];if(!c)return;
-  // 내 댓글만
-  const mine=currentUser&&((c.uid&&c.uid===currentUser.id)||(!c.uid&&c.n===currentUser.name));
-  if(!mine)return;
-  if(!confirm('이 댓글을 삭제할까요?'))return;
-  p.comments.splice(ci,1);
-  renderFeed();
-  if(sb&&c.id)await sb.from('comments').delete().eq('id',c.id);
-}
-
-function go(v){if(v==='me'&&!currentUser){requireLogin();return;}document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.view!==v);document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.view===v));document.querySelectorAll('.mnav').forEach(n=>n.classList.toggle('on',n.dataset.mview===v));window.scrollTo({top:0,behavior:'smooth'});if(v==='me')renderMe();if(v==='challenge')renderChallengeView();if(v==='playlists')renderPlaylistsView();}
-document.querySelectorAll('.nav').forEach(n=>n.addEventListener('click',()=>{go(n.dataset.view);closeSideMenu();}));
-// 모바일 슬라이드 메뉴
-function toggleSideMenu(){
-  const s=document.getElementById('side'),o=document.getElementById('side-overlay');
-  const open=s.classList.toggle('open');o.classList.toggle('open',open);
-}
-function closeSideMenu(){
-  document.getElementById('side').classList.remove('open');
-  document.getElementById('side-overlay').classList.remove('open');
-}
+function go(v){if(v==='me'&&!currentUser){requireLogin();return;}document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.view!==v);document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.view===v));window.scrollTo({top:0,behavior:'smooth'});if(v==='me')renderMe();}
+document.querySelectorAll('.nav').forEach(n=>n.addEventListener('click',()=>go(n.dataset.view)));
 
 /* ============ 검색 ============ */
 function runSearch(q){
   q=(q||'').trim(); if(!q){return;}
   document.getElementById('search-term').textContent=q;
-
-  // # 로 시작하면 태그 검색: feedData에서 해당 태그 게시물 모아보기
-  if(q.startsWith('#')){
-    const tag=q.slice(1).toLowerCase();
-    const hits=feedData.filter(p=>p.tags&&p.tags.some(t=>String(t).toLowerCase()===tag));
-    let h=`<div class="hd" style="margin-top:8px"><h2 style="font-size:22px">#${q.slice(1)} 태그</h2><p>${hits.length}곡</p></div>`;
-    if(!hits.length){h+=`<div class="qp-empty" style="padding:50px 20px">이 태그의 곡이 아직 없어요.</div>`;}
-    document.getElementById('search-body').innerHTML=h+(hits.length?`<div class="feed" id="tag-feed"></div>`:'');
-    if(hits.length)document.getElementById('tag-feed').innerHTML=hits.map((p)=>feedCardHTML(p,feedData.indexOf(p))).join('');
-    go('search');
-    return;
-  }
-
   const ql=q.toLowerCase();
   const tHit=tracks.filter(t=>t.t.toLowerCase().includes(ql)||t.a.toLowerCase().includes(ql));
   const cHit=creators.filter(c=>c.n.toLowerCase().includes(ql)||c.tag.toLowerCase().includes(ql));
   const pHit=playlists.filter(p=>p.t.toLowerCase().includes(ql));
-
-  // 실제 유저: 게시물 작성자 중 검색어와 일치 (데모 크리에이터와 중복 제외)
-  const creatorNames=new Set(creators.map(c=>c.n.toLowerCase()));
-  const userMap={};
-  feedData.forEach(p=>{
-    if(p.who && p.who.toLowerCase().includes(ql) && !creatorNames.has(p.who.toLowerCase())){
-      (userMap[p.who]=userMap[p.who]||[]).push(p);
-    }
-  });
-  const userHits=Object.keys(userMap);
-
   let html='';
-  if(!tHit.length&&!cHit.length&&!pHit.length&&!userHits.length){
+  if(!tHit.length&&!cHit.length&&!pHit.length){
     html=`<div class="qp-empty" style="padding:60px 20px">"${q}"에 대한 결과가 없어요.<br>다른 키워드로 검색해 보세요.</div>`;
   }else{
-    // 실제 유저 프로필
-    if(userHits.length){html+=`<div class="hd" style="margin-top:8px"><h2 style="font-size:22px">사용자</h2></div><div class="grid g4" style="margin-bottom:30px">`+userHits.map((nm,ui)=>{
-      const cnt=userMap[nm].length;
-      return `<div class="card creator">
-        <div class="cface" style="background:${g(ui)};cursor:pointer" onclick="openUserProfile('${nm.replace(/'/g,"\\'")}')">${nm[0]}</div>
-        <h4 style="cursor:pointer" onclick="openUserProfile('${nm.replace(/'/g,"\\'")}')">${nm}</h4>
-        <div class="sub">올린 곡 ${cnt}곡</div>
-        <button class="followbtn ${isFollowing(nm)?'ing':''}" onclick="toggleFollow(this,'${nm.replace(/'/g,"\\'")}')">${isFollowing(nm)?'✓ 팔로잉':'＋ 팔로우'}</button>
-      </div>`;}).join('')+`</div>`;}
-    if(cHit.length){html+=`<div class="hd" style="margin-top:8px"><h2 style="font-size:22px">크리에이터</h2></div><div class="grid g4" style="margin-bottom:30px">`+cHit.map(c=>{const i=creators.indexOf(c);return `<div class="card creator"><div class="cface" style="background:${g(i)};cursor:pointer" onclick="openCreator(${i})">${c.n[0]}${c.v?'<div class="vf">✓</div>':''}</div><h4 style="cursor:pointer" onclick="openCreator(${i})">${c.n}</h4><div class="sub">팔로워 ${c.f} · ${c.tag}</div><button class="followbtn ${isFollowing(c.n)?'ing':''}" onclick="toggleFollow(this,'${c.n.replace(/'/g,"\\'")}')">${isFollowing(c.n)?'✓ 팔로잉':'＋ 팔로우'}</button></div>`;}).join('')+`</div>`;}
+    if(cHit.length){html+=`<div class="hd" style="margin-top:8px"><h2 style="font-size:22px">크리에이터</h2></div><div class="grid g4" style="margin-bottom:30px">`+cHit.map(c=>{const i=creators.indexOf(c);return `<div class="card creator"><div class="cface" style="background:${g(i)};cursor:pointer" onclick="openCreator(${i})">${c.n[0]}${c.v?'<div class="vf">✓</div>':''}</div><h4 style="cursor:pointer" onclick="openCreator(${i})">${c.n}</h4><div class="sub">팔로워 ${c.f} · ${c.tag}</div><button class="followbtn" onclick="toggleFollow(this)">＋ 팔로우</button></div>`;}).join('')+`</div>`;}
     if(tHit.length){html+=`<div class="hd"><h2 style="font-size:22px">곡</h2></div><div class="chart" id="search-tracks" style="margin-bottom:30px"></div>`;}
     if(pHit.length){html+=`<div class="hd"><h2 style="font-size:22px">플레이리스트</h2></div><div class="grid g4" id="search-pls"></div>`;}
   }
@@ -1687,27 +1019,6 @@ function runSearch(q){
   if(tHit.length)chartRows(tHit,document.getElementById('search-tracks'));
   if(pHit.length)plCards(pHit,document.getElementById('search-pls'));
   go('search');
-}
-
-// 실제 유저 프로필 (게시물 작성자) — 그 유저가 올린 곡 모아보기
-function openUserProfile(name){
-  const posts=feedData.filter(p=>p.who===name);
-  const cnt=posts.length;
-  document.getElementById('creator-detail').innerHTML=`
-    <a class="back-btn" onclick="go('home')">← 뒤로</a>
-    <div class="profile-hero" style="background:linear-gradient(135deg,#5b8cff,#7048e8)">
-      <div class="ph-face" style="background:rgba(0,0,0,.25)">${name[0]}</div>
-      <div class="ph-info">
-        <span class="vtag">USER</span>
-        <h2>${name}</h2>
-        <div class="stats"><div><b>${cnt}</b>올린 곡</div></div>
-      </div>
-      <div class="ph-actions"><button class="followbtn ${isFollowing(name)?'ing':''}" style="width:auto;padding:12px 22px" onclick="toggleFollow(this,'${name.replace(/'/g,"\\'")}')">${isFollowing(name)?'✓ 팔로잉':'＋ 팔로우'}</button></div>
-    </div>
-    <div class="hd"><h2 style="font-size:22px">올린 곡</h2></div>
-    <div class="feed" id="user-feed"></div>`;
-  document.getElementById('user-feed').innerHTML=posts.length?posts.map(p=>feedCardHTML(p,feedData.indexOf(p))).join(''):`<div class="qp-empty" style="padding:40px 20px">아직 올린 곡이 없어요.</div>`;
-  go('creator');
 }
 
 /* ============ 크리에이터 상세 ============ */
@@ -1727,7 +1038,7 @@ function openCreator(i){
       </div>
       <div class="ph-actions">
         <button class="btn primary" onclick="playTrack('${disc[0].t}','${c.n}','${g(i)}','${disc[0].e}')">▶ 전체 재생</button>
-        <button class="followbtn ${isFollowing(c.n)?'ing':''}" style="width:auto;padding:12px 22px" onclick="toggleFollow(this,'${c.n.replace(/'/g,"\\'")}')">${isFollowing(c.n)?'✓ 팔로잉':'＋ 팔로우'}</button>
+        <button class="followbtn" style="width:auto;padding:12px 22px" onclick="toggleFollow(this)">＋ 팔로우</button>
       </div>
     </div>
     <div class="hd"><h2 style="font-size:22px">인기 트랙</h2></div>
@@ -1755,8 +1066,6 @@ function openTrack(t,a,bg,e,genre,plays){
           <button class="btn primary" onclick="playTrack('${t.replace(/'/g,"\\'")}','${a}','${bg}','${e}')">▶ 재생</button>
           <button class="td-like ${liked?'liked':''}" id="td-like-btn" onclick="toggleTrackLike('${t.replace(/'/g,"\\'")}',this)"><span class="heart">${liked?'♥':'♡'}</span> 좋아요</button>
           <button class="td-like" onclick="addToQueue('${t.replace(/'/g,"\\'")}','${a}','${bg}','${e}')">＋ 대기열</button>
-          <button class="td-like" onclick="openAddToPlaylist('${t.replace(/'/g,"\\'")}','${a}','${e}')">♪ 플레이리스트에 저장</button>
-          <button class="td-like" onclick="shareTrack('${t.replace(/'/g,"\\'")}','${a.replace(/'/g,"\\'")}','${e}')">↗ 공유</button>
         </div>
       </div>
     </div>
@@ -1768,7 +1077,6 @@ function openTrack(t,a,bg,e,genre,plays){
   go('track');
 }
 function toggleTrackLike(t,btn){
-  if(!currentUser)return requireLogin(); // 게스트·비로그인 차단
   trackLikes[t]=!trackLikes[t];
   btn.classList.toggle('liked',trackLikes[t]);
   btn.querySelector('.heart').textContent=trackLikes[t]?'♥':'♡';
@@ -1806,32 +1114,13 @@ function openAlbum(i){
 function queueAlbum(i){(window._albumList||[]).forEach(c=>queue.push(c));if(qIndex<0){qIndex=0;loadCurrent(true);}renderQueue();updateQCount();showToast('앨범 전체를 대기열에 담았어요');}
 
 /* ============ 알림 ============ */
-let notifs=[]; // 서버에서 채움 (데모 데이터 제거)
+let notifs=[
+  {face:'S',bg:'linear-gradient(135deg,#5b8cff,#ff5c8a)',who:'SYNTHIA',text:'<b>SYNTHIA</b>님이 새 곡 <b>Signal In</b>을 올렸어요',emoji:'🎵',time:'2시간 전',unread:true,creator:0},
+  {face:'V',bg:'linear-gradient(135deg,#ff5c8a,#ffab5c)',who:'VOLT',text:'<b>VOLT</b>님이 회원님의 댓글에 좋아요를 눌렀어요',emoji:'♥',time:'5시간 전',unread:true,creator:5},
+  {face:'물',bg:'linear-gradient(135deg,#22e5c8,#1a9e88)',who:'물결',text:'<b>물결</b>님이 회원님을 팔로우하기 시작했어요',emoji:'✦',time:'어제',unread:true,creator:1},
+  {face:'n',bg:'linear-gradient(135deg,#845ef7,#5c7cfa)',who:'novaa',text:'팔로우하는 <b>novaa</b>님이 새 MV를 게시했어요',emoji:'▷',time:'2일 전',unread:false,creator:3},
+];
 function pushNotif(n){notifs.unshift({...n,unread:true});renderNotif();updateNotifBadge();}
-
-// 서버 알림 → 화면용 변환
-function notifRow(n){
-  const map={like:{emoji:'♥',verb:'회원님의 곡을 좋아해요'},comment:{emoji:'💬',verb:'회원님의 곡에 댓글을 남겼어요'},follow:{emoji:'✦',verb:'회원님을 팔로우하기 시작했어요'}};
-  const m=map[n.type]||{emoji:'🔔',verb:'알림'};
-  const tgt=n.target?` · <b>${n.target}</b>`:'';
-  return {
-    id:n.id, face:(n.actor_name||'?')[0], bg:'linear-gradient(135deg,#5b8cff,#ff5c8a)',
-    text:`<b>${n.actor_name}</b>님이 ${m.verb}${tgt}`, emoji:m.emoji,
-    time:timeAgo(n.created_at), unread:!n.is_read,
-    ntype:n.type, target:n.target, actor:n.actor_name
-  };
-}
-async function loadNotifs(){
-  if(!sb||!currentUser){notifs=[];renderNotif();updateNotifBadge();return;}
-  const {data}=await sb.from('notifications').select('*').eq('recipient',currentUser.id).order('created_at',{ascending:false}).limit(40);
-  notifs=(data||[]).map(notifRow);
-  renderNotif();updateNotifBadge();
-}
-// 알림 생성 (상대에게) — recipientId가 나 자신이면 생략
-async function createNotif(recipientId,type,target){
-  if(!sb||!currentUser||!recipientId||recipientId===currentUser.id)return;
-  await sb.from('notifications').insert({recipient:recipientId,actor_name:currentUser.name,type,target:target||null});
-}
 function renderNotif(){
   document.getElementById('notif-list').innerHTML=notifs.length?notifs.map((n,i)=>`
     <div class="nitem ${n.unread?'unread':''}" onclick="openNotif(${i})">
@@ -1841,48 +1130,15 @@ function renderNotif(){
     </div>`).join(''):'<div class="qp-empty" style="padding:40px 20px">새 알림이 없어요</div>';
 }
 function updateNotifBadge(){const n=notifs.filter(x=>x.unread).length;const b=document.getElementById('notif-badge');b.textContent=n;b.setAttribute('data-empty',n?'0':'1');}
-async function openNotif(i){
-  const n=notifs[i];if(!n)return;
-  n.unread=false;renderNotif();updateNotifBadge();
-  if(sb&&n.id)await sb.from('notifications').update({is_read:true}).eq('id',n.id);
-  // 알림 패널 닫기
-  document.getElementById('notif-panel').classList.remove('open');
-  // 종류별 이동
-  if(n.ntype==='follow'){
-    // 팔로우한 사람 프로필로
-    if(n.actor)openUserProfile(n.actor);
-    return;
-  }
-  // 좋아요·댓글 → 그 곡(내 게시물)으로 이동해서 반응 확인
-  if(n.target){
-    const exists=feedData.some(p=>p.track&&p.track.t===n.target);
-    if(exists){
-      go('community');
-      setTimeout(()=>{
-        // 곡 제목으로 카드 정확히 찾기 (내 게시물 우선)
-        const cards=[...document.querySelectorAll('#feed .post')];
-        let card=cards.find(c=>c.dataset.title===n.target);
-        if(card){
-          card.scrollIntoView({behavior:'smooth',block:'center'});
-          card.classList.add('nudge');setTimeout(()=>card.classList.remove('nudge'),1600);
-        }
-      },350);
-    }else{
-      showToast('해당 곡을 찾을 수 없어요 (삭제되었을 수 있어요)');
-    }
-  }
-}
-async function markAllRead(){
-  notifs.forEach(n=>n.unread=false);renderNotif();updateNotifBadge();
-  if(sb&&currentUser)await sb.from('notifications').update({is_read:true}).eq('recipient',currentUser.id).eq('is_read',false);
-}
+function openNotif(i){notifs[i].unread=false;const c=notifs[i].creator;renderNotif();updateNotifBadge();if(c!=null){toggleNotif();openCreator(c);}}
+function markAllRead(){notifs.forEach(n=>n.unread=false);renderNotif();updateNotifBadge();}
 function toggleNotif(){document.getElementById('queue-panel').classList.remove('open');document.getElementById('notif-panel').classList.toggle('open');renderNotif();}
 
 /* ============ 마이페이지 ============ */
 let myTab='uploads';
 function renderMe(){
   const uname=currentUser?currentUser.name:'YU';
-  const uploads=feedData.filter(p=> (currentUser&&currentUser.id&&p.user_id)? p.user_id===currentUser.id : p.who===uname);
+  const uploads=feedData.filter(p=>p.who===uname);
   const liked=feedData.filter(p=>p.liked);
   const el=document.getElementById('me-detail');
   el.innerHTML=`
@@ -1891,156 +1147,40 @@ function renderMe(){
       <div class="ph-info">
         <span class="vtag">MY PAGE</span>
         <h2>${uname}</h2>
-        <div class="stats"><div><b>${uploads.length}</b>올린 곡</div><div><b>${liked.length}</b>좋아요</div><div><b>${myFollows.size}</b>팔로잉</div></div>
+        <div class="stats"><div><b>${uploads.length}</b>올린 곡</div><div><b>${liked.length}</b>좋아요</div><div><b>128</b>팔로잉</div></div>
       </div>
       <div class="ph-actions"><button class="btn primary" onclick="openUpload()">＋ 새 음악 게시</button><button class="btn ghost" onclick="logout()">로그아웃</button></div>
     </div>
     <div class="seg">
       <button class="${myTab==='uploads'?'on':''}" onclick="setMyTab('uploads')">올린 음악</button>
-      <button class="${myTab==='playlists'?'on':''}" onclick="setMyTab('playlists')">플레이리스트</button>
       <button class="${myTab==='liked'?'on':''}" onclick="setMyTab('liked')">좋아요</button>
-      <button class="${myTab==='following'?'on':''}" onclick="setMyTab('following')">팔로잉</button>
-      <button class="${myTab==='stats'?'on':''}" onclick="setMyTab('stats')">통계</button>
     </div>
     <div id="me-list"></div>`;
-  const box=document.getElementById('me-list');
-
-  if(myTab==='playlists'){
-    box.className='';box.style.margin='0';
-    if(!myPlaylists.length){box.innerHTML=`<div class="qp-empty" style="padding:50px 20px">아직 만든 플레이리스트가 없어요.<br><button class="btn primary" style="margin-top:14px" onclick="openNewPlaylist()">＋ 새 플레이리스트 만들기</button></div>`;return;}
-    box.innerHTML=`<div class="grid g4">`+myPlaylists.map(p=>`
-      <div class="card">
-        <div class="art" style="background:${plColor(p.id)};cursor:pointer" onclick="openPlaylist('${p.id}')">${p.emoji||'🎵'}<div class="plw"><div>▶</div></div></div>
-        <h4 style="cursor:pointer" onclick="openPlaylist('${p.id}')">${p.title}</h4>
-        <div class="sub">${p.is_public?'공개':'🔒 비공개'} · ♥ ${p.likes||0}</div>
-        <div class="meta" style="gap:8px;margin-top:10px">
-          <button class="post-tag" style="cursor:pointer" onclick="renamePlaylist('${p.id}')">✎ 수정</button>
-          <button class="post-tag" style="cursor:pointer;color:var(--pulse);background:rgba(255,92,138,.1);border-color:rgba(255,92,138,.3)" onclick="deletePlaylistFromMe('${p.id}')">🗑 삭제</button>
-        </div>
-      </div>`).join('')+`</div>`;
-    return;
-  }
-
-  if(myTab==='stats'){
-    box.className='';box.style.margin='0';
-    renderStats(box,uploads);
-    return;
-  }
-
-  if(myTab==='following'){
-    // 내가 팔로우한 크리에이터 목록
-    const names=[...myFollows];
-    box.className='';box.style.margin='0';
-    if(!names.length){box.innerHTML=`<div class="qp-empty" style="padding:50px 20px">아직 팔로우한 크리에이터가 없어요.</div>`;return;}
-    box.innerHTML=`<div class="grid g4">`+names.map(nm=>{
-      const ci=creators.findIndex(c=>c.n===nm);
-      const c=ci>=0?creators[ci]:{n:nm,f:'—',tag:'',v:0};
-      const gi=ci>=0?ci:0;
-      return `<div class="card creator">
-        <div class="cface" style="background:${g(gi)};cursor:${ci>=0?'pointer':'default'}" ${ci>=0?`onclick="openCreator(${ci})"`:''}>${nm[0]}${c.v?'<div class="vf">✓</div>':''}</div>
-        <h4 style="cursor:${ci>=0?'pointer':'default'}" ${ci>=0?`onclick="openCreator(${ci})"`:''}>${nm}</h4>
-        <div class="sub">${c.tag?'팔로워 '+c.f+' · '+c.tag:'크리에이터'}</div>
-        <button class="followbtn ing" onclick="toggleFollow(this,'${nm.replace(/'/g,"\\'")}');setTimeout(renderMe,50)">✓ 팔로잉</button>
-      </div>`;
-    }).join('')+`</div>`;
-    return;
-  }
-
   const list=myTab==='uploads'?uploads:liked;
+  const box=document.getElementById('me-list');
   if(!list.length){box.innerHTML=`<div class="qp-empty" style="padding:50px 20px">${myTab==='uploads'?'아직 올린 음악이 없어요. 첫 트랙을 게시해 보세요!':'아직 좋아요한 게시물이 없어요.'}</div>`;return;}
   box.className='feed';box.style.margin='0';
   box.innerHTML=list.map(p=>{const idx=feedData.indexOf(p);return feedCardHTML(p,idx);}).join('');
 }
 function setMyTab(t){myTab=t;renderMe();}
 
-// 크리에이터 통계 대시보드
-let myFollowerCount=null; // 나를 팔로우한 사람 수 (서버에서 채움)
-async function loadFollowerCount(){
-  if(!sb||!currentUser){myFollowerCount=null;return;}
-  const {count}=await sb.from('follows').select('*',{count:'exact',head:true}).eq('creator',currentUser.name);
-  myFollowerCount=count||0;
-  // 통계 탭이 열려있으면 갱신
-  if(myTab==='stats'&&!document.querySelector('[data-view="me"]').hidden)renderMe();
-}
-function renderStats(box,uploads){
-  const totalLikes=uploads.reduce((s,p)=>s+(p.likes||0),0);
-  const totalComments=uploads.reduce((s,p)=>s+((p.comments&&p.comments.length)||0),0);
-  const followers=myFollowerCount==null?'…':myFollowerCount;
-  // 내 곡 좋아요 순위 (상위 5)
-  const ranked=[...uploads].sort((a,b)=>(b.likes||0)-(a.likes||0)).slice(0,5);
-  const maxL=Math.max(1,...ranked.map(p=>p.likes||0));
-
-  box.innerHTML=`
-    <div class="stat-cards">
-      <div class="stat-card"><div class="stat-ic">🎵</div><b>${uploads.length}</b><span>올린 곡</span></div>
-      <div class="stat-card"><div class="stat-ic">❤️</div><b>${totalLikes}</b><span>받은 좋아요</span></div>
-      <div class="stat-card"><div class="stat-ic">💬</div><b>${totalComments}</b><span>받은 댓글</span></div>
-      <div class="stat-card"><div class="stat-ic">👥</div><b>${followers}</b><span>팔로워</span></div>
-    </div>
-    ${ranked.length?`
-    <div class="stat-section">
-      <h3>내 곡 인기 순위</h3>
-      ${ranked.map((p,i)=>`
-        <div class="stat-row">
-          <div class="stat-rank">${i+1}</div>
-          <div class="stat-name">${p.track?p.track.t:p.title||'제목 없음'}</div>
-          <div class="stat-bar"><i style="width:${Math.round((p.likes||0)/maxL*100)}%"></i></div>
-          <div class="stat-val">♥ ${p.likes||0}</div>
-        </div>`).join('')}
-    </div>`:`<div class="qp-empty" style="padding:40px 20px">곡을 올리면 여기에 통계가 쌓여요.</div>`}
-  `;
-  // 팔로워 수 아직 안 불러왔으면 로드
-  if(myFollowerCount==null)loadFollowerCount();
-}
-
-function isFollowing(name){return myFollows.has(name);}
-async function loadFollows(){
-  if(!sb||!currentUser||!currentUser.id){myFollows=new Set();return;}
-  const {data}=await sb.from('follows').select('creator').eq('user_id',currentUser.id);
-  myFollows=new Set((data||[]).map(r=>r.creator));
-}
-async function toggleFollow(b,name){
-  if(!currentUser){return requireLogin();}
-  // 이름이 없으면(구버전 호출) 버튼 텍스트만 토글
-  if(!name){const ing=b.classList.toggle('ing');b.textContent=ing?'✓ 팔로잉':'＋ 팔로우';return;}
-  const nowFollowing=!myFollows.has(name);
-  if(sb && currentUser.id){
-    if(nowFollowing){
-      await sb.from('follows').insert({user_id:currentUser.id,creator:name});
-      myFollows.add(name);
-      // 팔로우 대상이 실제 유저면 알림 전송 (그 이름으로 올린 게시물의 작성자 찾기)
-      const {data:po}=await sb.from('posts').select('user_id').eq('author_name',name).limit(1);
-      if(po&&po[0])createNotif(po[0].user_id,'follow',null);
-    }else{
-      await sb.from('follows').delete().eq('user_id',currentUser.id).eq('creator',name);
-      myFollows.delete(name);
-    }
-  }else{
-    nowFollowing?myFollows.add(name):myFollows.delete(name);
-  }
-  b.classList.toggle('ing',nowFollowing);
-  b.textContent=nowFollowing?'✓ 팔로잉':'＋ 팔로우';
-}
+function toggleFollow(b){const ing=b.classList.toggle('ing');b.textContent=ing?'✓ 팔로잉':'＋ 팔로우';}
 
 /* ============ 재생 큐 시스템 ============ */
 let queue=[];          // {t,a,bg,e} 배열
 let qIndex=-1;         // 현재 재생 인덱스
 let isPlaying=false;
-let shuffle=false, repeat=false;
+let shuffle=false;
+let repeatMode=0;      // 0: 반복 없음, 1: 전체 반복, 2: 한 곡 반복
+let volume=80, muted=false, prevVolume=80;
 
 // 곡 하나 재생: 클릭한 곡을 큐 맨 앞 현재로, 전체 트랙을 뒤에 이어붙임
-function playTrack(t,a,bg,e,genre,plays,audioUrl){
-  radioMode=false;
-  queue=[{t,a,bg,e,audioUrl:audioUrl||findAudioUrl(t,a)}];
+function playTrack(t,a,bg,e){
+  queue=[{t,a,bg,e}];
   // 같은 곡 빼고 나머지 인기곡을 다음 곡으로 채움
-  tracks.forEach((tr,i)=>{ if(tr.t!==t) queue.push({t:tr.t,a:tr.a,bg:g(i),e:tr.e,audioUrl:findAudioUrl(tr.t,tr.a)}); });
+  tracks.forEach((tr,i)=>{ if(tr.t!==t) queue.push({t:tr.t,a:tr.a,bg:g(i),e:tr.e}); });
   qIndex=0;
   loadCurrent(true);
-}
-// 피드에서 곡 제목·아티스트로 오디오 URL 찾기
-function findAudioUrl(t,a){
-  const p=feedData.find(x=>x.track&&x.track.t===t&&x.track.a===a&&x.track.audioUrl);
-  return p?p.track.audioUrl:null;
 }
 // 큐에 추가만 (재생 중이 아니면 바로 재생)
 function addToQueue(t,a,bg,e){
@@ -2049,71 +1189,61 @@ function addToQueue(t,a,bg,e){
   showToast(`"${t}" 대기열에 추가됨`);
   renderQueue();updateQCount();
 }
-
-// 라디오: 무드/장르 이름을 받아 관련 곡을 셔플로 큐에 채워 자동재생
-// label이 없으면 전체 곡으로 무한 라디오
-function startRadio(label){
-  // 곡 풀 구성 (지금은 트랙 장르 체계가 타일과 달라 전체 곡 사용)
-  let pool=tracks.slice();
-  // 셔플
-  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
-  if(!pool.length)return;
-  radioMode=true; radioLabel=label||'BIT.IN 라디오';
-  queue=pool.map((tr)=>({t:tr.t,a:tr.a,bg:g(tracks.indexOf(tr)),e:tr.e}));
-  qIndex=0;
-  shuffle=true; // 라디오는 셔플 on
-  document.getElementById('shuffle-btn')&&document.getElementById('shuffle-btn').classList.add('act');
-  loadCurrent(true);
-  showToast(`📻 ${radioLabel} 시작 · 자동으로 이어서 재생돼요`);
-}
-let radioMode=false, radioLabel='';
-const audioPlayer=new Audio();
-audioPlayer.addEventListener('ended',()=>nextTrack()); // 곡 끝나면 다음 곡
 function loadCurrent(play){
   const c=queue[qIndex]; if(!c)return;
   document.getElementById('nowbar').classList.add('up');
   document.getElementById('np-title').textContent=c.t;
-  document.getElementById('np-artist').textContent=(radioMode?'📻 '+radioLabel+' · ':'')+c.a;
+  document.getElementById('np-artist').textContent=c.a;
   const cov=document.getElementById('np-cover');cov.style.background=c.bg;cov.textContent=c.e;
   isPlaying=play!==false;
-  // 실제 오디오 재생
-  if(c.audioUrl){
-    if(audioPlayer.src!==c.audioUrl)audioPlayer.src=c.audioUrl;
-    if(isPlaying)audioPlayer.play().catch(()=>{});
-    else audioPlayer.pause();
-  }else{
-    audioPlayer.pause();audioPlayer.removeAttribute('src');
-  }
   document.getElementById('pp').textContent=isPlaying?'❚❚':'▶';
   renderQueue();updateQCount();
 }
-function togglePlay(){
-  isPlaying=!isPlaying;
-  const c=queue[qIndex];
-  if(c&&c.audioUrl){
-    if(isPlaying)audioPlayer.play().catch(()=>{});
-    else audioPlayer.pause();
-  }
-  document.getElementById('pp').textContent=isPlaying?'❚❚':'▶';
-}
-function nextTrack(){
+function togglePlay(){isPlaying=!isPlaying;document.getElementById('pp').textContent=isPlaying?'❚❚':'▶';}
+function nextTrack(manual){
   if(!queue.length)return;
-  // 라디오 모드: 곡이 거의 끝나가면 뒤에 곡을 더 채워 끊기지 않게
-  if(radioMode && qIndex>=queue.length-2){
-    const pool=tracks.slice();
-    for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
-    pool.forEach(tr=>queue.push({t:tr.t,a:tr.a,bg:g(tracks.indexOf(tr)),e:tr.e}));
-    updateQCount();
-  }
-  if(shuffle && !radioMode){qIndex=Math.floor(Math.random()*queue.length);}
+  // 한 곡 반복: 자동 진행(next)일 때만 같은 곡 유지. 사용자가 ⏭ 누르면 다음 곡으로.
+  if(repeatMode===2&&!manual){loadCurrent(true);return;}
+  if(shuffle){qIndex=Math.floor(Math.random()*queue.length);}
   else if(qIndex<queue.length-1){qIndex++;}
-  else if(repeat){qIndex=0;}
+  else if(repeatMode===1){qIndex=0;}
   else{return;}
   loadCurrent(true);
 }
-function prevTrack(){if(!queue.length)return;qIndex=qIndex>0?qIndex-1:(repeat?queue.length-1:0);loadCurrent(true);}
-function toggleShuffle(){shuffle=!shuffle;document.getElementById('shuffle-btn').classList.toggle('act',shuffle);}
-function toggleRepeat(){repeat=!repeat;document.getElementById('repeat-btn').classList.toggle('act',repeat);}
+function prevTrack(){if(!queue.length)return;qIndex=qIndex>0?qIndex-1:(repeatMode===1?queue.length-1:0);loadCurrent(true);}
+function toggleShuffle(){shuffle=!shuffle;document.getElementById('shuffle-btn').classList.toggle('act',shuffle);showToast(shuffle?'셔플 켜짐':'셔플 꺼짐');}
+function toggleRepeat(){
+  repeatMode=(repeatMode+1)%3;
+  const btn=document.getElementById('repeat-btn');
+  const one=document.getElementById('rep-one');
+  btn.classList.toggle('act',repeatMode!==0);
+  one.hidden=repeatMode!==2;
+  btn.title=['반복 안 함','전체 반복','한 곡 반복'][repeatMode];
+  showToast(['반복 꺼짐','전체 반복','한 곡 반복'][repeatMode]);
+}
+
+/* ====== 볼륨 ====== */
+function volIcon(){
+  const v=muted?0:volume;
+  return v===0?'🔇':v<40?'🔈':v<75?'🔉':'🔊';
+}
+function applyVolumeUI(){
+  document.getElementById('vol-btn').textContent=volIcon();
+  document.getElementById('vol-slider').value=muted?0:volume;
+  // 실제 <audio> 요소가 연결되면 여기서 audio.volume = (muted?0:volume)/100; 적용
+}
+function setVolume(v){
+  volume=parseInt(v);
+  muted=volume===0;
+  if(volume>0)prevVolume=volume;
+  applyVolumeUI();
+}
+function toggleMute(){
+  muted=!muted;
+  if(muted){prevVolume=volume||prevVolume;}
+  else{volume=prevVolume||80;}
+  applyVolumeUI();
+}
 function playFromQueue(i){qIndex=i;loadCurrent(true);}
 function removeFromQueue(i,ev){ev.stopPropagation();queue.splice(i,1);if(i<qIndex)qIndex--;else if(i===qIndex)loadCurrent(isPlaying);renderQueue();updateQCount();}
 function updateQCount(){const n=Math.max(0,queue.length-qIndex-1);document.getElementById('q-count').textContent=n;}
@@ -2138,249 +1268,25 @@ function openUpload(){if(!requireLogin())return;document.getElementById('upload'
 function closeUpload(){document.getElementById('upload').hidden=true}
 document.getElementById('upload').addEventListener('click',e=>{if(e.target.id==='upload')closeUpload()});
 document.querySelectorAll('#up-genres button').forEach(b=>b.onclick=()=>b.classList.toggle('sel'));
-// AI 툴은 하나만 선택
-document.querySelectorAll('#up-aitool button').forEach(b=>b.onclick=()=>{
-  const on=b.classList.contains('sel');
-  document.querySelectorAll('#up-aitool button').forEach(x=>x.classList.remove('sel'));
-  if(!on)b.classList.add('sel');
-});
 function toggleSw(sw){sw.classList.toggle('on')}
 function toggleMain(sw){const on=sw.classList.toggle('on');document.getElementById('sub-toggles').classList.toggle('dim',!on);}
-let pickedAudio=null; // 선택한 오디오 파일
-function onAudioPick(input){
-  const f=input.files&&input.files[0];
-  pickedAudio=f||null;
-  const drop=document.getElementById('up-file-drop');
-  const label=document.getElementById('up-file-label');
-  if(f){
-    label.textContent='🎵 '+f.name;
-    drop.classList.add('has-file');
-  }else{
-    label.innerHTML='＋ 음원 파일 선택 <span style="color:var(--dim)">(없으면 무음으로 게시)</span>';
-    drop.classList.remove('has-file');
-  }
-}
-
-async function submitPost(){
+function submitPost(){
   const uname=currentUser?currentUser.name:'YU';
   const title=document.getElementById('up-title').value.trim()||'제목 없는 트랙';
-  const body=document.getElementById('up-desc').value.trim()||'새 트랙을 올렸어요.';
-  const aiToolEl=document.querySelector('#up-aitool button.sel');
-  const aiTool=aiToolEl?aiToolEl.textContent:'';
-  const aiPrompt=document.getElementById('up-prompt').value.trim();
   const reactionsOn=document.getElementById('tg-main').classList.contains('on');
-  const challengeId=(challengeJoin&&activeChallenge)?activeChallenge.id:null;
-  const tags=uploadTags.slice();
-  const audioFile=pickedAudio;
   closeUpload();
-
-  // 로그인 + 백엔드 준비됐으면 서버에 저장
-  if(sb && currentUser && currentUser.id){
-    // 오디오 파일이 있으면 Storage에 업로드
-    let audioUrl=null;
-    if(audioFile){
-      showToast('음원 업로드 중…');
-      const ext=(audioFile.name.split('.').pop()||'mp3').toLowerCase();
-      const path=`${currentUser.id}/${Date.now()}.${ext}`;
-      const {error:upErr}=await sb.storage.from('tracks').upload(path,audioFile,{contentType:audioFile.type||'audio/mpeg'});
-      if(upErr){showToast('음원 업로드 실패: '+(upErr.message||''));return;}
-      const {data:pub}=sb.storage.from('tracks').getPublicUrl(path);
-      audioUrl=pub&&pub.publicUrl||null;
-    }
-    const {data,error}=await sb.from('posts').insert({
-      user_id:currentUser.id, author_name:uname, title, body, emoji:'🎵',
-      reactions:reactionsOn, ai_tool:aiTool||null, ai_prompt:aiPrompt||null, challenge_id:challengeId,
-      tags:tags.length?tags:null, audio_url:audioUrl
-    }).select().single();
-    if(error){showToast('게시 실패: '+(error.message||'다시 시도해 주세요'));return;}
-    showToast(audioUrl?`"${title}" 게시 완료! 🎧`:(challengeId?`"${title}" 챌린지 참여 완료! 🎯`:(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`)));
-    feedData.unshift(postToFeed(data));
-    renderFeed();
-  }else{
-    showToast(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`);
-    feedData.unshift({who:uname,when:'방금',body,track:{t:title,a:uname,e:'🎵'},reactions:reactionsOn,likes:0,liked:false,comments:[],aiTool,aiPrompt,tags});
-    renderFeed();
-  }
-  // 입력 초기화
-  document.getElementById('up-title').value='';
-  document.getElementById('up-desc').value='';
-  document.getElementById('up-prompt').value='';
-  document.getElementById('up-audio').value='';
-  onAudioPick(document.getElementById('up-audio'));
-  document.querySelectorAll('#up-aitool button.sel,#up-genres button.sel').forEach(x=>x.classList.remove('sel'));
-  challengeJoin=false;
-  const csw=document.getElementById('up-challenge-sw');if(csw)csw.classList.remove('on');
-  uploadTags=[];renderTagChips();
-}
-
-// Supabase posts 행 → 화면 피드 카드 형식으로 변환
-function postToFeed(p){
-  return {
-    id:p.id, user_id:p.user_id, who:p.author_name, when:timeAgo(p.created_at),
-    body:p.body||'새 트랙을 올렸어요.',
-    track:{t:p.title, a:p.author_name, e:p.emoji||'🎵', audioUrl:p.audio_url||null},
-    reactions:p.reactions, likes:0, liked:false, comments:[],
-    aiTool:p.ai_tool||'', aiPrompt:p.ai_prompt||'', challengeId:p.challenge_id||null, tags:p.tags||[]
-  };
-}
-function timeAgo(ts){
-  const d=(Date.now()-new Date(ts).getTime())/1000;
-  if(d<60)return '방금';
-  if(d<3600)return Math.floor(d/60)+'분 전';
-  if(d<86400)return Math.floor(d/3600)+'시간 전';
-  return Math.floor(d/86400)+'일 전';
-}
-
-// 서버에서 게시물 불러와 피드에 합치기
-let serverPostsLoaded=false;
-async function loadPosts(){
-  if(!sb)return;
-  const {data,error}=await sb.from('posts').select('*').order('created_at',{ascending:false}).limit(50);
-  if(error||!data)return;
-  const serverFeed=data.map(postToFeed);
-
-  // 좋아요/댓글을 한 번에 모아서 각 게시물에 채우기
-  const ids=serverFeed.map(f=>f.id);
-  if(ids.length){
-    // 좋아요 전체(공개 정책) 조회 → 게시물별 카운트 + 내가 누른 것 표시
-    const {data:likes}=await sb.from('post_likes').select('post_id,user_id').in('post_id',ids);
-    const {data:cmts}=await sb.from('comments').select('*').in('post_id',ids).order('created_at',{ascending:true});
-    const likeCount={}, myLike={};
-    (likes||[]).forEach(l=>{likeCount[l.post_id]=(likeCount[l.post_id]||0)+1; if(currentUser&&l.user_id===currentUser.id)myLike[l.post_id]=true;});
-    const cmap={};
-    (cmts||[]).forEach(c=>{(cmap[c.post_id]=cmap[c.post_id]||[]).push({id:c.id,uid:c.user_id,n:c.author_name,t:c.body});});
-    serverFeed.forEach(f=>{
-      f.likes=likeCount[f.id]||0;
-      f.liked=!!myLike[f.id];
-      f.comments=cmap[f.id]||[];
-    });
-  }
-
-  const demoOnly=feedData.filter(f=>!f.id);
-  feedData.length=0;
-  serverFeed.forEach(f=>feedData.push(f));
-  demoOnly.forEach(f=>feedData.push(f));
-  serverPostsLoaded=true;
+  showToast(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`);
+  feedData.unshift({who:uname,when:'방금',body:document.getElementById('up-desc').value.trim()||'새 트랙을 올렸어요.',track:{t:title,a:uname,e:'🎵'},reactions:reactionsOn,likes:0,liked:false,comments:[]});
   renderFeed();
 }
 let tmr;
 function showToast(msg){const t=document.getElementById('toast');document.getElementById('toast-msg').textContent=msg;t.classList.add('show');clearTimeout(tmr);tmr=setTimeout(()=>t.classList.remove('show'),2600);}
 
-/* ============ 주간 챌린지 ============ */
-let activeChallenge=null;   // 현재 활성 챌린지
-let challengeJoin=false;    // 업로드 시 참여 여부
-async function loadChallenge(){
-  if(!sb)return;
-  const {data}=await sb.from('challenges').select('*').eq('active',true).order('created_at',{ascending:false}).limit(1);
-  activeChallenge=(data&&data[0])||null;
-  renderChallengeBanner();
-  // 업로드 모달 챌린지 필드 갱신
-  const field=document.getElementById('up-challenge-field');
-  if(field){
-    field.hidden=!activeChallenge;
-    if(activeChallenge)document.getElementById('up-challenge-title').textContent=`${activeChallenge.emoji||'🎯'} ${activeChallenge.title}`;
-  }
-}
-function renderChallengeBanner(){
-  const el=document.getElementById('home-challenge-banner');
-  if(!el)return;
-  if(!activeChallenge){el.innerHTML='';return;}
-  el.innerHTML=`
-    <div class="challenge-banner" onclick="go('challenge')">
-      <div class="cb-emoji">${activeChallenge.emoji||'🎯'}</div>
-      <div class="cb-info">
-        <span class="cb-tag">이번 주 챌린지</span>
-        <h3>${activeChallenge.title}</h3>
-        <p>${activeChallenge.description||''}</p>
-      </div>
-      <div class="cb-cta">참여하기 →</div>
-    </div>`;
-}
-async function renderChallengeView(){
-  const box=document.getElementById('challenge-body');
-  if(!activeChallenge){box.innerHTML=`<div class="hd"><h2>챌린지</h2></div><div class="qp-empty" style="padding:60px 20px">진행 중인 챌린지가 없어요.</div>`;return;}
-  box.innerHTML=`
-    <div class="challenge-banner" style="cursor:default;margin-bottom:26px">
-      <div class="cb-emoji">${activeChallenge.emoji||'🎯'}</div>
-      <div class="cb-info"><span class="cb-tag">이번 주 챌린지</span><h3>${activeChallenge.title}</h3><p>${activeChallenge.description||''}</p></div>
-      <button class="cb-cta" onclick="openUpload()">＋ 참여하기</button>
-    </div>
-    <div class="hd"><h2 style="font-size:22px">참여한 곡</h2></div>
-    <div class="feed" id="challenge-feed"><div class="qp-empty" style="padding:40px 20px">불러오는 중…</div></div>`;
-  // 이 챌린지에 참여한 공개 게시물 조회
-  if(sb){
-    const {data}=await sb.from('posts').select('*').eq('challenge_id',activeChallenge.id).order('created_at',{ascending:false});
-    const feed=(data||[]).map(postToFeed);
-    const cf=document.getElementById('challenge-feed');
-    if(!feed.length){cf.innerHTML=`<div class="qp-empty" style="padding:40px 20px">아직 참여한 곡이 없어요. 첫 참여자가 되어보세요!</div>`;return;}
-    cf.innerHTML=feed.map((p,idx)=>feedCardHTML(p,idx)).join('');
-  }
-}
-function toggleChallengeJoin(){
-  challengeJoin=!challengeJoin;
-  document.getElementById('up-challenge-sw').classList.toggle('on',challengeJoin);
-}
-
-/* ============ 무드 태그 ============ */
-let uploadTags=[];
-function renderTagChips(){
-  document.getElementById('up-tag-list').innerHTML=uploadTags.map(t=>
-    `<span class="tag-chip">#${t}<button onclick="removeTag('${t.replace(/'/g,"\\'")}')">✕</button></span>`).join('');
-}
-function addTag(t){
-  t=(t||'').trim().replace(/^#/,'').replace(/\s+/g,'');
-  if(!t)return;
-  if(uploadTags.length>=5){showToast('태그는 최대 5개예요');return;}
-  if(uploadTags.includes(t))return;
-  uploadTags.push(t);
-  renderTagChips();
-  document.getElementById('up-tag-field').value='';
-}
-function removeTag(t){uploadTags=uploadTags.filter(x=>x!==t);renderTagChips();}
-function tagKeydown(e){
-  if(e.key==='Enter'||e.key===','){e.preventDefault();addTag(e.target.value);}
-  else if(e.key==='Backspace'&&!e.target.value&&uploadTags.length){uploadTags.pop();renderTagChips();}
-}
-// 태그 클릭 → 검색으로 그 태그 곡 모아보기
-function openTag(t){
-  document.getElementById('search-input').value='#'+t;
-  runSearch('#'+t);
-}
-function copyPrompt(btn,text){
-  const done=()=>{btn.textContent='✓ 복사됨';btn.classList.add('done');showToast('프롬프트를 복사했어요');setTimeout(()=>{btn.textContent='복사';btn.classList.remove('done');},1800);};
-  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(text).then(done).catch(()=>fallbackCopy(text,done));}
-  else fallbackCopy(text,done);
-}
-function fallbackCopy(text,cb){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);cb&&cb();}
-
-/* ============ 곡 공유 링크 ============ */
-function shareTrack(t,a,e){
-  const base=location.origin+location.pathname;
-  const url=`${base}?track=${encodeURIComponent(t)}&artist=${encodeURIComponent(a)}${e?`&e=${encodeURIComponent(e)}`:''}`;
-  const done=()=>showToast('🔗 공유 링크를 복사했어요');
-  if(navigator.share){
-    navigator.share({title:`${t} · ${a}`,text:`BIT.IN에서 "${t}" 들어보세요`,url}).catch(()=>{});
-    return;
-  }
-  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done).catch(()=>fallbackCopy(url,done));}
-  else fallbackCopy(url,done);
-}
-// 페이지 로드 시 공유 링크로 들어왔으면 그 곡 상세 열기
-function checkShareLink(){
-  const params=new URLSearchParams(location.search);
-  const t=params.get('track'), a=params.get('artist'), e=params.get('e')||'🎵';
-  if(t&&a){
-    setTimeout(()=>{openTrack(t,a,g(0),e,'','');},400);
-    // 주소창 깔끔하게 정리
-    history.replaceState({},'',location.origin+location.pathname);
-  }
-}
-
 // 초기화
 initAuth();
-checkShareLink();
 updateNotifBadge();
 renderNotif();
+applyVolumeUI();
 
 // 새 팔로우/게시 알림 시뮬레이션 (진짜 서비스 느낌)
 setTimeout(()=>pushNotif({face:'K',bg:'linear-gradient(135deg,#ff5c8a,#ffab5c)',who:'Kudo',text:'<b>Kudo</b>님이 새 앨범 <b>NEON EP</b>를 발매했어요',emoji:'💿',time:'방금',creator:2}),9000);
