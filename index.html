@@ -838,6 +838,7 @@ if(SUPA_READY && window.supabase){
 }
 
 let currentUser=null;      // {email, name}
+let isGuest=false;         // 게스트 둘러보기 모드
 let authMode='login';      // 'login' | 'signup'
 let authBusy=false;
 
@@ -905,7 +906,11 @@ async function submitAuth(){
     // onAuthStateChange가 UI를 갱신함
   }
 }
-function socialAuth(){authError('게스트 모드는 백엔드 설정 후 이용할 수 있어요.');}
+function socialAuth(){
+  closeAuth();
+  isGuest=true;
+  showToast('게스트로 둘러보는 중이에요 · 저장 기능은 로그인이 필요해요');
+}
 
 async function logout(){
   closeUserMenu();
@@ -921,6 +926,7 @@ function setUserFromSession(session){
   if(session&&session.user){
     const u=session.user;
     currentUser={id:u.id,email:u.email,name:(u.user_metadata&&u.user_metadata.name)||u.email.split('@')[0]};
+    isGuest=false; // 로그인하면 게스트 해제
   }else{
     currentUser=null;
   }
@@ -943,7 +949,7 @@ function applyAuthUI(){
 function requireLogin(after){
   if(currentUser){after&&after();return true;}
   openAuth('login');
-  showToast('먼저 로그인해 주세요');
+  showToast(isGuest?'이 기능은 로그인이 필요해요':'먼저 로그인해 주세요');
   return false;
 }
 
