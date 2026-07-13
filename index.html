@@ -102,7 +102,7 @@
 
   /* ---------- CHART ---------- */
   .chart{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
-  .row{display:grid;grid-template-columns:52px 52px 1fr 120px 90px 82px;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);transition:.12s}
+  .row{display:grid;grid-template-columns:52px 52px 1fr 110px 80px 118px;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);transition:.12s}
   .row:last-child{border-bottom:none}
   .row:hover{background:var(--panel-2)}
   .row-actions{display:flex;align-items:center;gap:6px;justify-content:flex-end}
@@ -341,6 +341,23 @@
   .seg button{padding:8px 18px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);transition:.15s}
   .seg button.on{background:var(--cyan);color:#04120f}
 
+  /* 플레이리스트 */
+  .pl-add-item{display:flex;align-items:center;gap:12px;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:11px 13px;cursor:pointer;transition:.12s}
+  .pl-add-item:hover{border-color:var(--cyan)}
+  .pl-add-item .pae{width:38px;height:38px;border-radius:9px;display:grid;place-items:center;font-size:18px;flex:none}
+  .pl-add-item .pai{flex:1}
+  .pl-add-item .pai .t{font-weight:700;font-size:14px}
+  .pl-add-item .pai .c{font-size:12px;color:var(--muted)}
+  .pl-add-item .check{color:var(--cyan);font-size:16px}
+  .pl-detail-hero{display:flex;gap:26px;align-items:flex-end;margin-bottom:28px;flex-wrap:wrap}
+  .pl-cover{width:180px;height:180px;border-radius:18px;display:grid;place-items:center;font-size:70px;flex:none;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+  .pl-meta{flex:1;min-width:220px}
+  .pl-meta .kind{font-size:11px;letter-spacing:2px;font-weight:700;color:var(--cyan);text-transform:uppercase}
+  .pl-meta h1{font-family:"Syne";font-size:38px;font-weight:800;letter-spacing:-1px;margin:8px 0 6px}
+  .pl-meta .by{font-size:14px;color:#d3dcec}
+  .pl-meta .cnt{font-size:13px;color:var(--muted);margin-top:6px}
+  .pl-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+
   /* 무드 태그 */
   .tag-input{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:8px 10px;min-height:44px;cursor:text}
   .tag-input input{flex:1;min-width:100px;background:none;border:none;color:var(--ink);font-size:14px;font-family:inherit;outline:none}
@@ -432,7 +449,7 @@
     .side{display:none}
     .nowbar{left:0}
     .g4,.g5,.g3{grid-template-columns:repeat(2,1fr)}
-    .row{grid-template-columns:40px 44px 1fr 82px;gap:10px}
+    .row{grid-template-columns:40px 44px 1fr 118px;gap:10px}
     .genre-chip,.plays{display:none}
     .hero h3{font-size:32px}
     .rings{opacity:.4}
@@ -562,8 +579,13 @@
     </section>
 
     <section class="view" data-view="playlists" hidden>
-      <div class="hd"><h2>플레이리스트 · 공유</h2><p>모두가 만든 플레이리스트</p></div>
-      <div class="grid g4" id="playlists-grid"></div>
+      <div class="hd"><h2>플레이리스트 · 공유</h2><button class="btn primary" style="padding:10px 18px" onclick="openNewPlaylist()">＋ 새 플레이리스트</button></div>
+      <div id="playlists-body"></div>
+    </section>
+
+    <!-- PLAYLIST DETAIL -->
+    <section class="view" data-view="playlist" hidden>
+      <div id="playlist-detail"></div>
     </section>
 
     <section class="view" data-view="community" hidden>
@@ -635,6 +657,43 @@
 <div class="queue-panel notif-panel" id="notif-panel">
   <div class="qp-head"><h3>알림</h3><button onclick="markAllRead()" class="read-all">모두 읽음</button><button onclick="toggleNotif()">✕</button></div>
   <div class="notif-list" id="notif-list"></div>
+</div>
+
+<!-- NEW PLAYLIST MODAL -->
+<div class="overlay" id="newpl" hidden>
+  <div class="modal modal-wrap" style="max-width:440px">
+    <button class="close-x" onclick="closeNewPlaylist()">✕</button>
+    <h3>새 플레이리스트</h3>
+    <p class="msub">나만의 곡 모음을 만들어보세요</p>
+    <div class="field">
+      <label>이모지</label>
+      <div class="chips" id="npl-emoji">
+        <button class="sel">🎵</button><button>🌙</button><button>⚡</button><button>🌊</button><button>🔥</button><button>🎧</button><button>🌸</button><button>🚀</button>
+      </div>
+    </div>
+    <div class="field"><label>플레이리스트 이름</label><input type="text" id="npl-title" placeholder="예: 새벽 감성 모음"></div>
+    <div class="toggle-block">
+      <div class="toggle-row">
+        <div class="tinfo"><div class="tt">공개</div><div class="td">끄면 나만 볼 수 있어요</div></div>
+        <div class="switch on" id="npl-public" onclick="toggleSw(this)"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn ghost" onclick="closeNewPlaylist()">취소</button>
+      <button class="btn primary" onclick="createPlaylist()">만들기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD TO PLAYLIST MODAL -->
+<div class="overlay" id="addtopl" hidden>
+  <div class="modal modal-wrap" style="max-width:420px">
+    <button class="close-x" onclick="closeAddToPlaylist()">✕</button>
+    <h3>플레이리스트에 담기</h3>
+    <p class="msub" id="addtopl-track">—</p>
+    <div id="addtopl-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px"></div>
+    <button class="btn ghost" style="width:100%;justify-content:center" onclick="closeAddToPlaylist();openNewPlaylist()">＋ 새 플레이리스트 만들기</button>
+  </div>
 </div>
 
 <!-- AUTH MODAL -->
@@ -882,6 +941,7 @@ async function initAuth(){
   await loadFollows();
   loadPosts(); // 페이지 열릴 때 공개 게시물 불러오기
   loadChallenge(); // 이번 주 챌린지 불러오기
+  loadPlaylists(); // 플레이리스트 불러오기
   sb.auth.onAuthStateChange((event,session)=>{
     const wasLoggedIn=!!currentUser;
     setUserFromSession(session);
@@ -889,6 +949,7 @@ async function initAuth(){
       closeAuth();
       if(currentUser)showToast(`${currentUser.name}님, 환영해요`);
       loadFollows().then(loadPosts); // 로그인하면 내 팔로우·비공개 글까지 다시 불러오기
+      loadPlaylists();
     }
     if(event==='SIGNED_OUT'){
       myFollows=new Set();
@@ -984,6 +1045,7 @@ function chartRows(list,container){
       <div class="genre-chip">${t.genre||''}</div>
       <div class="plays">${t.plays?'▶ '+t.plays:''}</div>
       <div class="row-actions">
+        <button class="q-add" onclick="event.stopPropagation();openAddToPlaylist('${t.t.replace(/'/g,"\\'")}','${t.a}','${t.e}')" title="플레이리스트에 담기">♪</button>
         <button class="q-add" onclick="event.stopPropagation();addToQueue(${pargs})" title="대기열에 추가">＋</button>
         <button class="play" onclick="event.stopPropagation();playTrack(${pargs})">▶</button>
       </div>
@@ -1013,13 +1075,192 @@ function albumCards(list,container){
     </div>`;}).join('');
 }
 
+/* ============ 플레이리스트 시스템 ============ */
+let myPlaylists=[];      // 내가 만든 것
+let popularPlaylists=[]; // 공개 전체 (인기순)
+let plLikes=new Set();   // 내가 좋아요한 플레이리스트 id
+let addTrackTarget=null; // 담기 대상 곡 {t,a,e}
+let newplEmoji='🎵';
+
+async function loadPlaylists(){
+  if(!sb){renderPlaylistsView();return;}
+  // 공개 + 내 것
+  const {data:pls}=await sb.from('playlists').select('*').order('created_at',{ascending:false}).limit(100);
+  const all=pls||[];
+  // 각 플레이리스트 좋아요 수
+  const ids=all.map(p=>p.id);
+  let likeCount={};
+  if(ids.length){
+    const {data:likes}=await sb.from('playlist_likes').select('playlist_id,user_id').in('playlist_id',ids);
+    (likes||[]).forEach(l=>{likeCount[l.playlist_id]=(likeCount[l.playlist_id]||0)+1; if(currentUser&&l.user_id===currentUser.id)plLikes.add(l.playlist_id);});
+  }
+  all.forEach(p=>p.likes=likeCount[p.id]||0);
+  myPlaylists=currentUser?all.filter(p=>p.user_id===currentUser.id):[];
+  popularPlaylists=all.filter(p=>p.is_public).sort((a,b)=>b.likes-a.likes);
+  renderPlaylistsView();
+}
+
+function plServerCard(p){
+  return `<div class="card" style="cursor:pointer" onclick="openPlaylist('${p.id}')">
+    <div class="art" style="background:${plColor(p.id)}">${p.emoji||'🎵'}<div class="plw"><div>▶</div></div></div>
+    <h4>${p.title}</h4><div class="sub">${p.owner_name}${p.is_public?'':' · 🔒 비공개'}</div>
+    <div class="meta"><span>♥ ${p.likes||0}</span></div>
+  </div>`;
+}
+function plColor(id){let s=0;for(let i=0;i<id.length;i++)s+=id.charCodeAt(i);return g(s);}
+
+function renderPlaylistsView(){
+  const box=document.getElementById('playlists-body');
+  if(!box)return;
+  let html='';
+  // 인기 플레이리스트
+  html+=`<div class="hd" style="margin-top:8px"><h2 style="font-size:22px">🔥 인기 플레이리스트</h2></div>`;
+  html+= popularPlaylists.length
+    ? `<div class="grid g4" style="margin-bottom:34px">${popularPlaylists.slice(0,8).map(plServerCard).join('')}</div>`
+    : `<div class="qp-empty" style="padding:30px 20px;margin-bottom:20px">아직 공개된 플레이리스트가 없어요. 첫 플레이리스트를 만들어보세요!</div>`;
+  // 내 플레이리스트
+  if(currentUser){
+    html+=`<div class="hd"><h2 style="font-size:22px">내 플레이리스트</h2></div>`;
+    html+= myPlaylists.length
+      ? `<div class="grid g4">${myPlaylists.map(plServerCard).join('')}</div>`
+      : `<div class="qp-empty" style="padding:30px 20px">아직 만든 플레이리스트가 없어요.</div>`;
+  }
+  box.innerHTML=html;
+}
+
+// 새 플레이리스트 모달
+function openNewPlaylist(){if(!requireLogin())return;newplEmoji='🎵';document.querySelectorAll('#npl-emoji button').forEach((b,i)=>b.classList.toggle('sel',i===0));document.getElementById('npl-title').value='';document.getElementById('newpl').hidden=false;}
+function closeNewPlaylist(){document.getElementById('newpl').hidden=true;}
+async function createPlaylist(){
+  const title=document.getElementById('npl-title').value.trim();
+  if(!title){showToast('플레이리스트 이름을 입력해 주세요');return;}
+  const isPublic=document.getElementById('npl-public').classList.contains('on');
+  if(!sb||!currentUser){showToast('로그인이 필요해요');return;}
+  const {data,error}=await sb.from('playlists').insert({
+    user_id:currentUser.id, owner_name:currentUser.name, title, emoji:newplEmoji, is_public:isPublic
+  }).select().single();
+  if(error){showToast('생성 실패: '+(error.message||''));return;}
+  closeNewPlaylist();
+  showToast(`"${title}" 플레이리스트를 만들었어요`);
+  await loadPlaylists();
+  // 담을 곡이 있었으면 바로 담기
+  if(addTrackTarget){await addTrackToPlaylist(data.id,addTrackTarget);addTrackTarget=null;}
+}
+
+// 곡을 플레이리스트에 담기
+function openAddToPlaylist(t,a,e){
+  if(!requireLogin())return;
+  addTrackTarget={t,a,e};
+  document.getElementById('addtopl-track').textContent=`${e} ${t} · ${a}`;
+  const list=document.getElementById('addtopl-list');
+  if(!myPlaylists.length){
+    list.innerHTML=`<div class="qp-empty" style="padding:20px">아직 플레이리스트가 없어요. 아래에서 만들어보세요.</div>`;
+  }else{
+    list.innerHTML=myPlaylists.map(p=>`
+      <div class="pl-add-item" onclick="addTrackToPlaylist('${p.id}',{t:'${t.replace(/'/g,"\\'")}',a:'${a.replace(/'/g,"\\'")}',e:'${e}'})">
+        <div class="pae" style="background:${plColor(p.id)}">${p.emoji||'🎵'}</div>
+        <div class="pai"><div class="t">${p.title}</div><div class="c">${p.is_public?'공개':'비공개'}</div></div>
+      </div>`).join('');
+  }
+  document.getElementById('addtopl').hidden=false;
+}
+function closeAddToPlaylist(){document.getElementById('addtopl').hidden=true;}
+async function addTrackToPlaylist(plId,track){
+  if(!sb)return;
+  const {error}=await sb.from('playlist_tracks').insert({
+    playlist_id:plId, track_title:track.t, track_artist:track.a, emoji:track.e||'🎵'
+  });
+  closeAddToPlaylist();
+  if(error){showToast('담기 실패: '+(error.message||''));return;}
+  showToast('플레이리스트에 담았어요');
+}
+
+// 플레이리스트 상세
+async function openPlaylist(id){
+  if(!sb)return;
+  const {data:pl}=await sb.from('playlists').select('*').eq('id',id).single();
+  if(!pl){showToast('플레이리스트를 찾을 수 없어요');return;}
+  const {data:tracks_}=await sb.from('playlist_tracks').select('*').eq('playlist_id',id).order('added_at',{ascending:true});
+  const trs=tracks_||[];
+  const {count}=await sb.from('playlist_likes').select('*',{count:'exact',head:true}).eq('playlist_id',id);
+  const isMine=currentUser&&pl.user_id===currentUser.id;
+  const liked=plLikes.has(id);
+  document.getElementById('playlist-detail').innerHTML=`
+    <a class="back-btn" onclick="go('playlists')">← 플레이리스트</a>
+    <div class="pl-detail-hero">
+      <div class="pl-cover" style="background:${plColor(id)}">${pl.emoji||'🎵'}</div>
+      <div class="pl-meta">
+        <div class="kind">PLAYLIST${pl.is_public?'':' · 🔒 비공개'}</div>
+        <h1>${pl.title}</h1>
+        <div class="by">${pl.owner_name}</div>
+        <div class="cnt">${trs.length}곡 · ♥ ${count||0}</div>
+        <div class="pl-actions">
+          ${trs.length?`<button class="btn primary" onclick="playPlaylist('${id}')">▶ 전체 재생</button>`:''}
+          <button class="td-like ${liked?'liked':''}" id="pl-like-btn" onclick="togglePlaylistLike('${id}',this)"><span class="heart">${liked?'♥':'♡'}</span> 좋아요</button>
+          ${isMine?`<button class="td-like" onclick="deletePlaylist('${id}')">🗑 삭제</button>`:''}
+        </div>
+      </div>
+    </div>
+    <div class="hd"><h2 style="font-size:22px">수록곡</h2></div>
+    <div class="chart" id="pl-tracks"></div>`;
+  const cont=document.getElementById('pl-tracks');
+  if(!trs.length){cont.innerHTML=`<div class="qp-empty" style="padding:40px 20px">아직 담긴 곡이 없어요.${isMine?' 곡의 ♪ 버튼으로 담아보세요.':''}</div>`;}
+  else{
+    cont.innerHTML=trs.map((t,i)=>`
+      <div class="row">
+        <div class="rank ${i<3?'top':''}">${i+1}</div>
+        <div class="cover" style="background:${g(i)}">${t.emoji||'🎵'}</div>
+        <div class="trk"><div class="t">${t.track_title}</div><div class="a">${t.track_artist||''}</div></div>
+        <div class="genre-chip"></div><div class="plays"></div>
+        <div class="row-actions">
+          ${isMine?`<button class="q-add" onclick="removePlTrack('${t.id}','${id}')" title="빼기">✕</button>`:''}
+          <button class="play" onclick="playTrack('${t.track_title.replace(/'/g,"\\'")}','${(t.track_artist||'').replace(/'/g,"\\'")}','${g(i)}','${t.emoji||'🎵'}')">▶</button>
+        </div>
+      </div>`).join('');
+  }
+  window._plTracks=trs.map((t,i)=>({t:t.track_title,a:t.track_artist||'',bg:g(i),e:t.emoji||'🎵'}));
+  go('playlist');
+}
+function playPlaylist(id){
+  const list=window._plTracks||[];
+  if(!list.length)return;
+  radioMode=false; queue=list.slice(); qIndex=0; loadCurrent(true);
+  showToast('플레이리스트를 재생해요');
+}
+async function togglePlaylistLike(id,btn){
+  if(!requireLogin())return;
+  const liked=plLikes.has(id);
+  if(sb){
+    if(liked){await sb.from('playlist_likes').delete().eq('user_id',currentUser.id).eq('playlist_id',id);plLikes.delete(id);}
+    else{await sb.from('playlist_likes').insert({user_id:currentUser.id,playlist_id:id});plLikes.add(id);}
+  }
+  btn.classList.toggle('liked',!liked);
+  btn.querySelector('.heart').textContent=!liked?'♥':'♡';
+}
+async function removePlTrack(trackId,plId){
+  if(!sb)return;
+  await sb.from('playlist_tracks').delete().eq('id',trackId);
+  openPlaylist(plId);
+}
+async function deletePlaylist(id){
+  if(!confirm('이 플레이리스트를 삭제할까요?'))return;
+  if(sb)await sb.from('playlists').delete().eq('id',id);
+  showToast('삭제했어요');
+  await loadPlaylists();
+  go('playlists');
+}
+// 이모지 선택
+document.querySelectorAll('#npl-emoji button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('#npl-emoji button').forEach(x=>x.classList.remove('sel'));
+  b.classList.add('sel');newplEmoji=b.textContent;
+});
+
 chartRows(tracks.slice(0,5),document.getElementById('home-chart'));
 chartRows(tracks,document.getElementById('full-chart'));
 chartRows([...tracks].reverse(),document.getElementById('new-chart'));
 creatorCards(creators.slice(0,5),document.getElementById('home-creators'));
 creatorCards(creators,document.getElementById('full-creators'));
 plCards(playlists.slice(0,4),document.getElementById('home-playlists'));
-plCards(playlists,document.getElementById('playlists-grid'));
 albumCards(albums,document.getElementById('albums-grid'));
 
 document.getElementById('genre-grid').innerHTML=genres.map(gn=>`
@@ -1180,7 +1421,7 @@ async function addComment(i,input){
   renderFeed();
 }
 
-function go(v){if(v==='me'&&!currentUser){requireLogin();return;}document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.view!==v);document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.view===v));window.scrollTo({top:0,behavior:'smooth'});if(v==='me')renderMe();if(v==='challenge')renderChallengeView();}
+function go(v){if(v==='me'&&!currentUser){requireLogin();return;}document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.view!==v);document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.view===v));window.scrollTo({top:0,behavior:'smooth'});if(v==='me')renderMe();if(v==='challenge')renderChallengeView();if(v==='playlists')renderPlaylistsView();}
 document.querySelectorAll('.nav').forEach(n=>n.addEventListener('click',()=>go(n.dataset.view)));
 
 /* ============ 검색 ============ */
