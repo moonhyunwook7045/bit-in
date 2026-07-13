@@ -186,8 +186,8 @@
   .track-embed .ti .t{font-weight:700;font-size:14px}
   .track-embed .ti .a{font-size:12px;color:var(--muted)}
   .track-embed .pl{width:40px;height:40px;border-radius:50%;background:var(--cyan);color:#000;display:grid;place-items:center;flex:none;font-size:15px}
-  .track-embed .pl-save{width:38px;height:38px;border-radius:10px;background:var(--panel);border:1px solid var(--line);color:var(--cyan);flex:none;font-size:16px;cursor:pointer;transition:.15s}
-  .track-embed .pl-save:hover{background:var(--cyan);color:#04120f;transform:translateY(-1px)}
+  .track-embed .pl-save{width:40px;height:40px;border-radius:50%;background:transparent;border:1.5px solid var(--cyan);color:var(--cyan);flex:none;font-size:17px;cursor:pointer;transition:.15s;display:grid;place-items:center}
+  .track-embed .pl-save:hover{background:var(--cyan);color:#04120f;box-shadow:0 0 16px rgba(34,229,200,.4)}
   .wave{height:26px;flex:1;display:flex;align-items:center;gap:2px;overflow:hidden}
   .wave i{width:3px;background:var(--dim);border-radius:2px;flex:none}
 
@@ -699,6 +699,17 @@
   </div>
 </div>
 
+<!-- PICK TRACK MODAL (플레이리스트에 곡 추가) -->
+<div class="overlay" id="picktrack" hidden>
+  <div class="modal modal-wrap" style="max-width:460px">
+    <button class="close-x" onclick="closePickTrack()">✕</button>
+    <h3>곡 추가</h3>
+    <p class="msub">플레이리스트에 담을 곡을 골라보세요</p>
+    <div class="field"><input type="text" id="pick-search" placeholder="곡 · 아티스트 검색" oninput="renderPickList()"></div>
+    <div id="pick-list" style="display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto"></div>
+  </div>
+</div>
+
 <!-- AUTH MODAL -->
 <div class="overlay" id="auth" hidden>
   <div class="modal modal-wrap auth-modal">
@@ -1168,6 +1179,46 @@ function openAddToPlaylist(t,a,e){
   document.getElementById('addtopl').hidden=false;
 }
 function closeAddToPlaylist(){document.getElementById('addtopl').hidden=true;}
+
+// 플레이리스트 상세에서 곡 추가 (곡 목록에서 고르기)
+let pickTrackPlId=null;
+function openPickTrack(plId){
+  if(!requireLogin())return;
+  pickTrackPlId=plId;
+  document.getElementById('pick-search').value='';
+  renderPickList();
+  document.getElementById('picktrack').hidden=false;
+}
+function closePickTrack(){document.getElementById('picktrack').hidden=true;if(pickTrackPlId)openPlaylist(pickTrackPlId);}
+function pickTrackPool(){
+  // 차트 곡 + 커뮤니티 게시물 곡을 합쳐 중복 제거
+  const pool=[];
+  const seen=new Set();
+  tracks.forEach((t,i)=>{const k=t.t+'|'+t.a;if(!seen.has(k)){seen.add(k);pool.push({t:t.t,a:t.a,e:t.e});}});
+  feedData.forEach(p=>{if(p.track){const k=p.track.t+'|'+p.track.a;if(!seen.has(k)){seen.add(k);pool.push({t:p.track.t,a:p.track.a,e:p.track.e});}}});
+  return pool;
+}
+function renderPickList(){
+  const q=(document.getElementById('pick-search').value||'').toLowerCase().trim();
+  let pool=pickTrackPool();
+  if(q)pool=pool.filter(t=>t.t.toLowerCase().includes(q)||t.a.toLowerCase().includes(q));
+  const box=document.getElementById('pick-list');
+  if(!pool.length){box.innerHTML=`<div class="qp-empty" style="padding:20px">검색 결과가 없어요.</div>`;return;}
+  box.innerHTML=pool.slice(0,40).map((t,i)=>`
+    <div class="pl-add-item" onclick="pickAddTrack('${t.t.replace(/'/g,"\\'")}','${t.a.replace(/'/g,"\\'")}','${t.e}',this)">
+      <div class="pae" style="background:${g(i)}">${t.e}</div>
+      <div class="pai"><div class="t">${t.t}</div><div class="c">${t.a}</div></div>
+      <div class="check">＋</div>
+    </div>`).join('');
+}
+async function pickAddTrack(t,a,e,el){
+  if(!pickTrackPlId||!sb)return;
+  const {error}=await sb.from('playlist_tracks').insert({playlist_id:pickTrackPlId,track_title:t,track_artist:a,emoji:e||'🎵'});
+  if(error){showToast('추가 실패: '+(error.message||''));return;}
+  // 담긴 표시
+  if(el){const c=el.querySelector('.check');if(c){c.textContent='✓';el.style.opacity='.55';el.style.pointerEvents='none';}}
+  showToast(`"${t}" 추가됨`);
+}
 async function addTrackToPlaylist(plId,track){
   if(!sb)return;
   const {error}=await sb.from('playlist_tracks').insert({
@@ -1204,7 +1255,7 @@ async function openPlaylist(id){
         </div>
       </div>
     </div>
-    <div class="hd"><h2 style="font-size:22px">수록곡</h2></div>
+    <div class="hd"><h2 style="font-size:22px">수록곡</h2>${isMine?`<button class="btn primary" style="padding:9px 16px" onclick="openPickTrack('${id}')">＋ 곡 추가</button>`:''}</div>
     <div class="chart" id="pl-tracks"></div>`;
   const cont=document.getElementById('pl-tracks');
   if(!trs.length){cont.innerHTML=`<div class="qp-empty" style="padding:40px 20px">아직 담긴 곡이 없어요.${isMine?' 곡의 ♪ 버튼으로 담아보세요.':''}</div>`;}
