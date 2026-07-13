@@ -655,6 +655,7 @@
 
 <script>
 const grad=['linear-gradient(135deg,#5b8cff,#ff5c8a)','linear-gradient(135deg,#22e5c8,#1a9e88)','linear-gradient(135deg,#ff5c8a,#ffab5c)','linear-gradient(135deg,#5b8cff,#7048e8)','linear-gradient(135deg,#22e5c8,#5b8cff)','linear-gradient(135deg,#ff6b6b,#feca57)','linear-gradient(135deg,#845ef7,#5c7cfa)','linear-gradient(135deg,#12b886,#22e5c8)'];
+let myFollows=new Set(); // 내가 팔로우한 크리에이터 이름 (서버에서 채움)
 
 /* ============ 인증 (Supabase 백엔드) ============ */
 // ▼▼▼ 여기 두 줄에 본인 Supabase 프로젝트 값을 넣으세요 ▼▼▼
@@ -783,6 +784,7 @@ async function initAuth(){
   if(!sb){applyAuthUI();return;}
   const {data}=await sb.auth.getSession();
   setUserFromSession(data.session);
+  await loadFollows();
   loadPosts(); // 페이지 열릴 때 공개 게시물 불러오기
   sb.auth.onAuthStateChange((event,session)=>{
     const wasLoggedIn=!!currentUser;
@@ -790,7 +792,10 @@ async function initAuth(){
     if(event==='SIGNED_IN'){
       closeAuth();
       if(currentUser)showToast(`${currentUser.name}님, 환영해요`);
-      loadPosts(); // 로그인하면 내 비공개 글까지 다시 불러오기
+      loadFollows().then(loadPosts); // 로그인하면 내 팔로우·비공개 글까지 다시 불러오기
+    }
+    if(event==='SIGNED_OUT'){
+      myFollows=new Set();
     }
   });
 }
@@ -888,11 +893,11 @@ function chartRows(list,container){
     </div>`;}).join('');
 }
 function creatorCards(list,container){
-  container.innerHTML=list.map((c)=>{const i=creators.indexOf(c);return `
+  container.innerHTML=list.map((c)=>{const i=creators.indexOf(c);const f=isFollowing(c.n);return `
     <div class="card creator">
       <div class="cface" style="background:${g(i)};cursor:pointer" onclick="openCreator(${i})">${c.n[0]}${c.v?'<div class="vf">✓</div>':''}</div>
       <h4 style="cursor:pointer" onclick="openCreator(${i})">${c.n}</h4><div class="sub">팔로워 ${c.f} · ${c.tag}</div>
-      <button class="followbtn" onclick="toggleFollow(this)">＋ 팔로우</button>
+      <button class="followbtn ${f?'ing':''}" onclick="toggleFollow(this,'${c.n.replace(/'/g,"\\'")}')">${f?'✓ 팔로잉':'＋ 팔로우'}</button>
     </div>`;}).join('');
 }
 function plCards(list,container){
@@ -978,8 +983,47 @@ function renderFeed(){
 }
 renderFeed();
 
-function like(i,btn){const p=feedData[i];p.liked=!p.liked;p.likes+=p.liked?1:-1;btn.classList.toggle('liked',p.liked);btn.querySelector('.heart').textContent=p.liked?'♥':'♡';btn.querySelector('.cnt').textContent=p.likes;}
-function addComment(i,input){const v=input.value.trim();if(!v)return;feedData[i].comments=feedData[i].comments||[];feedData[i].comments.push({n:'YU',t:v});renderFeed();}
+async function like(i,btn){
+  const p=feedData[i];
+  // 서버 게시물이면 Supabase에 반영
+  if(sb && currentUser && currentUser.id && p.id){
+    if(p.liked){
+      p.liked=false;p.likes=Math.max(0,p.likes-1);
+      await sb.from('post_likes').delete().eq('user_id',currentUser.id).eq('post_id',p.id);
+    }else{
+      p.liked=true;p.likes+=1;
+      await sb.from('post_likes').insert({user_id:currentUser.id,post_id:p.id});
+    }
+  }else if(!p.id && !currentUser){
+    // 데모 게시물이면서 비로그인: 로그인 유도
+    return requireLogin();
+  }else{
+    // 데모 게시물(메모리)
+    p.liked=!p.liked;p.likes+=p.liked?1:-1;
+  }
+  btn.classList.toggle('liked',p.liked);
+  btn.querySelector('.heart').textContent=p.liked?'♥':'♡';
+  btn.querySelector('.cnt').textContent=p.likes;
+}
+async function addComment(i,input){
+  const v=input.value.trim();if(!v)return;
+  const p=feedData[i];
+  const uname=currentUser?currentUser.name:'YU';
+  if(sb && currentUser && currentUser.id && p.id){
+    const {data,error}=await sb.from('comments').insert({
+      post_id:p.id, user_id:currentUser.id, author_name:uname, body:v
+    }).select().single();
+    if(error){showToast('댓글 실패: '+(error.message||''));return;}
+    p.comments=p.comments||[];
+    p.comments.push({n:uname,t:v});
+  }else if(!p.id && !currentUser){
+    return requireLogin();
+  }else{
+    p.comments=p.comments||[];
+    p.comments.push({n:uname,t:v});
+  }
+  renderFeed();
+}
 
 function go(v){if(v==='me'&&!currentUser){requireLogin();return;}document.querySelectorAll('.view').forEach(s=>s.hidden=s.dataset.view!==v);document.querySelectorAll('.nav').forEach(n=>n.classList.toggle('on',n.dataset.view===v));window.scrollTo({top:0,behavior:'smooth'});if(v==='me')renderMe();}
 document.querySelectorAll('.nav').forEach(n=>n.addEventListener('click',()=>go(n.dataset.view)));
@@ -996,7 +1040,7 @@ function runSearch(q){
   if(!tHit.length&&!cHit.length&&!pHit.length){
     html=`<div class="qp-empty" style="padding:60px 20px">"${q}"에 대한 결과가 없어요.<br>다른 키워드로 검색해 보세요.</div>`;
   }else{
-    if(cHit.length){html+=`<div class="hd" style="margin-top:8px"><h2 style="font-size:22px">크리에이터</h2></div><div class="grid g4" style="margin-bottom:30px">`+cHit.map(c=>{const i=creators.indexOf(c);return `<div class="card creator"><div class="cface" style="background:${g(i)};cursor:pointer" onclick="openCreator(${i})">${c.n[0]}${c.v?'<div class="vf">✓</div>':''}</div><h4 style="cursor:pointer" onclick="openCreator(${i})">${c.n}</h4><div class="sub">팔로워 ${c.f} · ${c.tag}</div><button class="followbtn" onclick="toggleFollow(this)">＋ 팔로우</button></div>`;}).join('')+`</div>`;}
+    if(cHit.length){html+=`<div class="hd" style="margin-top:8px"><h2 style="font-size:22px">크리에이터</h2></div><div class="grid g4" style="margin-bottom:30px">`+cHit.map(c=>{const i=creators.indexOf(c);return `<div class="card creator"><div class="cface" style="background:${g(i)};cursor:pointer" onclick="openCreator(${i})">${c.n[0]}${c.v?'<div class="vf">✓</div>':''}</div><h4 style="cursor:pointer" onclick="openCreator(${i})">${c.n}</h4><div class="sub">팔로워 ${c.f} · ${c.tag}</div><button class="followbtn ${isFollowing(c.n)?'ing':''}" onclick="toggleFollow(this,'${c.n.replace(/'/g,"\\'")}')">${isFollowing(c.n)?'✓ 팔로잉':'＋ 팔로우'}</button></div>`;}).join('')+`</div>`;}
     if(tHit.length){html+=`<div class="hd"><h2 style="font-size:22px">곡</h2></div><div class="chart" id="search-tracks" style="margin-bottom:30px"></div>`;}
     if(pHit.length){html+=`<div class="hd"><h2 style="font-size:22px">플레이리스트</h2></div><div class="grid g4" id="search-pls"></div>`;}
   }
@@ -1023,7 +1067,7 @@ function openCreator(i){
       </div>
       <div class="ph-actions">
         <button class="btn primary" onclick="playTrack('${disc[0].t}','${c.n}','${g(i)}','${disc[0].e}')">▶ 전체 재생</button>
-        <button class="followbtn" style="width:auto;padding:12px 22px" onclick="toggleFollow(this)">＋ 팔로우</button>
+        <button class="followbtn ${isFollowing(c.n)?'ing':''}" style="width:auto;padding:12px 22px" onclick="toggleFollow(this,'${c.n.replace(/'/g,"\\'")}')">${isFollowing(c.n)?'✓ 팔로잉':'＋ 팔로우'}</button>
       </div>
     </div>
     <div class="hd"><h2 style="font-size:22px">인기 트랙</h2></div>
@@ -1149,7 +1193,31 @@ function renderMe(){
 }
 function setMyTab(t){myTab=t;renderMe();}
 
-function toggleFollow(b){const ing=b.classList.toggle('ing');b.textContent=ing?'✓ 팔로잉':'＋ 팔로우';}
+function isFollowing(name){return myFollows.has(name);}
+async function loadFollows(){
+  if(!sb||!currentUser||!currentUser.id){myFollows=new Set();return;}
+  const {data}=await sb.from('follows').select('creator').eq('user_id',currentUser.id);
+  myFollows=new Set((data||[]).map(r=>r.creator));
+}
+async function toggleFollow(b,name){
+  if(!currentUser){return requireLogin();}
+  // 이름이 없으면(구버전 호출) 버튼 텍스트만 토글
+  if(!name){const ing=b.classList.toggle('ing');b.textContent=ing?'✓ 팔로잉':'＋ 팔로우';return;}
+  const nowFollowing=!myFollows.has(name);
+  if(sb && currentUser.id){
+    if(nowFollowing){
+      await sb.from('follows').insert({user_id:currentUser.id,creator:name});
+      myFollows.add(name);
+    }else{
+      await sb.from('follows').delete().eq('user_id',currentUser.id).eq('creator',name);
+      myFollows.delete(name);
+    }
+  }else{
+    nowFollowing?myFollows.add(name):myFollows.delete(name);
+  }
+  b.classList.toggle('ing',nowFollowing);
+  b.textContent=nowFollowing?'✓ 팔로잉':'＋ 팔로우';
+}
 
 /* ============ 재생 큐 시스템 ============ */
 let queue=[];          // {t,a,bg,e} 배열
@@ -1268,9 +1336,25 @@ async function loadPosts(){
   if(!sb)return;
   const {data,error}=await sb.from('posts').select('*').order('created_at',{ascending:false}).limit(50);
   if(error||!data)return;
-  // 서버 게시물을 앞쪽에, 기존 데모 게시물은 뒤에 유지
   const serverFeed=data.map(postToFeed);
-  // 이미 로드했으면 중복 방지 위해 데모분만 남기고 재구성
+
+  // 좋아요/댓글을 한 번에 모아서 각 게시물에 채우기
+  const ids=serverFeed.map(f=>f.id);
+  if(ids.length){
+    // 좋아요 전체(공개 정책) 조회 → 게시물별 카운트 + 내가 누른 것 표시
+    const {data:likes}=await sb.from('post_likes').select('post_id,user_id').in('post_id',ids);
+    const {data:cmts}=await sb.from('comments').select('*').in('post_id',ids).order('created_at',{ascending:true});
+    const likeCount={}, myLike={};
+    (likes||[]).forEach(l=>{likeCount[l.post_id]=(likeCount[l.post_id]||0)+1; if(currentUser&&l.user_id===currentUser.id)myLike[l.post_id]=true;});
+    const cmap={};
+    (cmts||[]).forEach(c=>{(cmap[c.post_id]=cmap[c.post_id]||[]).push({n:c.author_name,t:c.body});});
+    serverFeed.forEach(f=>{
+      f.likes=likeCount[f.id]||0;
+      f.liked=!!myLike[f.id];
+      f.comments=cmap[f.id]||[];
+    });
+  }
+
   const demoOnly=feedData.filter(f=>!f.id);
   feedData.length=0;
   serverFeed.forEach(f=>feedData.push(f));
