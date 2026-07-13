@@ -461,6 +461,7 @@
   /* 모바일 하단 탭바 (기본 숨김, 모바일에서만 표시) */
   .mobile-nav{display:none}
   .side-overlay{display:none}
+  .menu-btn-mobile{display:none}
 
   @media(max-width:1080px){.g4,.g5{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:860px){
@@ -480,7 +481,9 @@
     .rings{opacity:.25;right:-40px}
     .view{padding:16px 14px 90px}
     /* 상단바 모바일 정리 */
-    .topbar{padding:10px 14px;gap:8px}
+    .topbar{padding:10px 12px;gap:8px}
+    .menu-btn-mobile{display:grid;place-items:center;flex:none;width:42px;height:42px;border-radius:12px;background:var(--cyan);color:#04120f;font-size:20px;font-weight:700;border:none;box-shadow:0 4px 14px rgba(34,229,200,.35);transition:.15s}
+    .menu-btn-mobile:active{transform:scale(.92)}
     .search input{padding:10px 12px 10px 36px;font-size:13px}
     .search span{left:12px}
     .guest-badge{display:none!important}
@@ -575,10 +578,10 @@
   <!-- MAIN -->
   <div class="main">
     <div class="topbar">
+      <button class="menu-btn-mobile" id="menu-btn" onclick="toggleSideMenu()" title="메뉴" aria-label="메뉴 열기">☰</button>
       <div class="search"><span>⌕</span><input id="search-input" placeholder="곡, 크리에이터, 플레이리스트 검색" onkeydown="if(event.key==='Enter')runSearch(this.value)"></div>
       <div class="top-actions">
         <span class="guest-badge" id="guest-badge" hidden>👤 게스트 모드</span>
-        <button class="icon-btn" id="menu-btn" onclick="toggleSideMenu()" title="메뉴">☰</button>
         <button class="icon-btn bell" id="bell-btn" onclick="toggleNotif()" title="알림">♪<span class="badge" id="notif-badge">0</span></button>
         <button class="login-btn" id="login-btn" onclick="openAuth('login')">로그인</button>
         <div class="avatar" id="top-avatar" onclick="toggleUserMenu(event)" title="내 계정" hidden>?</div>
