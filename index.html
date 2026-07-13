@@ -1031,8 +1031,8 @@ function feedCardHTML(p,idx){return `
       <div class="post-head">
         <div class="av" style="background:${g(idx)}">${p.who[0]}</div>
         <div><div class="who">${p.who}</div><div class="when">${p.when}</div></div>
-        ${isMyPost(p)?`<div class="more-wrap"><button class="more" onclick="toggleMore(${idx},event)">⋯</button>
-          <div class="more-menu" id="more-${idx}" hidden>
+        ${isMyPost(p)?`<div class="more-wrap"><button class="more" onclick="toggleMore(this,event)">⋯</button>
+          <div class="more-menu" hidden>
             <button onclick="editPost(${idx})">✎ 수정</button>
             <button class="danger" onclick="deletePost(${idx})">🗑 삭제</button>
           </div></div>`:'<div class="more">⋯</div>'}
@@ -1069,9 +1069,9 @@ function renderFeed(){
 renderFeed();
 
 // 게시물 더보기 메뉴
-function toggleMore(idx,ev){
+function toggleMore(btn,ev){
   ev.stopPropagation();
-  const m=document.getElementById('more-'+idx);
+  const m=btn.parentElement.querySelector('.more-menu');
   const willOpen=m && m.hidden;
   document.querySelectorAll('.more-menu').forEach(x=>x.hidden=true);
   if(m)m.hidden=!willOpen;
@@ -1092,6 +1092,7 @@ async function deletePost(idx){
   }
   feedData.splice(idx,1);
   renderFeed();
+  if(!document.querySelector('[data-view="me"]').hidden)renderMe();
   showToast('곡을 삭제했어요');
 }
 
@@ -1110,6 +1111,7 @@ async function editPost(idx){
   }
   p.track.t=title; p.body=body;
   renderFeed();
+  if(!document.querySelector('[data-view="me"]').hidden)renderMe();
   showToast('수정했어요');
 }
 
