@@ -1413,7 +1413,7 @@ function feedCardHTML(p,idx){return `
         <div class="reactions">
           <button class="rbtn ${p.liked?'liked':''}" onclick="like(${idx},this)"><span class="heart">${p.liked?'♥':'♡'}</span> <span class="cnt">${p.likes}</span></button>
           <button class="rbtn"><span>💬</span> ${p.comments?p.comments.length:0}</button>
-          <button class="rbtn"><span>↗</span> 공유</button>
+          <button class="rbtn" onclick="shareTrack('${p.track.t.replace(/'/g,"\\'")}','${p.track.a.replace(/'/g,"\\'")}','${p.track.e}')"><span>↗</span> 공유</button>
         </div>
         <div class="comments">
           ${(p.comments||[]).map((c,ci)=>`<div class="cmt"><div class="cav" style="background:${g(ci+3)}">${c.n[0]}</div><div class="cbody"><div class="cn">${c.n}</div>${c.t}</div></div>`).join('')}
@@ -1603,6 +1603,7 @@ function openTrack(t,a,bg,e,genre,plays){
           <button class="td-like ${liked?'liked':''}" id="td-like-btn" onclick="toggleTrackLike('${t.replace(/'/g,"\\'")}',this)"><span class="heart">${liked?'♥':'♡'}</span> 좋아요</button>
           <button class="td-like" onclick="addToQueue('${t.replace(/'/g,"\\'")}','${a}','${bg}','${e}')">＋ 대기열</button>
           <button class="td-like" onclick="openAddToPlaylist('${t.replace(/'/g,"\\'")}','${a}','${e}')">♪ 플레이리스트에 저장</button>
+          <button class="td-like" onclick="shareTrack('${t.replace(/'/g,"\\'")}','${a.replace(/'/g,"\\'")}','${e}')">↗ 공유</button>
         </div>
       </div>
     </div>
@@ -2092,8 +2093,32 @@ function copyPrompt(btn,text){
 }
 function fallbackCopy(text,cb){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}document.body.removeChild(ta);cb&&cb();}
 
+/* ============ 곡 공유 링크 ============ */
+function shareTrack(t,a,e){
+  const base=location.origin+location.pathname;
+  const url=`${base}?track=${encodeURIComponent(t)}&artist=${encodeURIComponent(a)}${e?`&e=${encodeURIComponent(e)}`:''}`;
+  const done=()=>showToast('🔗 공유 링크를 복사했어요');
+  if(navigator.share){
+    navigator.share({title:`${t} · ${a}`,text:`BIT.IN에서 "${t}" 들어보세요`,url}).catch(()=>{});
+    return;
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done).catch(()=>fallbackCopy(url,done));}
+  else fallbackCopy(url,done);
+}
+// 페이지 로드 시 공유 링크로 들어왔으면 그 곡 상세 열기
+function checkShareLink(){
+  const params=new URLSearchParams(location.search);
+  const t=params.get('track'), a=params.get('artist'), e=params.get('e')||'🎵';
+  if(t&&a){
+    setTimeout(()=>{openTrack(t,a,g(0),e,'','');},400);
+    // 주소창 깔끔하게 정리
+    history.replaceState({},'',location.origin+location.pathname);
+  }
+}
+
 // 초기화
 initAuth();
+checkShareLink();
 updateNotifBadge();
 renderNotif();
 
