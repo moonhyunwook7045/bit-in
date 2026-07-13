@@ -1489,7 +1489,7 @@ async function like(i,btn){
     }else{
       p.liked=true;p.likes+=1;
       await sb.from('post_likes').insert({user_id:currentUser.id,post_id:p.id});
-      createNotif(p.user_id,'like',p.track.t); // 작성자에게 좋아요 알림
+      try{createNotif(p.user_id,'like',p.track.t);}catch(e){} // 알림 실패 무시
     }
   }else if(!p.id && !currentUser){
     // 데모 게시물이면서 비로그인: 로그인 유도
@@ -1514,7 +1514,7 @@ async function addComment(i,input){
     if(error){showToast('댓글 실패: '+(error.message||''));return;}
     p.comments=p.comments||[];
     p.comments.push({n:uname,t:v});
-    createNotif(p.user_id,'comment',p.track.t); // 작성자에게 댓글 알림
+    try{createNotif(p.user_id,'comment',p.track.t);}catch(e){} // 알림은 실패해도 무시
   }else if(!p.id && !currentUser){
     return requireLogin();
   }else{
