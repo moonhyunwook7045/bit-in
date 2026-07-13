@@ -1603,6 +1603,7 @@ function openTrack(t,a,bg,e,genre,plays){
   go('track');
 }
 function toggleTrackLike(t,btn){
+  if(!currentUser)return requireLogin(); // 게스트·비로그인 차단
   trackLikes[t]=!trackLikes[t];
   btn.classList.toggle('liked',trackLikes[t]);
   btn.querySelector('.heart').textContent=trackLikes[t]?'♥':'♡';
