@@ -1072,10 +1072,15 @@ renderFeed();
 function toggleMore(idx,ev){
   ev.stopPropagation();
   const m=document.getElementById('more-'+idx);
-  document.querySelectorAll('.more-menu').forEach(x=>{if(x!==m)x.hidden=true;});
-  if(m)m.hidden=!m.hidden;
+  const willOpen=m && m.hidden;
+  document.querySelectorAll('.more-menu').forEach(x=>x.hidden=true);
+  if(m)m.hidden=!willOpen;
 }
-document.addEventListener('click',()=>document.querySelectorAll('.more-menu').forEach(x=>x.hidden=true));
+// 메뉴 바깥을 클릭했을 때만 닫기 (더보기 버튼/메뉴 내부 클릭은 무시)
+document.addEventListener('click',(e)=>{
+  if(e.target.closest && (e.target.closest('.more-wrap')||e.target.closest('.more-menu')))return;
+  document.querySelectorAll('.more-menu').forEach(x=>x.hidden=true);
+});
 
 async function deletePost(idx){
   const p=feedData[idx];
