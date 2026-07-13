@@ -341,6 +341,15 @@
   .seg button{padding:8px 18px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);transition:.15s}
   .seg button.on{background:var(--cyan);color:#04120f}
 
+  /* 무드 태그 */
+  .tag-input{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:8px 10px;min-height:44px;cursor:text}
+  .tag-input input{flex:1;min-width:100px;background:none;border:none;color:var(--ink);font-size:14px;font-family:inherit;outline:none}
+  .tag-chip{display:inline-flex;align-items:center;gap:5px;background:rgba(34,229,200,.15);color:var(--cyan);border:1px solid rgba(34,229,200,.4);border-radius:16px;padding:3px 6px 3px 10px;font-size:12px;font-weight:600}
+  .tag-chip button{background:none;border:none;color:var(--cyan);cursor:pointer;font-size:14px;line-height:1;padding:0 2px}
+  .post-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+  .post-tag{font-size:12px;color:var(--cyan);background:rgba(34,229,200,.1);border:1px solid rgba(34,229,200,.3);border-radius:16px;padding:3px 10px;cursor:pointer;transition:.12s}
+  .post-tag:hover{background:var(--cyan);color:#04120f}
+
   /* 챌린지 */
   .challenge-banner{border-radius:18px;padding:24px 26px;margin-bottom:34px;position:relative;overflow:hidden;display:flex;align-items:center;gap:20px;background:linear-gradient(115deg,#1a2740,#241a3a);border:1px solid var(--line);cursor:pointer;transition:.18s}
   .challenge-banner:hover{transform:translateY(-2px);border-color:var(--cyan)}
@@ -694,6 +703,19 @@
       </div>
     </div>
 
+    <div class="field">
+      <label># 무드 태그 <span style="color:var(--dim);font-weight:400">(엔터로 추가 · 최대 5개)</span></label>
+      <div class="tag-input" id="up-tag-box" onclick="document.getElementById('up-tag-field').focus()">
+        <span id="up-tag-list"></span>
+        <input type="text" id="up-tag-field" placeholder="예: 새벽감성" onkeydown="tagKeydown(event)">
+      </div>
+      <div class="chips" id="up-tag-suggest" style="margin-top:8px">
+        <button onclick="addTag('새벽감성')">새벽감성</button><button onclick="addTag('드라이브')">드라이브</button>
+        <button onclick="addTag('집중')">집중</button><button onclick="addTag('운동')">운동</button>
+        <button onclick="addTag('비오는날')">비오는날</button><button onclick="addTag('몽환')">몽환</button>
+      </div>
+    </div>
+
     <div class="field" id="up-challenge-field" hidden>
       <label>◎ 이번 주 챌린지 참여</label>
       <div class="challenge-opt" id="up-challenge-opt" onclick="toggleChallengeJoin()">
@@ -1038,6 +1060,7 @@ function feedCardHTML(p,idx){return `
           </div></div>`:'<div class="more">⋯</div>'}
       </div>
       <div class="post-body">${p.body}</div>
+      ${(p.tags&&p.tags.length)?`<div class="post-tags">${p.tags.map(t=>`<span class="post-tag" onclick="openTag('${String(t).replace(/'/g,"\\'")}')">#${t}</span>`).join('')}</div>`:''}
       <div class="track-embed">
         <div class="ce" style="background:${g(idx+1)}">${p.track.e}</div>
         <button class="pl" onclick="playTrack('${p.track.t}','${p.track.a}','${g(idx+1)}','${p.track.e}')">▶</button>
@@ -1164,6 +1187,19 @@ document.querySelectorAll('.nav').forEach(n=>n.addEventListener('click',()=>go(n
 function runSearch(q){
   q=(q||'').trim(); if(!q){return;}
   document.getElementById('search-term').textContent=q;
+
+  // # 로 시작하면 태그 검색: feedData에서 해당 태그 게시물 모아보기
+  if(q.startsWith('#')){
+    const tag=q.slice(1).toLowerCase();
+    const hits=feedData.filter(p=>p.tags&&p.tags.some(t=>String(t).toLowerCase()===tag));
+    let h=`<div class="hd" style="margin-top:8px"><h2 style="font-size:22px">#${q.slice(1)} 태그</h2><p>${hits.length}곡</p></div>`;
+    if(!hits.length){h+=`<div class="qp-empty" style="padding:50px 20px">이 태그의 곡이 아직 없어요.</div>`;}
+    document.getElementById('search-body').innerHTML=h+(hits.length?`<div class="feed" id="tag-feed"></div>`:'');
+    if(hits.length)document.getElementById('tag-feed').innerHTML=hits.map((p)=>feedCardHTML(p,feedData.indexOf(p))).join('');
+    go('search');
+    return;
+  }
+
   const ql=q.toLowerCase();
   const tHit=tracks.filter(t=>t.t.toLowerCase().includes(ql)||t.a.toLowerCase().includes(ql));
   const cHit=creators.filter(c=>c.n.toLowerCase().includes(ql)||c.tag.toLowerCase().includes(ql));
@@ -1529,13 +1565,15 @@ async function submitPost(){
   const aiPrompt=document.getElementById('up-prompt').value.trim();
   const reactionsOn=document.getElementById('tg-main').classList.contains('on');
   const challengeId=(challengeJoin&&activeChallenge)?activeChallenge.id:null;
+  const tags=uploadTags.slice();
   closeUpload();
 
   // 로그인 + 백엔드 준비됐으면 서버에 저장
   if(sb && currentUser && currentUser.id){
     const {data,error}=await sb.from('posts').insert({
       user_id:currentUser.id, author_name:uname, title, body, emoji:'🎵',
-      reactions:reactionsOn, ai_tool:aiTool||null, ai_prompt:aiPrompt||null, challenge_id:challengeId
+      reactions:reactionsOn, ai_tool:aiTool||null, ai_prompt:aiPrompt||null, challenge_id:challengeId,
+      tags:tags.length?tags:null
     }).select().single();
     if(error){showToast('게시 실패: '+(error.message||'다시 시도해 주세요'));return;}
     showToast(challengeId?`"${title}" 챌린지 참여 완료! 🎯`:(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`));
@@ -1543,7 +1581,7 @@ async function submitPost(){
     renderFeed();
   }else{
     showToast(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`);
-    feedData.unshift({who:uname,when:'방금',body,track:{t:title,a:uname,e:'🎵'},reactions:reactionsOn,likes:0,liked:false,comments:[],aiTool,aiPrompt});
+    feedData.unshift({who:uname,when:'방금',body,track:{t:title,a:uname,e:'🎵'},reactions:reactionsOn,likes:0,liked:false,comments:[],aiTool,aiPrompt,tags});
     renderFeed();
   }
   // 입력 초기화
@@ -1553,6 +1591,7 @@ async function submitPost(){
   document.querySelectorAll('#up-aitool button.sel,#up-genres button.sel').forEach(x=>x.classList.remove('sel'));
   challengeJoin=false;
   const csw=document.getElementById('up-challenge-sw');if(csw)csw.classList.remove('on');
+  uploadTags=[];renderTagChips();
 }
 
 // Supabase posts 행 → 화면 피드 카드 형식으로 변환
@@ -1562,7 +1601,7 @@ function postToFeed(p){
     body:p.body||'새 트랙을 올렸어요.',
     track:{t:p.title, a:p.author_name, e:p.emoji||'🎵'},
     reactions:p.reactions, likes:0, liked:false, comments:[],
-    aiTool:p.ai_tool||'', aiPrompt:p.ai_prompt||'', challengeId:p.challenge_id||null
+    aiTool:p.ai_tool||'', aiPrompt:p.ai_prompt||'', challengeId:p.challenge_id||null, tags:p.tags||[]
   };
 }
 function timeAgo(ts){
@@ -1661,6 +1700,32 @@ async function renderChallengeView(){
 function toggleChallengeJoin(){
   challengeJoin=!challengeJoin;
   document.getElementById('up-challenge-sw').classList.toggle('on',challengeJoin);
+}
+
+/* ============ 무드 태그 ============ */
+let uploadTags=[];
+function renderTagChips(){
+  document.getElementById('up-tag-list').innerHTML=uploadTags.map(t=>
+    `<span class="tag-chip">#${t}<button onclick="removeTag('${t.replace(/'/g,"\\'")}')">✕</button></span>`).join('');
+}
+function addTag(t){
+  t=(t||'').trim().replace(/^#/,'').replace(/\s+/g,'');
+  if(!t)return;
+  if(uploadTags.length>=5){showToast('태그는 최대 5개예요');return;}
+  if(uploadTags.includes(t))return;
+  uploadTags.push(t);
+  renderTagChips();
+  document.getElementById('up-tag-field').value='';
+}
+function removeTag(t){uploadTags=uploadTags.filter(x=>x!==t);renderTagChips();}
+function tagKeydown(e){
+  if(e.key==='Enter'||e.key===','){e.preventDefault();addTag(e.target.value);}
+  else if(e.key==='Backspace'&&!e.target.value&&uploadTags.length){uploadTags.pop();renderTagChips();}
+}
+// 태그 클릭 → 검색으로 그 태그 곡 모아보기
+function openTag(t){
+  document.getElementById('search-input').value='#'+t;
+  runSearch('#'+t);
 }
 function copyPrompt(btn,text){
   const done=()=>{btn.textContent='✓ 복사됨';btn.classList.add('done');showToast('프롬프트를 복사했어요');setTimeout(()=>{btn.textContent='복사';btn.classList.remove('done');},1800);};
