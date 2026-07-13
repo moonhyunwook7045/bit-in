@@ -751,7 +751,7 @@ async function logout(){
 function setUserFromSession(session){
   if(session&&session.user){
     const u=session.user;
-    currentUser={email:u.email,name:(u.user_metadata&&u.user_metadata.name)||u.email.split('@')[0]};
+    currentUser={id:u.id,email:u.email,name:(u.user_metadata&&u.user_metadata.name)||u.email.split('@')[0]};
   }else{
     currentUser=null;
   }
@@ -783,12 +783,14 @@ async function initAuth(){
   if(!sb){applyAuthUI();return;}
   const {data}=await sb.auth.getSession();
   setUserFromSession(data.session);
+  loadPosts(); // 페이지 열릴 때 공개 게시물 불러오기
   sb.auth.onAuthStateChange((event,session)=>{
     const wasLoggedIn=!!currentUser;
     setUserFromSession(session);
     if(event==='SIGNED_IN'){
       closeAuth();
       if(currentUser)showToast(`${currentUser.name}님, 환영해요`);
+      loadPosts(); // 로그인하면 내 비공개 글까지 다시 불러오기
     }
   });
 }
@@ -1121,7 +1123,7 @@ function toggleNotif(){document.getElementById('queue-panel').classList.remove('
 let myTab='uploads';
 function renderMe(){
   const uname=currentUser?currentUser.name:'YU';
-  const uploads=feedData.filter(p=>p.who===uname);
+  const uploads=feedData.filter(p=> (currentUser&&currentUser.id&&p.user_id)? p.user_id===currentUser.id : p.who===uname);
   const liked=feedData.filter(p=>p.liked);
   const el=document.getElementById('me-detail');
   el.innerHTML=`
@@ -1218,13 +1220,62 @@ document.getElementById('upload').addEventListener('click',e=>{if(e.target.id===
 document.querySelectorAll('#up-genres button').forEach(b=>b.onclick=()=>b.classList.toggle('sel'));
 function toggleSw(sw){sw.classList.toggle('on')}
 function toggleMain(sw){const on=sw.classList.toggle('on');document.getElementById('sub-toggles').classList.toggle('dim',!on);}
-function submitPost(){
+async function submitPost(){
   const uname=currentUser?currentUser.name:'YU';
   const title=document.getElementById('up-title').value.trim()||'제목 없는 트랙';
+  const body=document.getElementById('up-desc').value.trim()||'새 트랙을 올렸어요.';
   const reactionsOn=document.getElementById('tg-main').classList.contains('on');
   closeUpload();
-  showToast(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`);
-  feedData.unshift({who:uname,when:'방금',body:document.getElementById('up-desc').value.trim()||'새 트랙을 올렸어요.',track:{t:title,a:uname,e:'🎵'},reactions:reactionsOn,likes:0,liked:false,comments:[]});
+
+  // 로그인 + 백엔드 준비됐으면 서버에 저장
+  if(sb && currentUser && currentUser.id){
+    const {data,error}=await sb.from('posts').insert({
+      user_id:currentUser.id, author_name:uname, title, body, emoji:'🎵', reactions:reactionsOn
+    }).select().single();
+    if(error){showToast('게시 실패: '+(error.message||'다시 시도해 주세요'));return;}
+    showToast(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`);
+    // 방금 저장된 걸 피드 맨 위에 반영
+    feedData.unshift(postToFeed(data));
+    renderFeed();
+  }else{
+    // 백엔드 미연결 시: 기존처럼 메모리에만 (데모 모드)
+    showToast(reactionsOn?`"${title}" 게시 완료! 반응을 받을 수 있어요`:`"${title}" 조용히 게시됨 · 반응 숨김`);
+    feedData.unshift({who:uname,when:'방금',body,track:{t:title,a:uname,e:'🎵'},reactions:reactionsOn,likes:0,liked:false,comments:[]});
+    renderFeed();
+  }
+}
+
+// Supabase posts 행 → 화면 피드 카드 형식으로 변환
+function postToFeed(p){
+  return {
+    id:p.id, user_id:p.user_id, who:p.author_name, when:timeAgo(p.created_at),
+    body:p.body||'새 트랙을 올렸어요.',
+    track:{t:p.title, a:p.author_name, e:p.emoji||'🎵'},
+    reactions:p.reactions, likes:0, liked:false, comments:[]
+  };
+}
+function timeAgo(ts){
+  const d=(Date.now()-new Date(ts).getTime())/1000;
+  if(d<60)return '방금';
+  if(d<3600)return Math.floor(d/60)+'분 전';
+  if(d<86400)return Math.floor(d/3600)+'시간 전';
+  return Math.floor(d/86400)+'일 전';
+}
+
+// 서버에서 게시물 불러와 피드에 합치기
+let serverPostsLoaded=false;
+async function loadPosts(){
+  if(!sb)return;
+  const {data,error}=await sb.from('posts').select('*').order('created_at',{ascending:false}).limit(50);
+  if(error||!data)return;
+  // 서버 게시물을 앞쪽에, 기존 데모 게시물은 뒤에 유지
+  const serverFeed=data.map(postToFeed);
+  // 이미 로드했으면 중복 방지 위해 데모분만 남기고 재구성
+  const demoOnly=feedData.filter(f=>!f.id);
+  feedData.length=0;
+  serverFeed.forEach(f=>feedData.push(f));
+  demoOnly.forEach(f=>feedData.push(f));
+  serverPostsLoaded=true;
   renderFeed();
 }
 let tmr;
