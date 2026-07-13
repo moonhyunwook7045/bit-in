@@ -333,6 +333,24 @@
   .seg button{padding:8px 18px;border-radius:9px;font-size:13px;font-weight:600;color:var(--muted);transition:.15s}
   .seg button.on{background:var(--cyan);color:#04120f}
 
+  /* 통계 대시보드 */
+  .stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+  .stat-card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;text-align:center;transition:.16s}
+  .stat-card:hover{transform:translateY(-3px);border-color:var(--cyan)}
+  .stat-card .stat-ic{font-size:26px;margin-bottom:8px}
+  .stat-card b{display:block;font-family:"JetBrains Mono",monospace;font-size:30px;font-weight:700;color:var(--ink);line-height:1}
+  .stat-card span{display:block;font-size:12px;color:var(--muted);margin-top:6px}
+  .stat-section{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}
+  .stat-section h3{font-family:"Syne",sans-serif;font-size:18px;font-weight:800;margin-bottom:16px}
+  .stat-row{display:grid;grid-template-columns:32px 1fr 120px 60px;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .stat-row:last-child{border-bottom:none}
+  .stat-rank{font-family:"JetBrains Mono";font-weight:700;color:var(--cyan);text-align:center}
+  .stat-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .stat-bar{height:8px;background:var(--panel-2);border-radius:4px;overflow:hidden}
+  .stat-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--volt));border-radius:4px;transition:width .5s ease}
+  .stat-val{font-family:"JetBrains Mono";font-size:13px;color:var(--pulse);text-align:right}
+  @media(max-width:860px){.stat-cards{grid-template-columns:repeat(2,1fr)}.stat-row{grid-template-columns:28px 1fr 70px 50px}}
+
   /* notification bell + badge */
   .icon-btn{position:relative}
   .icon-btn .badge{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:var(--pulse);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;font-family:"JetBrains Mono";box-shadow:0 0 0 2px var(--bg)}
@@ -812,6 +830,7 @@ async function initAuth(){
     }
     if(event==='SIGNED_OUT'){
       myFollows=new Set();
+      myFollowerCount=null;
     }
   });
 }
@@ -1205,9 +1224,16 @@ function renderMe(){
       <button class="${myTab==='uploads'?'on':''}" onclick="setMyTab('uploads')">올린 음악</button>
       <button class="${myTab==='liked'?'on':''}" onclick="setMyTab('liked')">좋아요</button>
       <button class="${myTab==='following'?'on':''}" onclick="setMyTab('following')">팔로잉</button>
+      <button class="${myTab==='stats'?'on':''}" onclick="setMyTab('stats')">📊 통계</button>
     </div>
     <div id="me-list"></div>`;
   const box=document.getElementById('me-list');
+
+  if(myTab==='stats'){
+    box.className='';box.style.margin='0';
+    renderStats(box,uploads);
+    return;
+  }
 
   if(myTab==='following'){
     // 내가 팔로우한 크리에이터 목록
@@ -1234,6 +1260,46 @@ function renderMe(){
   box.innerHTML=list.map(p=>{const idx=feedData.indexOf(p);return feedCardHTML(p,idx);}).join('');
 }
 function setMyTab(t){myTab=t;renderMe();}
+
+// 크리에이터 통계 대시보드
+let myFollowerCount=null; // 나를 팔로우한 사람 수 (서버에서 채움)
+async function loadFollowerCount(){
+  if(!sb||!currentUser){myFollowerCount=null;return;}
+  const {count}=await sb.from('follows').select('*',{count:'exact',head:true}).eq('creator',currentUser.name);
+  myFollowerCount=count||0;
+  // 통계 탭이 열려있으면 갱신
+  if(myTab==='stats'&&!document.querySelector('[data-view="me"]').hidden)renderMe();
+}
+function renderStats(box,uploads){
+  const totalLikes=uploads.reduce((s,p)=>s+(p.likes||0),0);
+  const totalComments=uploads.reduce((s,p)=>s+((p.comments&&p.comments.length)||0),0);
+  const followers=myFollowerCount==null?'…':myFollowerCount;
+  // 내 곡 좋아요 순위 (상위 5)
+  const ranked=[...uploads].sort((a,b)=>(b.likes||0)-(a.likes||0)).slice(0,5);
+  const maxL=Math.max(1,...ranked.map(p=>p.likes||0));
+
+  box.innerHTML=`
+    <div class="stat-cards">
+      <div class="stat-card"><div class="stat-ic">🎵</div><b>${uploads.length}</b><span>올린 곡</span></div>
+      <div class="stat-card"><div class="stat-ic">❤️</div><b>${totalLikes}</b><span>받은 좋아요</span></div>
+      <div class="stat-card"><div class="stat-ic">💬</div><b>${totalComments}</b><span>받은 댓글</span></div>
+      <div class="stat-card"><div class="stat-ic">👥</div><b>${followers}</b><span>팔로워</span></div>
+    </div>
+    ${ranked.length?`
+    <div class="stat-section">
+      <h3>내 곡 인기 순위</h3>
+      ${ranked.map((p,i)=>`
+        <div class="stat-row">
+          <div class="stat-rank">${i+1}</div>
+          <div class="stat-name">${p.track?p.track.t:p.title||'제목 없음'}</div>
+          <div class="stat-bar"><i style="width:${Math.round((p.likes||0)/maxL*100)}%"></i></div>
+          <div class="stat-val">♥ ${p.likes||0}</div>
+        </div>`).join('')}
+    </div>`:`<div class="qp-empty" style="padding:40px 20px">곡을 올리면 여기에 통계가 쌓여요.</div>`}
+  `;
+  // 팔로워 수 아직 안 불러왔으면 로드
+  if(myFollowerCount==null)loadFollowerCount();
+}
 
 function isFollowing(name){return myFollows.has(name);}
 async function loadFollows(){
