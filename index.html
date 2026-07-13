@@ -463,7 +463,7 @@
           <p>AI로 만든 트랙을 올리고, 차트에 오르고, 팬을 만나는 곳. 반응을 보이고 싶지 않다면 조용히, 비트만 흘려보낼 수도 있어요.</p>
           <div class="hero-btns">
             <button class="btn primary" onclick="openUpload()">＋ 내 음악 게시하기</button>
-            <button class="btn ghost" onclick="go('chart')">인기차트 보기</button>
+            <button class="btn ghost" onclick="startRadio()">📻 라디오 켜기</button>
           </div>
         </div>
       </div>
@@ -942,9 +942,9 @@ plCards(playlists,document.getElementById('playlists-grid'));
 albumCards(albums,document.getElementById('albums-grid'));
 
 document.getElementById('genre-grid').innerHTML=genres.map(gn=>`
-  <div class="gtile" style="background:${gn.c}" onclick="go('chart')">
+  <div class="gtile" style="background:${gn.c}" onclick="startRadio('${gn.n}')">
     <div class="gt-top"><h4>${gn.n}</h4></div>
-    <span class="gt-sub">지금 뜨는 트랙 <em>→</em></span>
+    <span class="gt-sub">📻 라디오 재생 <em>→</em></span>
     <div class="em">${gn.e}</div>
   </div>`).join('');
 
@@ -1269,6 +1269,7 @@ let shuffle=false, repeat=false;
 
 // 곡 하나 재생: 클릭한 곡을 큐 맨 앞 현재로, 전체 트랙을 뒤에 이어붙임
 function playTrack(t,a,bg,e){
+  radioMode=false;
   queue=[{t,a,bg,e}];
   // 같은 곡 빼고 나머지 인기곡을 다음 곡으로 채움
   tracks.forEach((tr,i)=>{ if(tr.t!==t) queue.push({t:tr.t,a:tr.a,bg:g(i),e:tr.e}); });
@@ -1282,11 +1283,29 @@ function addToQueue(t,a,bg,e){
   showToast(`"${t}" 대기열에 추가됨`);
   renderQueue();updateQCount();
 }
+
+// 라디오: 무드/장르 이름을 받아 관련 곡을 셔플로 큐에 채워 자동재생
+// label이 없으면 전체 곡으로 무한 라디오
+function startRadio(label){
+  // 곡 풀 구성 (지금은 트랙 장르 체계가 타일과 달라 전체 곡 사용)
+  let pool=tracks.slice();
+  // 셔플
+  for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+  if(!pool.length)return;
+  radioMode=true; radioLabel=label||'BIT.IN 라디오';
+  queue=pool.map((tr)=>({t:tr.t,a:tr.a,bg:g(tracks.indexOf(tr)),e:tr.e}));
+  qIndex=0;
+  shuffle=true; // 라디오는 셔플 on
+  document.getElementById('shuffle-btn')&&document.getElementById('shuffle-btn').classList.add('act');
+  loadCurrent(true);
+  showToast(`📻 ${radioLabel} 시작 · 자동으로 이어서 재생돼요`);
+}
+let radioMode=false, radioLabel='';
 function loadCurrent(play){
   const c=queue[qIndex]; if(!c)return;
   document.getElementById('nowbar').classList.add('up');
   document.getElementById('np-title').textContent=c.t;
-  document.getElementById('np-artist').textContent=c.a;
+  document.getElementById('np-artist').textContent=(radioMode?'📻 '+radioLabel+' · ':'')+c.a;
   const cov=document.getElementById('np-cover');cov.style.background=c.bg;cov.textContent=c.e;
   isPlaying=play!==false;
   document.getElementById('pp').textContent=isPlaying?'❚❚':'▶';
@@ -1295,7 +1314,14 @@ function loadCurrent(play){
 function togglePlay(){isPlaying=!isPlaying;document.getElementById('pp').textContent=isPlaying?'❚❚':'▶';}
 function nextTrack(){
   if(!queue.length)return;
-  if(shuffle){qIndex=Math.floor(Math.random()*queue.length);}
+  // 라디오 모드: 곡이 거의 끝나가면 뒤에 곡을 더 채워 끊기지 않게
+  if(radioMode && qIndex>=queue.length-2){
+    const pool=tracks.slice();
+    for(let i=pool.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[pool[i],pool[j]]=[pool[j],pool[i]];}
+    pool.forEach(tr=>queue.push({t:tr.t,a:tr.a,bg:g(tracks.indexOf(tr)),e:tr.e}));
+    updateQCount();
+  }
+  if(shuffle && !radioMode){qIndex=Math.floor(Math.random()*queue.length);}
   else if(qIndex<queue.length-1){qIndex++;}
   else if(repeat){qIndex=0;}
   else{return;}
