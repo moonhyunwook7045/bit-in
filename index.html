@@ -66,9 +66,11 @@
   .main{min-width:0}
   .topbar{position:sticky;top:0;z-index:20;background:rgba(8,10,15,.82);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);padding:14px 30px;display:flex;align-items:center;gap:16px}
   .search{flex:1;max-width:440px;position:relative}
-  .search input{width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:11px 14px 11px 40px;font-size:14px;font-family:inherit}
+  .search input{width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--ink);border-radius:12px;padding:11px 14px 11px 44px;font-size:14px;font-family:inherit;transition:border-color .15s}
+  .search input:focus{outline:none;border-color:var(--cyan)}
   .search input::placeholder{color:var(--dim)}
-  .search span{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--dim)}
+  .search span{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:var(--cyan);display:flex;align-items:center;pointer-events:none}
+  .search span svg{display:block;filter:drop-shadow(0 0 5px rgba(34,229,200,.45))}
   .top-actions{margin-left:auto;display:flex;align-items:center;gap:10px}
   .avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--volt),var(--pulse));display:grid;place-items:center;font-weight:700;font-size:14px;color:#fff}
 
@@ -424,8 +426,10 @@
     .drawer-backdrop{display:block;position:fixed;inset:0;background:rgba(3,4,8,.6);backdrop-filter:blur(2px);z-index:110;opacity:0;transition:opacity .28s}
     .drawer-backdrop[hidden]{display:none}
     .drawer-backdrop.show{opacity:1}
-    /* 상단바 햄버거 노출 */
-    .icon-btn.menu-toggle{display:grid}
+    /* 상단바 햄버거 노출 + 시안 강조 */
+    .icon-btn.menu-toggle{display:grid;color:var(--cyan);border-color:rgba(34,229,200,.45);background:rgba(34,229,200,.1)}
+    .icon-btn.menu-toggle svg{filter:drop-shadow(0 0 5px rgba(34,229,200,.5))}
+    .icon-btn.menu-toggle:hover{color:var(--cyan);border-color:var(--cyan);background:rgba(34,229,200,.18)}
     .topbar{gap:10px}
     .g4,.g5,.g3{grid-template-columns:repeat(2,1fr)}
     .row{grid-template-columns:40px 44px 1fr 82px;gap:10px}
@@ -492,7 +496,7 @@
       <button class="icon-btn menu-toggle" id="menu-toggle" onclick="toggleDrawer()" title="메뉴" aria-label="메뉴 열기">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg>
       </button>
-      <div class="search"><span>⌕</span><input id="search-input" placeholder="곡, 크리에이터, 플레이리스트 검색" onkeydown="if(event.key==='Enter')runSearch(this.value)"></div>
+      <div class="search"><span class="search-ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg></span><input id="search-input" placeholder="곡, 크리에이터, 플레이리스트 검색" onkeydown="if(event.key==='Enter')runSearch(this.value)"></div>
       <div class="top-actions">
         <button class="icon-btn" id="queue-btn" onclick="toggleQueue()" title="재생 대기열">☰</button>
         <button class="icon-btn bell" id="bell-btn" onclick="toggleNotif()" title="알림">♪<span class="badge" id="notif-badge">0</span></button>
