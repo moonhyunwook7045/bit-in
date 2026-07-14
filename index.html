@@ -1248,13 +1248,15 @@ function creatorCards(list,container){
     </div>`;}).join('');
 }
 function plCards(list,container){
-  container.innerHTML=list.map((p,i)=>`
-    <div class="card">
+  container.innerHTML=list.map((p)=>{const i=playlists.indexOf(p);return `
+    <div class="card" style="cursor:pointer" onclick="openDemoPlaylist(${i})">
       <div class="art" style="background:${g(i)}">${p.e}<div class="plw"><div>▶</div></div></div>
       <h4>${p.t}</h4><div class="sub">${p.n}</div>
-      <div class="meta"><span>♥ ${(Math.random()*900+100|0)}</span><span>↗ 공유</span></div>
-    </div>`).join('');
+      <div class="meta"><span>♥ ${plDemoLikes(i)}</span><span onclick="event.stopPropagation();sharePlaylist('${p.t.replace(/'/g,"\\'")}')">↗ 공유</span></div>
+    </div>`;}).join('');
 }
+// 데모 플레이리스트 좋아요 수(랜덤이지만 고정되도록 인덱스 시드)
+function plDemoLikes(i){return (i*137+241)%800+120;}
 function albumCards(list,container){
   container.innerHTML=list.map((al)=>{const i=albums.indexOf(al);return `
     <div class="card" style="cursor:pointer" onclick="openAlbum(${i})">
@@ -1454,6 +1456,68 @@ function playPlaylist(id){
   if(!list.length)return;
   radioMode=false; queue=list.slice(); qIndex=0; loadCurrent(true);
   showToast('플레이리스트를 재생해요');
+}
+
+/* ===== 데모(추천) 플레이리스트 상세 ===== */
+const demoPlLiked=new Set();   // 데모 플리 좋아요 상태(세션)
+function openDemoPlaylist(i){
+  const p=playlists[i]; if(!p)return;
+  // 부제에서 곡 수 파싱 (예: "32곡 · BIT.IN")
+  const nTracks=parseInt((p.n.match(/(\d+)곡/)||[])[1]||'12');
+  const owner=(p.n.split('·')[1]||'BIT.IN').trim();
+  // 수록곡은 앱의 인기 트랙을 순환해서 채움
+  const list=Array.from({length:nTracks},(_,k)=>{const t=tracks[k%tracks.length];return {t:t.t,a:t.a,bg:g(k),e:t.e,genre:t.genre,plays:t.plays};});
+  const liked=demoPlLiked.has(i);
+  const likeN=plDemoLikes(i)+(liked?1:0);
+  document.getElementById('playlist-detail').innerHTML=`
+    <a class="back-btn" onclick="go('home')">← 홈</a>
+    <div class="pl-detail-hero">
+      <div class="pl-cover" style="background:${g(i)}">${p.e}</div>
+      <div class="pl-meta">
+        <div class="kind">PLAYLIST · FOR YOU</div>
+        <h1>${p.t}</h1>
+        <div class="by">${owner} 큐레이션</div>
+        <div class="cnt">${nTracks}곡 · ♥ <span id="demopl-likecnt">${likeN}</span></div>
+        <div class="pl-actions">
+          <button class="btn primary" onclick="playDemoPlaylist(${i})">▶ 전체 재생</button>
+          <button class="td-like ${liked?'liked':''}" id="demopl-like" onclick="toggleDemoPlLike(${i},this)"><span class="heart">${liked?'♥':'♡'}</span> 좋아요</button>
+          <button class="td-like" onclick="queueDemoPlaylist(${i})">＋ 대기열에 모두</button>
+          <button class="td-like" onclick="sharePlaylist('${p.t.replace(/'/g,"\\'")}')">↗ 공유</button>
+        </div>
+      </div>
+    </div>
+    <div class="hd"><h2 style="font-size:22px">수록곡</h2></div>
+    <div class="chart" id="demopl-tracks"></div>`;
+  chartRows(list,document.getElementById('demopl-tracks'));
+  window._demoPlList=list.map((t,k)=>({t:t.t,a:t.a,bg:g(k),e:t.e}));
+  go('playlist');
+}
+function playDemoPlaylist(i){
+  const list=window._demoPlList||[];
+  if(!list.length)return;
+  radioMode=false; queue=list.slice(); qIndex=0; loadCurrent(true);
+  showToast('플레이리스트를 재생해요');
+}
+function queueDemoPlaylist(i){
+  const list=window._demoPlList||[];
+  list.forEach(c=>queue.push(c));
+  if(qIndex<0){qIndex=0;loadCurrent(true);}
+  renderQueue();updateQCount();
+  showToast('플레이리스트를 대기열에 담았어요');
+}
+function toggleDemoPlLike(i,btn){
+  const liked=demoPlLiked.has(i);
+  if(liked)demoPlLiked.delete(i);else demoPlLiked.add(i);
+  btn.classList.toggle('liked',!liked);
+  btn.querySelector('.heart').textContent=!liked?'♥':'♡';
+  const c=document.getElementById('demopl-likecnt');
+  if(c)c.textContent=plDemoLikes(i)+(!liked?1:0);
+}
+function sharePlaylist(title){
+  const url=location.origin+location.pathname+'?pl='+encodeURIComponent(title);
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(url).then(()=>showToast('플레이리스트 링크를 복사했어요')).catch(()=>showToast('공유 링크: '+title));
+  }else{showToast('공유: '+title);}
 }
 async function togglePlaylistLike(id,btn){
   if(!requireLogin())return;
