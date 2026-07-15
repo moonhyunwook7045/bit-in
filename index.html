@@ -977,6 +977,16 @@
 <div class="toast" id="toast"><span>✓</span><span id="toast-msg">게시되었습니다</span></div>
 
 <script>
+/* ===== XSS 방어: 사용자 입력을 innerHTML에 넣기 전 항상 이스케이프 ===== */
+function esc(s){
+  if(s==null)return '';
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+// 작은따옴표로 감싼 onclick 인자 안에 들어갈 문자열용 (HTML 이스케이프 + JS 문자열 이스케이프)
+function escAttr(s){return esc(s).replace(/\\/g,'&#92;');}
+
 const grad=['linear-gradient(135deg,#5b8cff,#ff5c8a)','linear-gradient(135deg,#22e5c8,#1a9e88)','linear-gradient(135deg,#ff5c8a,#ffab5c)','linear-gradient(135deg,#5b8cff,#7048e8)','linear-gradient(135deg,#22e5c8,#5b8cff)','linear-gradient(135deg,#ff6b6b,#feca57)','linear-gradient(135deg,#845ef7,#5c7cfa)','linear-gradient(135deg,#12b886,#22e5c8)'];
 let myFollows=new Set(); // 내가 팔로우한 크리에이터 이름 (서버에서 채움)
 
@@ -1291,9 +1301,9 @@ async function loadPlaylists(){
 }
 
 function plServerCard(p){
-  return `<div class="card" style="cursor:pointer" onclick="openPlaylist('${p.id}')">
-    <div class="art" style="background:${plColor(p.id)}">${p.emoji||'🎵'}<div class="plw"><div>▶</div></div></div>
-    <h4>${p.title}</h4><div class="sub">${p.owner_name}${p.is_public?'':' · 🔒 비공개'}</div>
+  return `<div class="card" style="cursor:pointer" onclick="openPlaylist('${escAttr(p.id)}')">
+    <div class="art" style="background:${plColor(p.id)}">${esc(p.emoji||'🎵')}<div class="plw"><div>▶</div></div></div>
+    <h4>${esc(p.title)}</h4><div class="sub">${esc(p.owner_name)}${p.is_public?'':' · 🔒 비공개'}</div>
     <div class="meta"><span>♥ ${p.likes||0}</span></div>
   </div>`;
 }
@@ -1347,9 +1357,9 @@ function openAddToPlaylist(t,a,e){
     list.innerHTML=`<div class="qp-empty" style="padding:20px">아직 플레이리스트가 없어요. 아래에서 만들어보세요.</div>`;
   }else{
     list.innerHTML=myPlaylists.map(p=>`
-      <div class="pl-add-item" onclick="addTrackToPlaylist('${p.id}',{t:'${t.replace(/'/g,"\\'")}',a:'${a.replace(/'/g,"\\'")}',e:'${e}'})">
-        <div class="pae" style="background:${plColor(p.id)}">${p.emoji||'🎵'}</div>
-        <div class="pai"><div class="t">${p.title}</div><div class="c">${p.is_public?'공개':'비공개'}</div></div>
+      <div class="pl-add-item" onclick="addTrackToPlaylist('${escAttr(p.id)}',{t:'${escAttr(t)}',a:'${escAttr(a)}',e:'${escAttr(e)}'})">
+        <div class="pae" style="background:${plColor(p.id)}">${esc(p.emoji||'🎵')}</div>
+        <div class="pai"><div class="t">${esc(p.title)}</div><div class="c">${p.is_public?'공개':'비공개'}</div></div>
       </div>`).join('');
   }
   document.getElementById('addtopl').hidden=false;
@@ -1418,11 +1428,11 @@ async function openPlaylist(id){
   document.getElementById('playlist-detail').innerHTML=`
     <a class="back-btn" onclick="go('playlists')">← 플레이리스트</a>
     <div class="pl-detail-hero">
-      <div class="pl-cover" style="background:${plColor(id)}">${pl.emoji||'🎵'}</div>
+      <div class="pl-cover" style="background:${plColor(id)}">${esc(pl.emoji||'🎵')}</div>
       <div class="pl-meta">
         <div class="kind">PLAYLIST${pl.is_public?'':' · 🔒 비공개'}</div>
-        <h1>${pl.title}</h1>
-        <div class="by">${pl.owner_name}</div>
+        <h1>${esc(pl.title)}</h1>
+        <div class="by">${esc(pl.owner_name)}</div>
         <div class="cnt">${trs.length}곡 · ♥ ${count||0}</div>
         <div class="pl-actions">
           ${trs.length?`<button class="btn primary" onclick="playPlaylist('${id}')">▶ 전체 재생</button>`:''}
@@ -1439,12 +1449,12 @@ async function openPlaylist(id){
     cont.innerHTML=trs.map((t,i)=>`
       <div class="row">
         <div class="rank ${i<3?'top':''}">${i+1}</div>
-        <div class="cover" style="background:${g(i)}">${t.emoji||'🎵'}</div>
-        <div class="trk"><div class="t">${t.track_title}</div><div class="a">${t.track_artist||''}</div></div>
+        <div class="cover" style="background:${g(i)}">${esc(t.emoji||'🎵')}</div>
+        <div class="trk"><div class="t">${esc(t.track_title)}</div><div class="a">${esc(t.track_artist||'')}</div></div>
         <div class="genre-chip"></div><div class="plays"></div>
         <div class="row-actions">
-          ${isMine?`<button class="q-add" onclick="removePlTrack('${t.id}','${id}')" title="빼기">✕</button>`:''}
-          <button class="play" onclick="playTrack('${t.track_title.replace(/'/g,"\\'")}','${(t.track_artist||'').replace(/'/g,"\\'")}','${g(i)}','${t.emoji||'🎵'}')">▶</button>
+          ${isMine?`<button class="q-add" onclick="removePlTrack('${escAttr(t.id)}','${escAttr(id)}')" title="빼기">✕</button>`:''}
+          <button class="play" onclick="playTrack('${escAttr(t.track_title)}','${escAttr(t.track_artist||'')}','${g(i)}','${escAttr(t.emoji||'🎵')}')">▶</button>
         </div>
       </div>`).join('');
   }
@@ -1606,38 +1616,38 @@ const feedData=[
 ];
 function isMyPost(p){return currentUser && p.id && p.user_id && p.user_id===currentUser.id;}
 function feedCardHTML(p,idx){return `
-    <div class="post" data-postid="${p.id||''}" data-title="${(p.track&&p.track.t||'').replace(/"/g,'&quot;')}">
+    <div class="post" data-postid="${esc(p.id||'')}" data-title="${esc(p.track&&p.track.t||'')}">
       <div class="post-head">
-        <div class="av" style="background:${g(idx)}">${p.who[0]}</div>
-        <div><div class="who">${p.who}</div><div class="when">${p.when}</div></div>
+        <div class="av" style="background:${g(idx)}">${esc(p.who[0])}</div>
+        <div><div class="who">${esc(p.who)}</div><div class="when">${esc(p.when)}</div></div>
         ${isMyPost(p)?`<div class="more-wrap"><button class="more" onclick="toggleMore(this,event)">⋯</button>
           <div class="more-menu" hidden>
             <button onclick="editPost(${idx})">✎ 수정</button>
             <button class="danger" onclick="deletePost(${idx})">🗑 삭제</button>
           </div></div>`:'<div class="more">⋯</div>'}
       </div>
-      <div class="post-body">${p.body}</div>
-      ${(p.tags&&p.tags.length)?`<div class="post-tags">${p.tags.map(t=>`<span class="post-tag" onclick="openTag('${String(t).replace(/'/g,"\\'")}')">#${t}</span>`).join('')}</div>`:''}
+      <div class="post-body">${esc(p.body)}</div>
+      ${(p.tags&&p.tags.length)?`<div class="post-tags">${p.tags.map(t=>`<span class="post-tag" onclick="openTag('${escAttr(String(t))}')">#${esc(t)}</span>`).join('')}</div>`:''}
       <div class="track-embed">
-        <div class="ce" style="background:${g(idx+1)}">${p.track.e}</div>
-        <button class="pl" onclick="playTrack('${p.track.t}','${p.track.a}','${g(idx+1)}','${p.track.e}')">▶</button>
-        <div class="ti"><div class="t">${p.track.t}</div><div class="a">${p.track.a}</div></div>
+        <div class="ce" style="background:${g(idx+1)}">${esc(p.track.e)}</div>
+        <button class="pl" onclick="playTrack('${escAttr(p.track.t)}','${escAttr(p.track.a)}','${g(idx+1)}','${escAttr(p.track.e)}')">▶</button>
+        <div class="ti"><div class="t">${esc(p.track.t)}</div><div class="a">${esc(p.track.a)}</div></div>
         <div class="wave">${waveBars()}</div>
-        <button class="pl-save" onclick="openAddToPlaylist('${p.track.t.replace(/'/g,"\\'")}','${p.track.a.replace(/'/g,"\\'")}','${p.track.e}')" title="플레이리스트에 저장">♪</button>
+        <button class="pl-save" onclick="openAddToPlaylist('${escAttr(p.track.t)}','${escAttr(p.track.a)}','${escAttr(p.track.e)}')" title="플레이리스트에 저장">♪</button>
       </div>
       ${(p.aiTool||p.aiPrompt)?`
       <div class="ai-box">
-        <div class="ai-box-head">🤖 이렇게 만들었어요${p.aiTool?` · <b>${p.aiTool}</b>`:''}</div>
-        ${p.aiPrompt?`<div class="ai-prompt"><code>${p.aiPrompt.replace(/</g,'&lt;')}</code><button class="ai-copy" onclick="copyPrompt(this,'${p.aiPrompt.replace(/'/g,"\\'").replace(/\n/g,' ')}')">복사</button></div>`:''}
+        <div class="ai-box-head">🤖 이렇게 만들었어요${p.aiTool?` · <b>${esc(p.aiTool)}</b>`:''}</div>
+        ${p.aiPrompt?`<div class="ai-prompt"><code>${esc(p.aiPrompt)}</code><button class="ai-copy" onclick="copyPrompt(this,'${escAttr(String(p.aiPrompt).replace(/\n/g,' '))}')">복사</button></div>`:''}
       </div>`:''}
       ${p.reactions ? `
         <div class="reactions">
           <button class="rbtn ${p.liked?'liked':''}" onclick="like(${idx},this)"><span class="heart">${p.liked?'♥':'♡'}</span> <span class="cnt">${p.likes}</span></button>
           <button class="rbtn"><span>💬</span> ${p.comments?p.comments.length:0}</button>
-          <button class="rbtn" onclick="shareTrack('${p.track.t.replace(/'/g,"\\'")}','${p.track.a.replace(/'/g,"\\'")}','${p.track.e}')"><span>↗</span> 공유</button>
+          <button class="rbtn" onclick="shareTrack('${escAttr(p.track.t)}','${escAttr(p.track.a)}','${escAttr(p.track.e)}')"><span>↗</span> 공유</button>
         </div>
         <div class="comments">
-          ${(p.comments||[]).map((c,ci)=>{const mine=currentUser&&((c.uid&&c.uid===currentUser.id)||(!c.uid&&c.n===currentUser.name));return `<div class="cmt"><div class="cav" style="background:${g(ci+3)}">${c.n[0]}</div><div class="cbody"><div class="cn">${c.n}</div>${c.t}</div>${mine?`<button class="cmt-del" onclick="deleteComment(${idx},${ci})" title="삭제">✕</button>`:''}</div>`;}).join('')}
+          ${(p.comments||[]).map((c,ci)=>{const mine=currentUser&&((c.uid&&c.uid===currentUser.id)||(!c.uid&&c.n===currentUser.name));return `<div class="cmt"><div class="cav" style="background:${g(ci+3)}">${esc(c.n[0])}</div><div class="cbody"><div class="cn">${esc(c.n)}</div>${esc(c.t)}</div>${mine?`<button class="cmt-del" onclick="deleteComment(${idx},${ci})" title="삭제">✕</button>`:''}</div>`;}).join('')}
         </div>
         <div class="cmt-input"><input placeholder="댓글 달기…" onkeydown="if(event.key==='Enter')addComment(${idx},this)"><button onclick="addComment(${idx},this.previousElementSibling)">등록</button></div>
       ` : `
@@ -2200,7 +2210,96 @@ function startRadio(label){
 let radioMode=false, radioLabel='';
 const audioPlayer=new Audio();
 audioPlayer.addEventListener('ended',()=>nextTrack()); // 곡 끝나면 다음 곡(한 곡 반복 시 같은 곡)
-// 진행바 실시간 갱신
+
+/* ===== 데모 곡용 Web Audio 신스 엔진 =====
+   실제 음원(audioUrl)이 없는 데모 트랙도 소리가 나도록,
+   곡 제목을 시드로 곡마다 다른 앰비언트 톤을 실시간 합성한다. */
+const synth={
+  ctx:null, nodes:[], playing:false, startAt:0, offset:0,
+  duration:180, // 데모 곡 길이(초)
+  seed:0, raf:0, onTick:null
+};
+function synthInit(){ if(!synth.ctx){ try{ synth.ctx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } return synth.ctx; }
+function strSeed(s){let h=0;for(let i=0;i<(s||'').length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h;}
+function synthStop(){
+  synth.nodes.forEach(n=>{try{n.stop&&n.stop();n.disconnect&&n.disconnect();}catch(e){}});
+  synth.nodes=[];
+  if(synth.raf)cancelAnimationFrame(synth.raf);
+  synth.raf=0; synth.playing=false;
+}
+function synthStart(title,offset){
+  const ctx=synthInit(); if(!ctx)return;
+  if(ctx.state==='suspended')ctx.resume();
+  synthStop();
+  synth.seed=strSeed(title);
+  const s=synth.seed;
+  // 시드로 음계/음색 결정 (펜타토닉 기반)
+  const roots=[196,220,247,262,294,330,349];      // G3~F4
+  const root=roots[s%roots.length];
+  const scale=[1,9/8,5/4,3/2,5/3,2];              // 펜타토닉 배음비
+  const master=ctx.createGain();
+  master.gain.value=0.0001;
+  master.connect(ctx.destination);
+  const target=Math.max(0.0002,(muted?0:volume/100)*0.22);
+  try{master.gain.exponentialRampToValueAtTime(target, ctx.currentTime+1.2);}catch(e){master.gain.value=target;}
+  synth._master=master;
+  // 3개의 느린 오실레이터 레이어 + LFO 흔들림
+  for(let i=0;i<3;i++){
+    const osc=ctx.createOscillator();
+    const g=ctx.createGain();
+    osc.type=['sine','triangle','sine'][i];
+    const idx=((s>>>(i*3))%scale.length+scale.length)%scale.length; // 항상 0~len-1
+    const note=root*scale[idx]*(i===2?2:1);
+    osc.frequency.value=isFinite(note)&&note>0?note:root;
+    g.gain.value=[0.5,0.32,0.2][i];
+    // 느린 볼륨 LFO
+    const lfo=ctx.createOscillator(); const lfoG=ctx.createGain();
+    const lf=0.06+((s>>>(i*2))%10)/60;
+    lfo.frequency.value=isFinite(lf)&&lf>0?lf:0.1;
+    lfoG.gain.value=[0.18,0.12,0.09][i];
+    lfo.connect(lfoG); lfoG.connect(g.gain);
+    osc.connect(g); g.connect(master);
+    osc.start(); lfo.start();
+    synth.nodes.push(osc,lfo);
+  }
+  synth.duration=180;
+  synth.offset=offset||0;
+  synth.startAt=ctx.currentTime-(offset||0);
+  synth.playing=true;
+  // 진행바 tick
+  const tick=()=>{
+    if(!synth.playing)return;
+    const cur=ctx.currentTime-synth.startAt;
+    if(cur>=synth.duration){ synthStop(); nextTrack(); return; }
+    const f=document.getElementById('prog-fill');
+    if(f)f.style.width=(cur/synth.duration*100)+'%';
+    synth.raf=requestAnimationFrame(tick);
+  };
+  synth.raf=requestAnimationFrame(tick);
+}
+function synthPause(){
+  if(!synth.ctx||!synth.playing)return;
+  synth.offset=synth.ctx.currentTime-synth.startAt;
+  synthStop();
+}
+function synthResume(title){ synthStart(title, synth.offset); }
+function synthSeek(ratio){
+  const t=Math.max(0,Math.min(1,ratio))*synth.duration;
+  synth.offset=t;
+  if(synth.playing){ synthStart(_curTitle(), t); }
+  else { const f=document.getElementById('prog-fill'); if(f)f.style.width=(ratio*100)+'%'; }
+}
+function synthSetVolume(){
+  if(synth._master&&synth.ctx){
+    const v=Math.max(0.0001,(muted?0:volume/100)*0.22);
+    try{synth._master.gain.setTargetAtTime(v, synth.ctx.currentTime, .1);}catch(e){}
+  }
+}
+function _curTitle(){const c=queue[qIndex];return c?c.t:'';}
+// 현재 곡이 실제 음원인지 데모(신스)인지
+function isSynthTrack(){const c=queue[qIndex];return c && !c.audioUrl;}
+
+// 실제 음원 진행바 갱신
 audioPlayer.addEventListener('timeupdate',()=>{
   const f=document.getElementById('prog-fill');if(!f)return;
   if(audioPlayer.duration){f.style.width=(audioPlayer.currentTime/audioPlayer.duration*100)+'%';}
@@ -2212,13 +2311,17 @@ function loadCurrent(play){
   document.getElementById('np-artist').textContent=(radioMode?'📻 '+radioLabel+' · ':'')+c.a;
   const cov=document.getElementById('np-cover');cov.style.background=c.bg;cov.textContent=c.e;
   isPlaying=play!==false;
-  // 실제 오디오 재생
+  synthStop(); // 이전 신스 정리
+  const f=document.getElementById('prog-fill'); if(f)f.style.width='0%';
   if(c.audioUrl){
+    // 실제 음원
     if(audioPlayer.src!==c.audioUrl)audioPlayer.src=c.audioUrl;
     if(isPlaying)audioPlayer.play().catch(()=>{});
     else audioPlayer.pause();
   }else{
+    // 데모 곡: 신스로 재생
     audioPlayer.pause();audioPlayer.removeAttribute('src');
+    if(isPlaying)synthStart(c.t,0);
   }
   syncPlayIcon();
   renderQueue();updateQCount();
@@ -2232,6 +2335,9 @@ function togglePlay(){
   if(c&&c.audioUrl){
     if(isPlaying)audioPlayer.play().catch(()=>{});
     else audioPlayer.pause();
+  }else if(c){
+    if(isPlaying)synthResume(c.t);
+    else synthPause();
   }
   syncPlayIcon();
 }
@@ -2268,6 +2374,7 @@ function applyVolumeUI(){
   setIcon('vol-use',volSymbol());
   const s=document.getElementById('vol-slider');if(s)s.value=muted?0:volume;
   audioPlayer.volume=(muted?0:volume)/100;
+  synthSetVolume(); // 데모 신스 볼륨도 반영
 }
 function setVolume(v){volume=parseInt(v);muted=volume===0;if(volume>0)prevVolume=volume;applyVolumeUI();}
 function toggleMute(){muted=!muted;if(muted)prevVolume=volume||prevVolume;else volume=prevVolume||80;applyVolumeUI();}
@@ -2539,6 +2646,34 @@ checkShareLink();
 updateNotifBadge();
 renderNotif();
 applyVolumeUI();
+
+/* ===== 진행바 클릭/드래그로 구간 이동(seek) ===== */
+(function(){
+  const bar=document.getElementById('prog-bar');
+  if(!bar)return;
+  function seekAt(clientX){
+    const r=bar.getBoundingClientRect();
+    const ratio=Math.max(0,Math.min(1,(clientX-r.left)/r.width));
+    if(!queue.length||qIndex<0)return;
+    if(isSynthTrack()){
+      synthSeek(ratio);
+    }else if(audioPlayer.duration){
+      audioPlayer.currentTime=ratio*audioPlayer.duration;
+      const f=document.getElementById('prog-fill');if(f)f.style.width=(ratio*100)+'%';
+    }
+  }
+  bar.style.cursor='pointer';
+  let dragging=false;
+  bar.addEventListener('mousedown',e=>{dragging=true;seekAt(e.clientX);});
+  window.addEventListener('mousemove',e=>{if(dragging)seekAt(e.clientX);});
+  window.addEventListener('mouseup',()=>{dragging=false;});
+  // 터치
+  bar.addEventListener('touchstart',e=>{if(e.touches[0])seekAt(e.touches[0].clientX);},{passive:true});
+  bar.addEventListener('touchmove',e=>{if(e.touches[0])seekAt(e.touches[0].clientX);},{passive:true});
+})();
+
+// 첫 사용자 상호작용 때 오디오 컨텍스트 활성화 (브라우저 자동재생 정책)
+document.addEventListener('click',()=>{ if(synth.ctx&&synth.ctx.state==='suspended')synth.ctx.resume(); },{once:false});
 
 // 새 팔로우/게시 알림 시뮬레이션 (진짜 서비스 느낌)
 setTimeout(()=>pushNotif({face:'K',bg:'linear-gradient(135deg,#ff5c8a,#ffab5c)',who:'Kudo',text:'<b>Kudo</b>님이 새 앨범 <b>NEON EP</b>를 발매했어요',emoji:'💿',time:'방금',creator:2}),9000);
